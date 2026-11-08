@@ -50,7 +50,7 @@ var Utils = (function () {
   }
 
   // ---- Full name helper ----
-  function fullName(s) { return s.fname + " " + s.lname; }
+  function fullName(s) { return [s.fname, s.lname].filter(function (x) { return x; }).join(" "); }
 
   return { el: el, closeModal: closeModal, openModal: openModal,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName };

@@ -583,3 +583,6 @@ input,select,textarea{font-size:15px;}
 .muted{color:var(--text3);font-weight:400;}
 .small{font-size:12.5px;}
 @media (max-width:1000px){ .hourly-two{grid-template-columns:1fr;} .hourly-sum{grid-template-columns:1fr 1fr;} }
+
+.import-sum{margin-top:6px;color:var(--text);font-size:14px;}
+.import-sum .guide-table td{padding:4px 18px 4px 0;}
