@@ -30,21 +30,16 @@ var SettingsPage = (function () {
     var sv = Data.serverVersion();
     Utils.el("about-hint").textContent = "\u00b7 version " + PT_VERSION;
     var rows = [
-      ["Website version", PT_VERSION + (PT_BUILD !== "dev" ? "  (build " + PT_BUILD + ")" : "")],
-      ["Server version",  sv || "\u2014"],
-      ["Data",            "Google Sheet \u201cPT\u201d in the Physics Tuition folder"],
-      ["Changes",         "See CHANGELOG.md in the pt-code repository"]
+      ["Website",  "Version " + PT_VERSION],
+      ["Server",   sv ? "Version " + sv : "\u2014"],
+      ["Data",     "Google Sheet \u201cPT\u201d in the Physics Tuition folder"],
+      ["Changes",  "CHANGELOG.md in the pt-code repository"]
     ];
-    var html = "<table>" + rows.map(function (r) {
+    Utils.el("about-body").innerHTML = "<table>" + rows.map(function (r) {
       return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>";
-    }).join("") + "</table>";
-    // Website-only fixes bump the last number; only warn when x.y differ.
-    var mm = function (v) { return String(v).split(".").slice(0, 2).join("."); };
-    if (sv && mm(sv) !== mm(PT_VERSION)) {
-      html += "<div class='about-warn'>\u26a0 The website and server versions differ. " +
-              "Paste the latest Code.gs into Apps Script and redeploy.</div>";
-    }
-    Utils.el("about-body").innerHTML = html;
+    }).join("") + "</table>" +
+      "<div class='section-note' style='margin:10px 0 0'>&copy; PT &middot; Physics Tuition. " +
+      "Versions are the release date and that day's release number.</div>";
   }
 
   function saveAcad() {

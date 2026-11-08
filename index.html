@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108114858">
+<link rel="stylesheet" href="css/styles.css?v=20261108115151">
 </head>
 <body>
 
@@ -35,15 +35,12 @@
     <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
 
   </nav>
-  <div class="theme-toggle" onclick="Theme.toggle()" title="Switch theme">
-    <span class="theme-toggle-icon" id="theme-icon">&#9728;</span>
-    <span class="theme-toggle-label" id="theme-label">Light Mode</span>
-    <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
-  </div>
   <div class="sidebar-footer">
     <div id="sync-status" style="margin-bottom:6px;display:none"></div>
-    <span id="today-date"></span><br>
-    <span id="app-version" class="app-version" onclick="showPage('settings')" title="About PT"></span>
+    <span id="today-date"></span>
+    <div class="app-version" onclick="showPage('settings')" title="About PT">
+      &copy; PT &middot; Physics Tuition<br><span id="app-version"></span>
+    </div>
   </div>
 </aside>
 
@@ -402,6 +399,20 @@
     </div>
   </details>
 
+  <!-- Appearance (everyone; remembered per device) -->
+  <details class="section">
+    <summary>
+      <span class="section-title">Appearance</span><span class="section-meta" id="theme-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div class="seg" role="radiogroup" aria-label="Colour theme">
+        <button type="button" class="seg-btn" id="theme-dark"  role="radio" onclick="Theme.set('dark')">&#9790; Dark</button>
+        <button type="button" class="seg-btn" id="theme-light" role="radio" onclick="Theme.set('light')">&#9728; Light</button>
+      </div>
+      <span class="section-note" style="margin:0">Saved on this device only.</span>
+    </div>
+  </details>
+
   <!-- About -->
   <details class="section">
     <summary>
@@ -556,21 +567,21 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108114858"></script>
-<script src="js/version.js?v=20261108114858"></script>
-<script src="js/config.js?v=20261108114858"></script>
-<script src="js/data.js?v=20261108114858"></script>
-<script src="js/utils.js?v=20261108114858"></script>
-<script src="js/students.js?v=20261108114858"></script>
-<script src="js/classes.js?v=20261108114858"></script>
-<script src="js/attendance.js?v=20261108114858"></script>
-<script src="js/syllabus.js?v=20261108114858"></script>
-<script src="js/payments.js?v=20261108114858"></script>
-<script src="js/scores.js?v=20261108114858"></script>
-<script src="js/profile.js?v=20261108114858"></script>
-<script src="js/settings.js?v=20261108114858"></script>
-<script src="js/users.js?v=20261108114858"></script>
-<script src="js/app.js?v=20261108114858"></script>
+<script src="js/site-config.js?v=20261108115151"></script>
+<script src="js/version.js?v=20261108115151"></script>
+<script src="js/config.js?v=20261108115151"></script>
+<script src="js/data.js?v=20261108115151"></script>
+<script src="js/utils.js?v=20261108115151"></script>
+<script src="js/students.js?v=20261108115151"></script>
+<script src="js/classes.js?v=20261108115151"></script>
+<script src="js/attendance.js?v=20261108115151"></script>
+<script src="js/syllabus.js?v=20261108115151"></script>
+<script src="js/payments.js?v=20261108115151"></script>
+<script src="js/scores.js?v=20261108115151"></script>
+<script src="js/profile.js?v=20261108115151"></script>
+<script src="js/settings.js?v=20261108115151"></script>
+<script src="js/users.js?v=20261108115151"></script>
+<script src="js/app.js?v=20261108115151"></script>
 
 </body>
 </html>

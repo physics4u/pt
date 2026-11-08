@@ -401,20 +401,20 @@ var Theme = (function () {
     } else {
       document.documentElement.removeAttribute("data-theme");
     }
-    // Update toggle UI
-    var track  = Utils.el("toggle-track");
-    var icon   = Utils.el("theme-icon");
-    var label  = Utils.el("theme-label");
-    if (track)  track.className  = "toggle-track" + (theme === "light" ? " on" : "");
-    if (icon)   icon.textContent  = theme === "light" ? "☀" : "☽"; // ☀ / ☽
-    if (label)  label.textContent = theme === "light" ? "Dark Mode" : "Light Mode";
+    // Settings → Appearance
+    var d = Utils.el("theme-dark"), l = Utils.el("theme-light"), m = Utils.el("theme-meta");
+    if (d) { d.classList.toggle("on", theme !== "light"); d.setAttribute("aria-checked", theme !== "light"); }
+    if (l) { l.classList.toggle("on", theme === "light"); l.setAttribute("aria-checked", theme === "light"); }
+    if (m) m.textContent = "\u00b7 " + (theme === "light" ? "Light" : "Dark");
     if (save) {
       try { localStorage.setItem("physicshub_theme", theme); } catch (e) {}
       if (currentPage === "dashboard") Dashboard.render();   // redraw charts in new colours
     }
   }
 
-  return { init: init, toggle: toggle };
+  function set(theme) { _apply(theme === "light" ? "light" : "dark", true); }
+
+  return { init: init, toggle: toggle, set: set };
 })();
 
 // ================================================================
@@ -437,7 +437,7 @@ var Theme = (function () {
     }
   });
 
-  Utils.el("app-version").textContent = "PT v" + PT_VERSION;
+  Utils.el("app-version").textContent = "Version " + PT_VERSION;
   Theme.init();
   Data.init();
 })();
