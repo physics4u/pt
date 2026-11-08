@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108213201">
+<link rel="stylesheet" href="css/styles.css?v=20261108215530">
 </head>
 <body>
 
@@ -148,7 +148,7 @@
   </div>
   <div class="panel">
     <table>
-      <thead><tr><th>Name</th><th>School</th><th>Class</th><th>Batch</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+      <thead><tr><th class="num">#</th><th>Name</th><th>School</th><th>Class</th><th>Batch</th><th>Contact</th><th>Status</th><th></th></tr></thead>
       <tbody id="students-tbody"></tbody>
     </table>
     <div id="students-empty" class="empty" style="display:none">
@@ -779,6 +779,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="link-btn danger-link modal-delete" id="modal-student-delete" onclick="Students.delCurrent()">Delete this student</button>
       <button class="btn btn-secondary" onclick="Utils.closeModal('modal-student')">Cancel</button>
       <button class="btn btn-primary" onclick="Students.save()">Save Student</button>
     </div>
@@ -817,6 +818,7 @@
       <div class="form-row"><label>Monthly Fee (&#8377;)</label><input id="c-fee" type="number" placeholder="1500"></div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="link-btn danger-link modal-delete" id="modal-class-delete" onclick="Classes.delCurrent()">Delete this class</button>
       <button class="btn btn-secondary" onclick="Utils.closeModal('modal-class')">Cancel</button>
       <button class="btn btn-primary" onclick="Classes.save()">Save Class</button>
     </div>
@@ -846,6 +848,7 @@
       <div class="form-row"><label>Remarks</label><input id="sc-remarks" placeholder="e.g. Good improvement!"></div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="link-btn danger-link modal-delete" id="modal-score-delete" onclick="Scores.delCurrent()">Delete this score</button>
       <button class="btn btn-secondary" onclick="Utils.closeModal('modal-score')">Cancel</button>
       <button class="btn btn-primary" onclick="Scores.save()">Save Score</button>
     </div>
@@ -854,25 +857,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108213201"></script>
-<script src="js/version.js?v=20261108213201"></script>
-<script src="js/config.js?v=20261108213201"></script>
-<script src="js/data.js?v=20261108213201"></script>
-<script src="js/utils.js?v=20261108213201"></script>
-<script src="js/students.js?v=20261108213201"></script>
-<script src="js/classes.js?v=20261108213201"></script>
-<script src="js/attendance.js?v=20261108213201"></script>
-<script src="js/syllabus.js?v=20261108213201"></script>
-<script src="js/payments.js?v=20261108213201"></script>
-<script src="js/scores.js?v=20261108213201"></script>
-<script src="js/profile.js?v=20261108213201"></script>
-<script src="js/settings.js?v=20261108213201"></script>
-<script src="js/users.js?v=20261108213201"></script>
-<script src="js/help.js?v=20261108213201"></script>
-<script src="js/storage.js?v=20261108213201"></script>
-<script src="js/import.js?v=20261108213201"></script>
-<script src="js/hourly.js?v=20261108213201"></script>
-<script src="js/app.js?v=20261108213201"></script>
+<script src="js/site-config.js?v=20261108215530"></script>
+<script src="js/version.js?v=20261108215530"></script>
+<script src="js/config.js?v=20261108215530"></script>
+<script src="js/data.js?v=20261108215530"></script>
+<script src="js/utils.js?v=20261108215530"></script>
+<script src="js/students.js?v=20261108215530"></script>
+<script src="js/classes.js?v=20261108215530"></script>
+<script src="js/attendance.js?v=20261108215530"></script>
+<script src="js/syllabus.js?v=20261108215530"></script>
+<script src="js/payments.js?v=20261108215530"></script>
+<script src="js/scores.js?v=20261108215530"></script>
+<script src="js/profile.js?v=20261108215530"></script>
+<script src="js/settings.js?v=20261108215530"></script>
+<script src="js/users.js?v=20261108215530"></script>
+<script src="js/help.js?v=20261108215530"></script>
+<script src="js/storage.js?v=20261108215530"></script>
+<script src="js/import.js?v=20261108215530"></script>
+<script src="js/hourly.js?v=20261108215530"></script>
+<script src="js/app.js?v=20261108215530"></script>
 
 </body>
 </html>

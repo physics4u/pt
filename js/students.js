@@ -29,11 +29,12 @@ var Students = (function () {
     }
     empty.style.display = "none";
 
-    tbody.innerHTML = list.map(function (s) {
+    tbody.innerHTML = list.map(function (s, n) {
       var i   = D.students.indexOf(s);
       var sc  = s.status === "Active" ? "green" : s.status === "Trial" ? "orange" : "red";
       var bc  = (s.batch || "Regular") === "Hourly" ? "orange" : "green";
       return "<tr>" +
+        "<td class='num'>" + (n + 1) + "</td>" +
         "<td>" + Utils.fullName(s) + "</td>" +
         "<td>" + (s.school || "\u2014") + "</td>" +
         "<td>" + (s.cls    || "\u2014") + "</td>" +
@@ -42,14 +43,14 @@ var Students = (function () {
         "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +
         "<td style='white-space:nowrap'>" +
           "<button class='btn btn-primary'   style='padding:4px 10px;font-size:11px' onclick='Profile.view(" + i + ")'>View</button> " +
-          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Students.openModal(" + i + ")'>Edit</button> " +
-          "<button class='btn btn-danger'    style='padding:4px 10px;font-size:11px' onclick='Students.del(" + i + ")'>Del</button>" +
+          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Students.openModal(" + i + ")'>Edit</button>" +
         "</td></tr>";
     }).join("");
   }
 
   function openModal(idx) {
     _editIdx = (idx !== undefined) ? idx : -1;
+    Utils.el("modal-student-delete").style.display = _editIdx >= 0 ? "" : "none";
     var s = _editIdx >= 0 ? Data.get().students[_editIdx] : null;
     Utils.el("modal-student-title").textContent = _editIdx >= 0 ? "Edit Student" : "Add Student";
     Utils.el("s-fname").value         = s ? s.fname        : "";
@@ -128,7 +129,7 @@ var Students = (function () {
     render();
   }
 
-  function del(i) {
+  function del(i, done) {
     Dialog.confirm("Delete " + Utils.fullName(Data.get().students[i]) + "? Their earlier attendance and payment records are kept.", {okText:"Delete", danger:true}).then(function (ok) {
       if (!ok) return;
       var D = Data.get();
@@ -137,8 +138,14 @@ var Students = (function () {
       Data.log("Removed student <b>" + n + "</b>");
       Data.save();
       render();
+      if (done) done();
     });
   }
 
-  return { render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch };
+  function delCurrent() {
+    if (_editIdx < 0) return;
+    del(_editIdx, function () { Utils.closeModal("modal-student"); });
+  }
+
+  return { render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };
 })();

@@ -50,7 +50,6 @@ var Scores = (function () {
             "<div class='score-circle' style='color:" + col + ";border-color:" + col + ";background:" + bg + "'>" + pct + "%</div>" +
             "<div style='display:flex;gap:4px'>" +
               "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Scores.openModal(" + i + ")'>Edit</button>" +
-              "<button class='btn btn-danger'    style='padding:4px 10px;font-size:11px' onclick='Scores.del(" + i + ")'>Del</button>" +
             "</div>" +
           "</div>" +
         "</div>" +
@@ -60,6 +59,7 @@ var Scores = (function () {
 
   function openModal(idx) {
     _editIdx = (idx !== undefined) ? idx : -1;
+    Utils.el("modal-score-delete").style.display = _editIdx >= 0 ? "" : "none";
     var sc = _editIdx >= 0 ? Data.get().scores[_editIdx] : null;
     Utils.el("modal-score-title").textContent = _editIdx >= 0 ? "Edit Score" : "Add Score";
 
@@ -109,15 +109,21 @@ var Scores = (function () {
     render();
   }
 
-  function del(i) {
+  function del(i, done) {
     Dialog.confirm("Delete this score?", {okText:"Delete", danger:true}).then(function (ok) {
       if (!ok) return;
       var D = Data.get();
       D.scores.splice(i, 1);
       Data.save();
       render();
+      if (done) done();
     });
   }
 
-  return { render: render, openModal: openModal, save: save, del: del };
+  function delCurrent() {
+    if (_editIdx < 0) return;
+    del(_editIdx, function () { Utils.closeModal("modal-score"); });
+  }
+
+  return { render: render, openModal: openModal, save: save, del: del, delCurrent: delCurrent };
 })();

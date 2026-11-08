@@ -84,12 +84,16 @@ var Hourly = (function () {
     var t = { hours: 0, billed: 0, paid: 0, balance: 0, income: {} };
     ACYR.forEach(function (ym) { t.income[ym] = 0; });
     Data.get().students.filter(isHourly).forEach(function (s) {
-      var a = account(Utils.fullName(s));
+      var name = Utils.fullName(s), a = account(name);
       t.hours += a.hours; t.billed += a.billed; t.paid += a.paid; t.balance += Math.max(0, a.balance);
-    });
-    _D().hourpay.forEach(function (p) {
-      var ym = String(p.date).slice(0, 7);
-      if (t.income.hasOwnProperty(ym)) t.income[ym] += Number(p.amount || 0);
+      // Income counts in the month the fees are for (payments applied oldest
+      // month first), like the monthly fees of regular students.
+      ACYR.forEach(function (ym) { t.income[ym] += a.months[ym].paid; });
+      // Anything paid in advance (credit) counts in the month it was received.
+      if (a.credit > 0) {
+        var last = paymentsOf(name).filter(function (p) { return t.income.hasOwnProperty(String(p.date).slice(0, 7)); }).pop();
+        if (last) t.income[String(last.date).slice(0, 7)] += a.credit;
+      }
     });
     return t;
   }

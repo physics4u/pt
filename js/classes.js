@@ -33,14 +33,14 @@ var Classes = (function () {
         "<td><span class='badge badge-green'>" + (cnt[c.name] || 0) + " students</span></td>" +
         "<td>" + (c.room || "\u2014") + "</td>" +
         "<td style='white-space:nowrap'>" +
-          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Classes.openModal(" + i + ")'>Edit</button> " +
-          "<button class='btn btn-danger'    style='padding:4px 10px;font-size:11px' onclick='Classes.del(" + i + ")'>Del</button>" +
+          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Classes.openModal(" + i + ")'>Edit</button>" +
         "</td></tr>";
     }).join("");
   }
 
   function openModal(idx) {
     _editIdx = (idx !== undefined) ? idx : -1;
+    Utils.el("modal-class-delete").style.display = _editIdx >= 0 ? "" : "none";
     var c = _editIdx >= 0 ? Data.get().classes[_editIdx] : null;
     Utils.el("modal-class-title").textContent = _editIdx >= 0 ? "Edit Class" : "Add Class";
     Utils.el("c-name").value  = c ? c.name  : "";
@@ -82,7 +82,7 @@ var Classes = (function () {
     render();
   }
 
-  function del(i) {
+  function del(i, done) {
     Dialog.confirm("Delete the class \u201c" + Data.get().classes[i].name + "\u201d?", {okText:"Delete", danger:true}).then(function (ok) {
       if (!ok) return;
       var D = Data.get();
@@ -91,8 +91,14 @@ var Classes = (function () {
       Data.log("Removed class <b>" + n + "</b>");
       Data.save();
       render();
+      if (done) done();
     });
   }
 
-  return { render: render, openModal: openModal, save: save, del: del };
+  function delCurrent() {
+    if (_editIdx < 0) return;
+    del(_editIdx, function () { Utils.closeModal("modal-class"); });
+  }
+
+  return { render: render, openModal: openModal, save: save, del: del, delCurrent: delCurrent };
 })();
