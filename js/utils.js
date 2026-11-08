@@ -17,7 +17,7 @@ var Utils = (function () {
     var orig = btn.textContent;
     btn.textContent = "Saved!";
     btn.style.background = "var(--accent3)";
-    btn.style.color = "#0d0f14";
+    btn.style.color = "#0a0b0a";
     setTimeout(function () {
       btn.textContent = orig;
       btn.style.background = "";
@@ -26,21 +26,21 @@ var Utils = (function () {
   }
 
   // ---- Sync status indicator in sidebar footer ----
+  // Sync status: silent when all is well. Only shows "Saving…" briefly
+  // and problems that need attention.
   function setSyncStatus(state, detail) {
     var e = el("sync-status"); if (!e) return;
     var map = {
-      loading:      {text:"Loading from Sheets...",       color:"var(--accent2)"},
-      pending:      {text:"Unsaved changes\u2026",         color:"var(--accent2)"},
-      saving:       {text:"Saving...",                    color:"var(--accent2)"},
-      saved:        {text:"\u2714 Saved to Sheets",       color:"var(--accent3)"},
-      loaded:       {text:"\u2714 Loaded from Sheets",    color:"var(--accent3)"},
-      error:        {text:"\u26a0 Sheets error",          color:"var(--danger)"},
-      unconfigured: {text:"\u26a0 Not connected to Sheets", color:"var(--danger)"}
+      saving:       {text:"Saving\u2026",             color:"var(--text3)"},
+      error:        {text:"\u26a0 Not saved",          color:"var(--danger)"},
+      unconfigured: {text:"\u26a0 Not connected",      color:"var(--danger)"}
     };
-    var info = map[state] || {text:state, color:"var(--text3)"};
+    var info = map[state];
+    if (!info) { e.textContent = ""; e.style.display = "none"; return; }
+    e.style.display = "";
     e.textContent = info.text + (detail ? ": " + detail : "");
     e.style.color = info.color;
-    if (state === "error") console.error("Sheets error:", detail || "unknown");
+    if (state === "error") console.error("PT sync error:", detail || "unknown");
   }
 
   // ---- Current YYYY-MM ----

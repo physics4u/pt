@@ -44,7 +44,7 @@ var SettingsPage = (function () {
     var orig = btn.textContent;
     btn.textContent = "Saved!";
     btn.style.background = "var(--accent3)";
-    btn.style.color = "#0d0f14";
+    btn.style.color = "#0a0b0a";
     setTimeout(function () {
       btn.textContent = orig;
       btn.style.background = "";

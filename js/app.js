@@ -118,6 +118,11 @@ var Dashboard = (function () {
   // ----------------------------------------------------------------
   //  Revenue bar chart (vertical)
   // ----------------------------------------------------------------
+  // Read a colour from the current theme (so charts follow light/dark).
+  function _css(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
   // 2500 → "2.5", 12000 → "12"
   function _k(v) { var k = v / 1000; return k < 10 && k % 1 ? k.toFixed(1) : k.toFixed(0); }
 
@@ -158,8 +163,8 @@ var Dashboard = (function () {
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
 
-    var COL_BAR = "#5b8df8", COL_HOV = "#5bf8b8", COL_GRID = "#252936";
-    var COL_TEXT = "#555d75", COL_LABEL = "#8890a8", COL_VALUE = "#e8eaf0";
+    var COL_BAR = _css("--accent"), COL_HOV = _css("--accent3"), COL_GRID = _css("--border");
+    var COL_TEXT = _css("--text3"), COL_LABEL = _css("--text2"), COL_VALUE = _css("--text");
     // Taller bottom padding: two-line X labels (month + year separator)
     var PAD_L = 72, PAD_R = 16, PAD_T = 16, PAD_B = 56;
     var chartW = W - PAD_L - PAD_R, chartH = H - PAD_T - PAD_B;
@@ -177,7 +182,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + chartW, yPx); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'DM Mono', monospace";
+      ctx.font = "11px 'JetBrains Mono', monospace";
       var lbl = yVal >= 100000 ? "\u20b9" + (yVal/100000).toFixed(1) + "L"
               : yVal >= 1000   ? "\u20b9" + _k(yVal) + "k" : "\u20b9" + yVal;
       ctx.fillText(lbl, PAD_L - 8, yPx);
@@ -208,7 +213,7 @@ var Dashboard = (function () {
       if (val > 0) {
         ctx.fillStyle = isMax ? COL_HOV : COL_VALUE;
         ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "10px 'DM Mono', monospace";
+        ctx.font = "10px 'JetBrains Mono', monospace";
         var vlbl = val >= 100000 ? (val/100000).toFixed(1) + "L"
                  : val >= 1000   ? _k(val) + "k" : val.toString();
         ctx.fillText(vlbl, x + barW / 2, y - 3);
@@ -220,12 +225,12 @@ var Dashboard = (function () {
       var cx = x + barW / 2;
       var yBase = PAD_T + chartH + 6;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'DM Mono', monospace";
+      ctx.font = "10px 'JetBrains Mono', monospace";
       ctx.fillText(mo, cx, yBase);
       // Draw year label below the month row at Jan of each year and at first bar
       if (p[1] === "01" || idx === 0) {
         ctx.fillStyle = COL_TEXT;
-        ctx.font = "bold 10px 'DM Mono', monospace";
+        ctx.font = "bold 10px 'JetBrains Mono', monospace";
         ctx.fillText("'" + yr, cx, yBase + 14);
       }
     });
@@ -313,19 +318,14 @@ var Dashboard = (function () {
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
 
-    var COL_GRID  = "#252936";
-    var COL_TEXT  = "#555d75";
-    var COL_LABEL = "#8890a8";
-    var COL_VALUE = "#e8eaf0";
-    var COL_REV   = "#f8a05b";  // orange for revision
-    // Grade XI = blue palette, Grade XII = teal/green palette
-    var PALETTE_XI  = ["#5b8df8","#6b9df8","#7baef8","#8bbef8","#5bc4f8","#5bdaf8",
-                       "#5bf8f0","#5bf8d8","#5bf8be","#5bf8a4","#6ef87a","#96f85b",
-                       "#bef840","#e6f828"];
-    var PALETTE_XII = ["#f8a05b","#f8b06b","#f8c07b","#f8d08b","#f0e05b","#d8f05b",
-                       "#b8f05b","#98f060","#78f078","#58f098","#58f0b8","#58e8d8",
-                       "#58d8f0","#58c0f8"];
-    var PALETTE = (grade === "Grade XI") ? PALETTE_XI : PALETTE_XII;
+    var COL_GRID  = _css("--border");
+    var COL_TEXT  = _css("--text3");
+    var COL_LABEL = _css("--text2");
+    var COL_VALUE = _css("--text");
+    var COL_REV   = _css("--text3");   // revision bars stay neutral grey
+    // One calm colour per grade: Grade XI green, Grade XII amber.
+    var GRADE_COL = (grade === "Grade XI") ? _css("--accent") : _css("--accent2");
+
 
     var chartW = W - PAD_L - PAD_R;
     var maxHrs = Math.max.apply(null, activeKeys.map(function (k) { return hoursMap[k]; })) || 1;
@@ -341,7 +341,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xPx, PAD_T); ctx.lineTo(xPx, PAD_T + n * ROW_H); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'DM Mono', monospace";
+      ctx.font = "10px 'JetBrains Mono', monospace";
       ctx.fillText(xVal.toFixed(1) + "h", xPx, PAD_T + n * ROW_H + 6);
     }
 
@@ -359,8 +359,7 @@ var Dashboard = (function () {
       var y    = PAD_T + idx * ROW_H + (ROW_H - barH) / 2;
       var barW = (hrs / niceMax) * chartW;
       var isRev = chapter === "Revision / Practice";
-      var palIdx = CHAPTER_KEYS.indexOf(chapter);
-      ctx.fillStyle = isRev ? COL_REV : (PALETTE[palIdx] || PALETTE[0]);
+      ctx.fillStyle = isRev ? COL_REV : GRADE_COL;
 
       var r = Math.min(4, barH / 2, barW || 0);
       if (barW > 0) {
@@ -380,12 +379,12 @@ var Dashboard = (function () {
       var shortLabel = SHORT_LABELS[chapter] || chapter;
       ctx.fillStyle = isRev ? COL_REV : COL_LABEL;
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'DM Sans', sans-serif";
+      ctx.font = "11px 'Inter', sans-serif";
       ctx.fillText(shortLabel, PAD_L - 10, y + barH / 2);
 
       // Hours value
       ctx.fillStyle = COL_VALUE; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'DM Mono', monospace";
+      ctx.font = "11px 'JetBrains Mono', monospace";
       ctx.fillText(hrs.toFixed(1) + "h", PAD_L + barW + 6, y + barH / 2);
     });
   }
@@ -425,7 +424,10 @@ var Theme = (function () {
     if (track)  track.className  = "toggle-track" + (theme === "light" ? " on" : "");
     if (icon)   icon.textContent  = theme === "light" ? "☀" : "☽"; // ☀ / ☽
     if (label)  label.textContent = theme === "light" ? "Dark Mode" : "Light Mode";
-    if (save)   localStorage.setItem("physicshub_theme", theme);
+    if (save) {
+      try { localStorage.setItem("physicshub_theme", theme); } catch (e) {}
+      if (currentPage === "dashboard") Dashboard.render();   // redraw charts in new colours
+    }
   }
 
   return { init: init, toggle: toggle };
