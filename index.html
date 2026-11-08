@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108121919">
+<link rel="stylesheet" href="css/styles.css?v=20261108122533">
 </head>
 <body>
 
@@ -404,6 +404,25 @@
         <tbody id="storage-tbody"></tbody>
       </table>
       <p class="section-note" style="margin:10px 0 0">PT can hold up to 10 million cells. Every row and column reserved for an area counts, even when empty; PT trims empty space each time it saves, and <b>Free up space</b> trims everything at once. One academic year of data uses roughly 10,000 cells.</p>
+    </div>
+  </details>
+
+  <!-- Import (admins only) -->
+  <details class="section admin-only" id="sec-import">
+    <summary>
+      <span class="section-title">Import data</span><span class="section-meta">&middot; bring in records from earlier years</span>
+      <span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="import-year" style="width:auto;min-width:180px">
+          <option value="2026-27">2026&ndash;27</option><option value="2025-26">2025&ndash;26</option>
+          <option value="2024-25">2024&ndash;25</option><option value="2023-24">2023&ndash;24</option>
+          <option value="2022-23">2022&ndash;23</option><option value="2021-22">2021&ndash;22</option>
+        </select>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="ImportPage.check(this)">Check</button>
+      </div>
+      <div id="import-result" class="section-note" style="margin:10px 0 0"></div>
     </div>
   </details>
 
@@ -805,23 +824,24 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108121919"></script>
-<script src="js/version.js?v=20261108121919"></script>
-<script src="js/config.js?v=20261108121919"></script>
-<script src="js/data.js?v=20261108121919"></script>
-<script src="js/utils.js?v=20261108121919"></script>
-<script src="js/students.js?v=20261108121919"></script>
-<script src="js/classes.js?v=20261108121919"></script>
-<script src="js/attendance.js?v=20261108121919"></script>
-<script src="js/syllabus.js?v=20261108121919"></script>
-<script src="js/payments.js?v=20261108121919"></script>
-<script src="js/scores.js?v=20261108121919"></script>
-<script src="js/profile.js?v=20261108121919"></script>
-<script src="js/settings.js?v=20261108121919"></script>
-<script src="js/users.js?v=20261108121919"></script>
-<script src="js/help.js?v=20261108121919"></script>
-<script src="js/storage.js?v=20261108121919"></script>
-<script src="js/app.js?v=20261108121919"></script>
+<script src="js/site-config.js?v=20261108122533"></script>
+<script src="js/version.js?v=20261108122533"></script>
+<script src="js/config.js?v=20261108122533"></script>
+<script src="js/data.js?v=20261108122533"></script>
+<script src="js/utils.js?v=20261108122533"></script>
+<script src="js/students.js?v=20261108122533"></script>
+<script src="js/classes.js?v=20261108122533"></script>
+<script src="js/attendance.js?v=20261108122533"></script>
+<script src="js/syllabus.js?v=20261108122533"></script>
+<script src="js/payments.js?v=20261108122533"></script>
+<script src="js/scores.js?v=20261108122533"></script>
+<script src="js/profile.js?v=20261108122533"></script>
+<script src="js/settings.js?v=20261108122533"></script>
+<script src="js/users.js?v=20261108122533"></script>
+<script src="js/help.js?v=20261108122533"></script>
+<script src="js/storage.js?v=20261108122533"></script>
+<script src="js/import.js?v=20261108122533"></script>
+<script src="js/app.js?v=20261108122533"></script>
 
 </body>
 </html>
