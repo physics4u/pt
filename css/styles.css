@@ -610,3 +610,23 @@ html.font-courier{--font-ui:"Courier New",Courier,monospace;--font-body:"Courier
 html.font-courier body,html.font-courier input,html.font-courier select,html.font-courier textarea,html.font-courier button{font-family:"Courier New",Courier,monospace;}
 html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier .section-title{font-weight:700;}
 .seg-btn.courier{font-family:"Courier New",Courier,monospace;}
+
+/* ---- Scores: tests and mark sheets ---- */
+.tests-grid{align-items:start;}
+.tests-table{width:100%;}
+.tests-table td,.tests-table th{padding:8px 10px;}
+.tests-table .c{text-align:center;}
+.tests-table td:first-child{white-space:nowrap;}
+.sheet-head{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:14px 18px;margin-bottom:12px;}
+.sheet-title{display:flex;align-items:center;gap:14px;flex:1;min-width:260px;}
+.sheet-name{font-size:20px;font-weight:800;color:var(--accent);}
+.sheet-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.sheet-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;display:flex;flex-direction:column;min-width:110px;}
+.sheet-stat span{font-size:12px;color:var(--text2);} .sheet-stat b{font-size:20px;}
+.sheet-body{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:12px;align-items:start;}
+.mark-table td{padding:6px 10px;}
+.mark-in{width:90px;text-align:center;padding:6px 8px;}
+.mark-pct{font-weight:600;}
+.mark-table tbody tr:focus-within td{background:rgb(var(--accent-rgb) / 0.18);}
+@media (max-width:900px){ .sheet-body{grid-template-columns:1fr;} }
+.tests-table td:nth-child(2){white-space:nowrap;}

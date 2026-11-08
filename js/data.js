@@ -15,12 +15,12 @@ var Data = (function () {
 
   var KEYS = ["students","classes","scores","activity",
               "attendance","attsheets","syllabus","paygrid","settings",
-              "sessions","hourpay"];
+              "sessions","hourpay","tests"];
 
   var D = {
     students: [], classes: [], scores: [], activity: [],
     attendance: {}, attsheets: {}, syllabus: {}, paygrid: {}, settings: {},
-    sessions: [], hourpay: []
+    sessions: [], hourpay: [], tests: []
   };
 
   var CACHE_KEY = "pt_cache_v1";
@@ -187,6 +187,7 @@ var Data = (function () {
     D.settings   = d.settings   || {};
     D.sessions   = d.sessions   || [];
     D.hourpay    = d.hourpay    || [];
+    D.tests      = d.tests      || [];
 
     D.scores.forEach(function (sc) {
       sc.score = Number(sc.score) || 0;

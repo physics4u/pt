@@ -162,38 +162,26 @@ var Profile = (function () {
     feeWrap.appendChild(feeTable); feeSec.appendChild(feeWrap);
     if (Hourly.inGroup(s)) div.appendChild(feeSec);
 
-    // ---- Scores ----
+    // ---- Report card (test marks) ----
+    Scores.ensure();
     var scores = (Data.get().scores || []).filter(function (sc) { return sc.student === name; })
-                   .sort(function (a, b) { return b.date.localeCompare(a.date); });
+                   .sort(function (a, b) { return String(a.date).localeCompare(b.date); });
     var scSec = document.createElement("div"); scSec.className = "profile-full";
-    scSec.innerHTML = "<div class='profile-section-title'>Test Scores</div>";
-    if (scores.length === 0) {
-      scSec.innerHTML += "<div class='empty' style='padding:24px'><div class='empty-text'>No scores recorded yet.</div></div>";
-    } else {
-      scores.forEach(function (sc) {
-        var pct = Math.round(sc.score / sc.total * 100);
-        var col = pct >= 75 ? "var(--accent3)" : pct >= 50 ? "var(--accent2)" : "var(--danger)";
-        var bg  = pct >= 75 ? "rgba(91,248,184,0.1)" : pct >= 50 ? "rgba(248,160,91,0.1)" : "rgba(248,91,110,0.1)";
-        var tc  = sc.type === "Exam" ? "badge-red" : sc.type === "Test" ? "badge-orange" : sc.type === "Quiz" ? "badge-blue" : "badge-green";
-        var card = document.createElement("div"); card.className = "report-card";
-        card.innerHTML =
-          "<div class='report-card-header'>" +
-            "<div style='flex:1'>" +
-              "<div style='display:flex;align-items:center;gap:8px;margin-bottom:4px'>" +
-                "<span class='report-card-title'>" + sc.title + "</span>" +
-                "<span class='badge " + tc + "'>" + sc.type + "</span>" +
-              "</div>" +
-              "<div style='font-size:11px;color:var(--text3)'>" + sc.date + "</div>" +
-              (sc.remarks ? "<div style='font-size:12px;color:var(--text2);margin-top:4px'>" + sc.remarks + "</div>" : "") +
-            "</div>" +
-            "<div style='display:flex;align-items:center;gap:12px'>" +
-              "<div><div class='progress-bar' style='height:6px;min-width:120px'><div class='progress-fill' style='width:" + pct + "%;background:" + col + "'></div></div><div style='text-align:right;font-size:11px;color:" + col + ";margin-top:2px'>" + sc.score + "/" + sc.total + "</div></div>" +
-              "<div class='score-circle' style='color:" + col + ";border-color:" + col + ";background:" + bg + "'>" + pct + "%</div>" +
-            "</div>" +
-          "</div>";
-        scSec.appendChild(card);
-      });
-    }
+    var pcts = scores.filter(function (r) { return Number(r.total) > 0; }).map(function (r) { return Number(r.score) / Number(r.total) * 100; });
+    var avg = pcts.length ? Math.round(pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length) : null;
+    var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
+    scSec.innerHTML = "<div class='profile-section-title hourly-head'><span>Report card</span>" +
+      (avg === null ? "" : "<span>Average <b style='color:var(--accent);font-size:18px'>" + avg + "%</b></span>") + "</div>" +
+      (scores.length ? "<table class='tests-table'><thead><tr><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>Out of</th><th class='c'>%</th></tr></thead><tbody>" +
+        scores.map(function (r) {
+          var p = Number(r.total) > 0 ? Math.round(Number(r.score) / Number(r.total) * 100) : null;
+          var col = p === null ? "" : p >= 75 ? "var(--accent3)" : p >= 50 ? "var(--accent2)" : "var(--danger)";
+          var d = r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-GB", {day: "2-digit", month: "short"}) : "\u2014";
+          return "<tr><td>" + esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
+            "</td><td>" + esc(r.title) + "</td><td class='c'><b>" + esc(r.score) + "</b></td><td class='c'>" + esc(r.total) +
+            "</td><td class='c' style='color:" + col + ";font-weight:700'>" + (p === null ? "\u2014" : p + "%") + "</td></tr>";
+        }).join("") + "</tbody></table>"
+      : "<div class='empty' style='padding:24px'><div class='empty-text'>No test marks yet.</div></div>");
     div.appendChild(scSec);
 
     // Switch to profile page

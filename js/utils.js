@@ -73,7 +73,7 @@ var PAGE_CFG = {
   attsheet:  {title:"Attendance",       sub:"Mark present or absent for each class day", btn:null},
   syllabus:  {title:"Monthly planner",  sub:"Chapter and timing for each day of the month", btn:null},
   payments:  {title:"Payments",         sub:"Monthly fees by student", btn:null},
-  scores:    {title:"Scores & grades",  sub:"Tests, quizzes and exams", btn:"+ Add score",   action:function(){ Scores.openModal(); }},
+  scores:    {title:"Scores",           sub:"Class tests and each student's marks", btn:"+ Add test", action:function(){ Scores.openModal(); }},
   profile:   {title:"Student profile",  sub:"", btn:null},
   help:      {title:"Help",             sub:"About PT and the user guide", btn:null},
   settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, storage, backups and appearance", btn:null}
@@ -106,7 +106,7 @@ function showPage(id) {
   else if (id === "attsheet")  Attendance.init();
   else if (id === "syllabus")  Syllabus.init();
   else if (id === "payments")  Payments.init();
-  else if (id === "scores")    Scores.render();
+  else if (id === "scores")    Scores.show();
   else if (id === "settings")  { SettingsPage.init(); Users.load(); StoragePage.load(); }
   else if (id === "help")      Help.init();
 }

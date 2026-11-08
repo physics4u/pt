@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108222858">
+<link rel="stylesheet" href="css/styles.css?v=20261108223642">
 </head>
 <body>
 
@@ -256,22 +256,7 @@
   </div>
 </div>
     <div id="page-scores" class="page">
-  <div class="toolbar">
-    <div class="search-wrap">
-      <span class="search-icon">&#128269;</span>
-      <input type="text" id="score-search" placeholder="Search by student or title..." oninput="Scores.render()">
-    </div>
-    <select class="filter" id="score-class-filter" onchange="Scores.render()">
-      <option value="">All Classes</option>
-      <option value="Grade XI">Plus 1</option>
-      <option value="Grade XII">Plus 2</option>
-    </select>
-    <select class="filter" id="score-type-filter" onchange="Scores.render()">
-      <option value="">All Types</option>
-      <option>Homework</option><option>Quiz</option><option>Test</option><option>Exam</option>
-    </select>
-  </div>
-  <div id="scores-list"></div>
+  <div id="scores-view"></div>
 </div>
     <div id="page-profile" class="page">
   <div id="profile-content"></div>
@@ -634,9 +619,18 @@
 
   <!-- Scores -->
   <details class="section help">
-    <summary><span class="section-title">Scores &amp; grades</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Scores</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>Press <b>+ Add score</b>, choose the student, the type (Homework, Quiz, Test or Exam), the date, a title (for example "Kinematics Test 1"), the score and the total. Add remarks if needed. Search by student or title. Each student's scores also appear on their profile.</p>
+      <p>Scores is organised by <b>test</b>. The page lists the tests for <b>Plus 1</b> and <b>Plus 2</b>: test number, date, portions, marks out of, the class average, the top mark and how many took it.</p>
+      <h4>Add a test</h4>
+      <p>Press <b>+ Add test</b>, choose the class, date, portions and marks out of. PT numbers the test for you (Test 12, Test 13&hellip;) and opens its mark sheet.</p>
+      <h4>Enter marks</h4>
+      <p>Press <b>&#9998; Marks</b> on a test. Every student in the class is listed; type each mark and press <b>Enter</b> to move to the next student. Marks save automatically and the percentage fills in. Leave a mark blank if the student didn't take the test (it shows "---").</p>
+      <h4>Change or delete a test</h4>
+      <p>On the mark sheet, change the test number, date, portions or marks out of under <b>Test details</b>. <b>Delete this test</b> is at the bottom of that box.</p>
+      <h4>One-to-one tests</h4>
+      <p>For hourly students, choose <b>For: One-to-one: &lt;student&gt;</b> when adding a test. These are listed separately under <b>One-to-one tests</b>.</p>
+      <p>Each student's tests, marks and percentages also appear on their profile.</p>
     </div>
   </details>
 
@@ -830,58 +824,53 @@
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="modal-score">
+<div class="modal-overlay" id="modal-test">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title" id="modal-score-title">Add Score</span>
-      <button class="modal-close" onclick="Utils.closeModal('modal-score')">&#215;</button>
+      <span class="modal-title">Add a test</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-test')">&#215;</button>
     </div>
     <div class="modal-body">
-      <div class="form-row"><label>Student *</label><select id="sc-student"></select></div>
       <div class="form-grid2">
-        <div class="form-row"><label>Type</label>
-          <select id="sc-type">
-            <option>Homework</option><option>Quiz</option><option>Test</option><option>Exam</option>
-          </select>
-        </div>
-        <div class="form-row"><label>Date</label><input id="sc-date" type="date"></div>
+        <div class="form-row"><label>Class</label>
+          <select id="tm-class" onchange="Scores.modalClass()"><option value="Grade XI">Plus 1</option><option value="Grade XII">Plus 2</option></select></div>
+        <div class="form-row"><label>For</label><select id="tm-who" onchange="Scores.modalWho()"></select></div>
       </div>
-      <div class="form-row"><label>Title / Topic</label><input id="sc-title" placeholder="e.g. Kinematics Test 1"></div>
       <div class="form-grid2">
-        <div class="form-row"><label>Score Obtained</label><input id="sc-score" type="number" min="0" placeholder="85"></div>
-        <div class="form-row"><label>Total Marks</label><input id="sc-total" type="number" min="1" placeholder="100"></div>
+        <div class="form-row"><label>Test #</label><input id="tm-num"></div>
+        <div class="form-row"><label>Date</label><input id="tm-date" type="date"></div>
       </div>
-      <div class="form-row"><label>Remarks</label><input id="sc-remarks" placeholder="e.g. Good improvement!"></div>
+      <div class="form-row"><label>Portions</label><input id="tm-title" list="tm-chapters" placeholder="Choose a chapter or type"><datalist id="tm-chapters"></datalist></div>
+      <div class="form-row"><label>Marks out of *</label><input id="tm-total" type="number" min="1" placeholder="e.g. 15"></div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="link-btn danger-link modal-delete" id="modal-score-delete" onclick="Scores.delCurrent()">Delete this score</button>
-      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-score')">Cancel</button>
-      <button class="btn btn-primary" onclick="Scores.save()">Save Score</button>
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-test')">Cancel</button>
+      <button class="btn btn-primary" onclick="Scores.saveTest()">Add test &amp; enter marks</button>
     </div>
   </div>
 </div>
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108222858"></script>
-<script src="js/version.js?v=20261108222858"></script>
-<script src="js/config.js?v=20261108222858"></script>
-<script src="js/data.js?v=20261108222858"></script>
-<script src="js/utils.js?v=20261108222858"></script>
-<script src="js/students.js?v=20261108222858"></script>
-<script src="js/classes.js?v=20261108222858"></script>
-<script src="js/attendance.js?v=20261108222858"></script>
-<script src="js/syllabus.js?v=20261108222858"></script>
-<script src="js/payments.js?v=20261108222858"></script>
-<script src="js/scores.js?v=20261108222858"></script>
-<script src="js/profile.js?v=20261108222858"></script>
-<script src="js/settings.js?v=20261108222858"></script>
-<script src="js/users.js?v=20261108222858"></script>
-<script src="js/help.js?v=20261108222858"></script>
-<script src="js/storage.js?v=20261108222858"></script>
-<script src="js/import.js?v=20261108222858"></script>
-<script src="js/hourly.js?v=20261108222858"></script>
-<script src="js/app.js?v=20261108222858"></script>
+<script src="js/site-config.js?v=20261108223642"></script>
+<script src="js/version.js?v=20261108223642"></script>
+<script src="js/config.js?v=20261108223642"></script>
+<script src="js/data.js?v=20261108223642"></script>
+<script src="js/utils.js?v=20261108223642"></script>
+<script src="js/students.js?v=20261108223642"></script>
+<script src="js/classes.js?v=20261108223642"></script>
+<script src="js/attendance.js?v=20261108223642"></script>
+<script src="js/syllabus.js?v=20261108223642"></script>
+<script src="js/payments.js?v=20261108223642"></script>
+<script src="js/scores.js?v=20261108223642"></script>
+<script src="js/profile.js?v=20261108223642"></script>
+<script src="js/settings.js?v=20261108223642"></script>
+<script src="js/users.js?v=20261108223642"></script>
+<script src="js/help.js?v=20261108223642"></script>
+<script src="js/storage.js?v=20261108223642"></script>
+<script src="js/import.js?v=20261108223642"></script>
+<script src="js/hourly.js?v=20261108223642"></script>
+<script src="js/app.js?v=20261108223642"></script>
 
 </body>
 </html>
