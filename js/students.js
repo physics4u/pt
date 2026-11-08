@@ -39,16 +39,13 @@ var Students = (function () {
       var bc  = (s.batch || "Regular") === "Hourly" ? "orange" : "green";
       return "<tr>" +
         "<td class='num'>" + (n + 1) + "</td>" +
-        "<td>" + Utils.fullName(s) + "</td>" +
+        "<td>" + Utils.studentLink(Utils.fullName(s)) + "</td>" +
         "<td>" + (s.school || "\u2014") + "</td>" +
         "<td>" + (Utils.grade(s.cls) || "\u2014") + "</td>" +
         "<td><span class='badge badge-" + bc + "'>" + (s.batch || "Regular") + "</span></td>" +
         "<td>" + (s.phone  || "\u2014") + "</td>" +
         "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +
-        "<td style='white-space:nowrap'>" +
-          "<button class='btn btn-primary'   style='padding:4px 10px;font-size:11px' onclick='Profile.view(" + i + ")'>View</button> " +
-          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Students.openModal(" + i + ")'>Edit</button>" +
-        "</td></tr>";
+        "<td class='edit-cell'>" + Utils.hoverEdit("Students.openModal(" + i + ")", "Edit student") + "</td></tr>";
     }).join("");
   }
 

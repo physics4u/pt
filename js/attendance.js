@@ -85,7 +85,7 @@ var Attendance = (function () {
       nc.style.cssText = "position:sticky;left:0;background:var(--surface);color:var(--text3);font-size:11px";
       nc.textContent = si + 1;
       // Name cell
-      var nmc = row.insertCell(); nmc.className = "name-col"; nmc.textContent = name;
+      var nmc = row.insertCell(); nmc.className = "name-col"; nmc.innerHTML = Utils.studentLink(name);
       // Day cells
       for (var d = 1; d <= dim; d++) {
         var di2  = new Date(year, month - 1, d).getDay();

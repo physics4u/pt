@@ -260,13 +260,13 @@ var Hourly = (function () {
     var D = Data.get();
     return "<div class='panel' style='margin-top:16px'><div class='panel-header'><span class='panel-title'>Hourly students</span>" +
       "<span class='muted'>billed by the hour · payments applied to the oldest months first</span></div>" +
-      "<div style='overflow-x:auto'><table class='hourly-table'><thead><tr><th>Student</th><th>Rate</th><th>Hours</th><th>Billed</th><th>Paid</th><th>Balance</th><th></th></tr></thead><tbody>" +
+      "<div style='overflow-x:auto'><table class='hourly-table'><thead><tr><th>Student</th><th>Rate</th><th>Hours</th><th>Billed</th><th>Paid</th><th>Balance</th></tr></thead><tbody>" +
       list.map(function (s) {
         var a = account(Utils.fullName(s)), i = D.students.indexOf(s);
-        return "<tr><td><b>" + esc(Utils.fullName(s)) + "</b></td><td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
+        return "<tr><td><b>" + Utils.studentLink(Utils.fullName(s)) + "</b></td><td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
           "<td>" + hm(a.hours) + "</td><td>" + money(a.billed) + "</td><td>" + money(a.paid) + "</td>" +
           "<td>" + (a.balance > 0.5 ? "<span class='chip chip-red'>" + money(a.balance) + " due</span>" : "<span class='chip chip-green'>Settled</span>") + "</td>" +
-          "<td><button class='btn btn-secondary btn-sm' onclick='Profile.view(" + i + ")'>View</button></td></tr>";
+          "</tr>";
       }).join("") + "</tbody></table></div></div>";
   }
 

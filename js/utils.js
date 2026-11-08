@@ -52,11 +52,26 @@ var Utils = (function () {
   // ---- Grade label: data says "Grade XI", people see "Plus 1" ----
   function grade(cls) { return cls === "Grade XI" ? "Plus 1" : cls === "Grade XII" ? "Plus 2" : (cls || ""); }
 
+  // ---- A student's name that opens their profile ----
+  function _attr(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  function studentLink(name) {
+    return "<a class=\"stu-link\" data-student=\"" + _attr(name) + "\" title=\"Open profile\">" + _attr(name) + "</a>";
+  }
+  // A small ✏ that only shows when the row is hovered (always on touch screens)
+  function hoverEdit(onclick, title) {
+    return "<button type=\"button\" class=\"row-edit\" title=\"" + _attr(title || "Edit") + "\" onclick=\"" + _attr(onclick) + "\">&#9998;</button>";
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".stu-link");
+    if (a) { e.preventDefault(); Profile.byName(a.getAttribute("data-student")); }
+  });
+
   // ---- Full name helper ----
   function fullName(s) { return [s.fname, s.lname].filter(function (x) { return x; }).join(" "); }
 
   return { el: el, closeModal: closeModal, openModal: openModal,
-           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName, grade: grade };
+           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName, grade: grade,
+           studentLink: studentLink, hoverEdit: hoverEdit };
 })();
 
 

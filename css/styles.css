@@ -643,3 +643,11 @@ html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier 
 .mark-table tr:hover .row-edit,.mark-table tr:focus-within .row-edit{visibility:visible;}
 @media (hover:none){ .row-edit{visibility:visible;} }
 .edit-cell{width:80px;}
+
+/* Student names open the profile */
+.stu-link{color:inherit;cursor:pointer;text-decoration:none;}
+.stu-link:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+/* Quiet pencil that appears on row hover (lists everywhere) */
+table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
+.edit-cell{width:56px;text-align:right;}
+.row-edit{font-size:14px;line-height:1;padding:4px 8px;}
