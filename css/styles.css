@@ -586,3 +586,16 @@ input,select,textarea{font-size:15px;}
 
 .import-sum{margin-top:6px;color:var(--text);font-size:14px;}
 .import-sum .guide-table td{padding:4px 18px 4px 0;}
+
+/* Students list number column */
+th.num,td.num{width:44px;color:var(--text3);text-align:right;padding-right:6px;}
+/* Delete sits at the far left of an Edit form's footer */
+.modal-delete{margin-right:auto;font-size:13px;}
+
+/* Monthly Planner: the row you're working on stands out across its width */
+.syllabus-table tbody tr:hover td{background:rgb(var(--accent-rgb) / 0.07);}
+.syllabus-table tbody tr:focus-within td{background:rgb(var(--accent-rgb) / 0.26) !important;
+  border-top:1px solid rgb(var(--accent-rgb) / 0.6);border-bottom:1px solid rgb(var(--accent-rgb) / 0.6);}
+.syllabus-table tbody tr:focus-within td:first-child{box-shadow:inset 4px 0 0 var(--accent);}
+.syllabus-table tbody tr:focus-within .day-label,.syllabus-table tbody tr:focus-within .day-name{color:var(--accent) !important;}
+#students-tbody td:nth-child(4),#students-tbody td:nth-child(5){white-space:nowrap;}

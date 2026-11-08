@@ -139,7 +139,7 @@ var Dashboard = (function () {
         });
       });
     }
-    // Hourly payments count in the month they were received
+    // Hourly payments count in the month they pay for
     var hi = Hourly.totals().income;
     Object.keys(hi).forEach(function (ym) { if (monthlyRev.hasOwnProperty(ym)) monthlyRev[ym] += hi[ym]; });
 
