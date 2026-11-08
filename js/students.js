@@ -124,7 +124,7 @@ var Students = (function () {
   }
 
   function del(i) {
-    Dialog.confirm("Delete " + Utils.fullName(Data.get().students[i]) + "? Their attendance and payment history stays in the sheet.", {okText:"Delete", danger:true}).then(function (ok) {
+    Dialog.confirm("Delete " + Utils.fullName(Data.get().students[i]) + "? Their earlier attendance and payment records are kept.", {okText:"Delete", danger:true}).then(function (ok) {
       if (!ok) return;
       var D = Data.get();
       var n = Utils.fullName(D.students[i]);

@@ -1,12 +1,12 @@
 // ================================================================
 //  data.js — Application data layer
-//  Owns: D (the data object), sync with the PT Google Sheet through
-//  the Apps Script API, and a localStorage cache for fast start-up.
+//  Owns: D (the data object), sync with the PT server through
+//  its API, and a localStorage cache for fast start-up.
 //  Other modules READ from D and call Data.save() to persist.
 //
 //  Safety rules:
-//   • Nothing is ever written to the sheet until a load from the
-//     sheet has succeeded in this session (so a failed load can
+//   • Nothing is ever written to the server until a load from the
+//     server has succeeded in this session (so a failed load can
 //     never overwrite real data with an empty or cached copy).
 //   • Only the parts of D that changed since the last sync are sent.
 // ================================================================
@@ -43,20 +43,20 @@ var Data = (function () {
   function _lsDel(k)    { try { localStorage.removeItem(k); } catch (e) {} }
 
   // ----------------------------------------------------------------
-  //  INIT — show cached data instantly, then refresh from the sheet
+  //  INIT — show cached data instantly, then refresh from the server
   // ----------------------------------------------------------------
   function init() {
     _loadFromCache();
     _afterApply();
     if (!isConfigured()) {
-      Utils.setSyncStatus("unconfigured", "set apiUrl in js/site-config.js");
+      Utils.setSyncStatus("unconfigured");
       return;
     }
     try { _me = JSON.parse(_lsGet(ME_KEY) || "null"); } catch (e) { _me = null; }
     _lsDel("pt_passcode");                      // from the old passcode-only version
     if (!_lsGet(TOKEN_KEY)) { Login.show(); return; }
     _showMe();
-    _loadFromSheets(1);
+    _loadFromServer(1);
   }
 
   function login(username, password) {
@@ -65,7 +65,7 @@ var Data = (function () {
       _lsSet(TOKEN_KEY, resp.token);
       _setMe(resp.me);
       _serverVersion = resp.version || "";
-      _loadFromSheets(1);
+      _loadFromServer(1);
       return resp;
     });
   }
@@ -139,7 +139,7 @@ var Data = (function () {
   // ----------------------------------------------------------------
   //  LOAD
   // ----------------------------------------------------------------
-  function _loadFromSheets() {
+  function _loadFromServer() {
     Utils.setSyncStatus("loading");
     _callWithRetry("load").then(function (resp) {
       if (resp.ok && resp.data) {
@@ -162,7 +162,7 @@ var Data = (function () {
     });
   }
 
-  function reload() { _loadFromSheets(); }
+  function reload() { _loadFromServer(); }
 
   function _loadFromCache() {
     var raw = _lsGet(CACHE_KEY);
@@ -218,7 +218,7 @@ var Data = (function () {
   function save() {
     _lsSet(CACHE_KEY, JSON.stringify(D));
     if (!_loaded) {
-      Utils.setSyncStatus("error", "not connected — this change is NOT saved to the sheet");
+      Utils.setSyncStatus("error", "offline \u2014 this change has not been saved");
       return;
     }
     Utils.setSyncStatus("pending");
@@ -318,7 +318,7 @@ var Login = (function () {
     Data.login(u, p).then(function (resp) {
       if (!resp.ok) {
         msg.textContent = resp.error === "unauthorized" || /Unknown action/.test(resp.error || "")
-          ? "The server needs updating \u2014 paste the new Code.gs and redeploy."
+          ? "PT is being updated. Please try again in a minute."
           : (resp.error || "Could not sign in");
       } else {
         document.getElementById("login-pass").value = "";

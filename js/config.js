@@ -2,7 +2,7 @@
 //  JS_Config — Global constants
 //  MONTHS, DAYS, TIMES are fixed. ACYR is computed.
 //  Chapter lists are editable via the Settings page and stored
-//  in the Settings tab of the PT sheet. Use Settings.chapters("Grade XI") etc. to
+//  with the rest of PT's data. Use Settings.chapters("Grade XI") etc. to
 //  get the live list anywhere in the app.
 // ================================================================
 
@@ -103,7 +103,7 @@ var Settings = (function () {
   var KEYS = { "Grade XI": "chapters_xi", "Grade XII": "chapters_xii" };
   var DEFAULTS = { "Grade XI": DEFAULT_CHAPTERS_XI, "Grade XII": DEFAULT_CHAPTERS_XII };
 
-  // Settings live in the "Settings" tab of the PT sheet (synced to all devices).
+  // Settings are stored with the rest of PT's data (shared by all devices).
   function _store() {
     var D = (typeof Data !== "undefined") ? Data.get() : null;
     if (D && !D.settings) D.settings = {};

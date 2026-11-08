@@ -1,6 +1,6 @@
 // ================================================================
 //  PT site configuration — the ONLY file to edit when deploying.
-//  apiUrl: the Apps Script web app URL (ends in /exec).
+//  apiUrl: the PT server address.
 //  The passcode is NOT stored here (this repo is public); the app
 //  asks for it once per device and keeps it in that browser.
 // ================================================================

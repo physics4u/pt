@@ -101,7 +101,7 @@ var Dashboard = (function () {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
-  // 17.5 hours → "17:30" (same style as the tuition sheet)
+  // 17.5 hours → "17:30"
   function _hm(h) {
     var m = Math.round(h * 60);
     return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
@@ -305,7 +305,7 @@ var Dashboard = (function () {
     var COL_TEXT  = _css("--text3");
     var COL_LABEL = _css("--text2");
     var COL_VALUE = _css("--text");
-    // Same colours as the tuition sheet: Plus 1 red, Plus 2 orange.
+    // Plus 1 red, Plus 2 orange.
     var GRADE_COL = (grade === "Grade XI") ? _css("--plus1") : _css("--plus2");
     var COL_REV   = GRADE_COL;
 

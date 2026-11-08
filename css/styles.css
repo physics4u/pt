@@ -525,3 +525,24 @@ input,select,textarea{font-size:15px;}
 .seg-btn + .seg-btn{border-left:1px solid var(--border);}
 .seg-btn.on{background:rgb(var(--accent-rgb) / 0.15);color:var(--accent);}
 .app-version{margin-top:6px;line-height:1.5;}
+
+/* ---- Help ---- */
+.help-search{margin-bottom:12px;}
+.help-search input{max-width:520px;}
+.about-card{display:flex;gap:16px;align-items:center;margin-bottom:12px;}
+.about-logo{width:64px;height:auto;}
+.about-name{font-weight:800;font-size:18px;}
+.about-line{color:var(--text2);font-size:14px;margin-top:2px;}
+.guide{font-size:15px;line-height:1.65;color:var(--text);}
+.guide h4{font-size:15px;color:var(--accent);margin:14px 0 4px;}
+.guide h4:first-child{margin-top:0;}
+.guide p{margin:0 0 8px;}
+.guide ul,.guide ol{margin:0 0 8px 22px;}
+.guide li{margin-bottom:4px;}
+.guide .tip{color:var(--text2);font-size:14px;border-left:3px solid var(--accent);padding-left:10px;}
+.guide-table{width:auto;margin:4px 0 8px;}
+.guide-table td{padding:6px 16px 6px 0;color:var(--text);border:none;}
+.guide-table tr{border:none;}
+.chip-green{background:rgb(var(--accent3-rgb) / 0.15);color:var(--accent3);}
+.chip-red{background:rgb(var(--danger-rgb) / 0.15);color:var(--danger);}
+.help-foot{text-align:center;color:var(--text3);font-size:13px;margin-top:16px;}
