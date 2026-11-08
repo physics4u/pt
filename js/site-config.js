@@ -5,5 +5,5 @@
 //  asks for it once per device and keeps it in that browser.
 // ================================================================
 var PT_CONFIG = {
-  apiUrl: "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"
+  apiUrl: "https://script.google.com/macros/s/AKfycbzt4Awhk3xSUeVCZEGQmht2iglT_ONLSnnzU46e-zgmtBAABYOKJbBmWMsTS6eNjS9S/exec"
 };
