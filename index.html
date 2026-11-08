@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PT — Physics Tuition</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-title">&#9883; PT</div>
+    <div class="logo-sub">Physics Tuition Manager</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard')"><span class="nav-icon">&#128202;</span> Dashboard</div>
+    <div class="nav-section">Management</div>
+    <div class="nav-item" data-page="students" onclick="showPage('students')"><span class="nav-icon">&#128101;</span> Students</div>
+    <div class="nav-item" data-page="classes" onclick="showPage('classes')"><span class="nav-icon">&#128197;</span> Classes</div>
+    <div class="nav-section">Syllabus</div>
+    <div class="nav-item" data-page="syllabus" onclick="showPage('syllabus')"><span class="nav-icon">&#128214;</span> Monthly Planner</div>
+    <div class="nav-item" data-page="attsheet" onclick="showPage('attsheet')"><span class="nav-icon">&#128198;</span> Attendance Sheet</div>
+    <div class="nav-section">Finance &amp; Grades</div>
+    <div class="nav-item" data-page="payments" onclick="showPage('payments')"><span class="nav-icon">&#128179;</span> Payments</div>
+    <div class="nav-item" data-page="scores" onclick="showPage('scores')"><span class="nav-icon">&#128221;</span> Scores</div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
+
+  </nav>
+  <div class="theme-toggle" onclick="Theme.toggle()" title="Switch theme">
+    <span class="theme-toggle-icon" id="theme-icon">&#9728;</span>
+    <span class="theme-toggle-label" id="theme-label">Light Mode</span>
+    <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+  </div>
+  <div class="sidebar-footer">
+    <div id="sync-status" style="margin-bottom:6px">Starting…</div>
+    PT v4.0<br>
+    <span id="today-date"></span>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <button class="topbar-btn" id="topbar-action" onclick="topbarAction()" style="display:none">Action</button>
+  </div>
+  <div class="content">
+
+    <!-- Each page is in its own HTML file, included here -->
+    <div id="page-dashboard" class="page active">
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="stat-label">Active Students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub">enrolled</div></div>
+    <div class="stat-card orange"><div class="stat-label">Classes</div><div class="stat-value" id="stat-classes">0</div><div class="stat-sub">this year</div></div>
+    <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-sub">fees paid</div></div>
+    <div class="stat-card red"><div class="stat-label">Pending</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub">payments due</div></div>
+  </div>
+  <div class="stat-grid" style="margin-top:-12px">
+    <div class="stat-card blue"><div class="stat-label">Grade XI &mdash; Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
+    <div class="stat-card blue"><div class="stat-label">Grade XI &mdash; Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
+    <div class="stat-card orange"><div class="stat-label">Grade XII &mdash; Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
+    <div class="stat-card orange"><div class="stat-label">Grade XII &mdash; Days</div><div class="stat-value" id="stat-xii-days">0</div><div class="stat-sub">class days</div></div>
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="panel-header">
+      <span class="panel-title">&#128200; Monthly Revenue (&#8377;)</span>
+      <span id="chart-total" style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+    </div>
+    <div style="padding:24px 24px 16px;overflow-x:auto">
+      <canvas id="revenue-chart" height="220" style="width:100%;display:block"></canvas>
+      <div id="chart-empty" style="display:none;text-align:center;padding:40px;color:var(--text3);font-size:13px">
+        No paid fees recorded yet. Mark payments as Paid in the Payments page to see revenue here.
+      </div>
+    </div>
+  </div>
+
+  <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
+  <div class="grid2" style="margin-bottom:20px">
+
+    <!-- Grade XI -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#128214; Teaching Hours — <span style="color:var(--accent)">Grade XI</span></span>
+        <span id="syl-total-xi" style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+      </div>
+      <div style="padding:20px 20px 12px;overflow-x:auto">
+        <canvas id="syllabus-chart-xi" style="width:100%;display:block"></canvas>
+        <div id="syllabus-empty-xi" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
+          No Grade XI syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade XII -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#128214; Teaching Hours — <span style="color:var(--accent2)">Grade XII</span></span>
+        <span id="syl-total-xii" style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+      </div>
+      <div style="padding:20px 20px 12px;overflow-x:auto">
+        <canvas id="syllabus-chart-xii" style="width:100%;display:block"></canvas>
+        <div id="syllabus-empty-xii" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
+          No Grade XII syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">&#128338; Today's Classes</span></div>
+      <div id="today-classes-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">&#9889; Recent Activity</span></div>
+      <div class="activity-list" id="activity-list"></div>
+    </div>
+  </div>
+</div>
+    <div id="page-students" class="page">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="Search students..." id="student-search" oninput="Students.render()">
+    </div>
+    <select class="filter" id="student-filter" onchange="Students.render()">
+      <option value="">All Classes</option>
+      <option value="Grade XI">Grade XI</option>
+      <option value="Grade XII">Grade XII</option>
+    </select>
+    <select class="filter" id="student-batch-filter" onchange="Students.render()">
+      <option value="">All Batches</option>
+      <option value="Regular">Regular</option>
+      <option value="Hourly">Hourly</option>
+    </select>
+    <select class="filter" id="student-status-filter" onchange="Students.render()">
+      <option value="">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Inactive">Inactive</option>
+      <option value="Trial">Trial</option>
+    </select>
+  </div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Name</th><th>School</th><th>Class</th><th>Batch</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="students-tbody"></tbody>
+    </table>
+    <div id="students-empty" class="empty" style="display:none">
+      <div class="empty-icon">&#128101;</div>
+      <div class="empty-text">No students yet. Click "+ Add Student" to get started.</div>
+    </div>
+  </div>
+</div>
+    <div id="page-classes" class="page">
+  <div class="panel">
+    <table>
+      <thead><tr><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th>Action</th></tr></thead>
+      <tbody id="classes-tbody"></tbody>
+    </table>
+    <div id="classes-empty" class="empty" style="display:none">
+      <div class="empty-icon">&#128197;</div>
+      <div class="empty-text">No classes scheduled yet.</div>
+    </div>
+  </div>
+</div>
+    <div id="page-attsheet" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
+<select class="filter" id="as-grade" onchange="Attendance.setClass(this.value)">
+        <option value="Grade XI">Grade XI</option>
+        <option value="Grade XII">Grade XII</option>
+      </select>
+      <select class="filter" id="as-status" onchange="Attendance.render()">
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Trial">Trial</option>
+      </select>
+      <select id="attsheet-month" onchange="Attendance.render()" style="width:auto">
+        <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
+        <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
+        <option value="2026-07">July 2026</option><option value="2026-08">August 2026</option>
+        <option value="2026-09">September 2026</option><option value="2026-10">October 2026</option>
+        <option value="2026-11">November 2026</option><option value="2026-12">December 2026</option>
+        <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
+        <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
+      </select>
+    </div>
+    <button id="btn-save-attsheet" class="btn btn-primary" onclick="Attendance.save()">Save Sheet</button>
+  </div>
+  <div id="as-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
+  <div style="overflow-x:auto">
+    <div id="attsheet-wrap"><div class="empty"><div class="empty-text">Select a class and month.</div></div></div>
+  </div>
+</div>
+    <div id="page-syllabus" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
+<select class="filter" id="syl-grade" onchange="Syllabus.setClass(this.value)">
+        <option value="Grade XI">Grade XI</option>
+        <option value="Grade XII">Grade XII</option>
+      </select>
+      <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto">
+        <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
+        <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
+        <option value="2026-07">July 2026</option><option value="2026-08">August 2026</option>
+        <option value="2026-09">September 2026</option><option value="2026-10">October 2026</option>
+        <option value="2026-11">November 2026</option><option value="2026-12">December 2026</option>
+        <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
+        <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
+      </select>
+    </div>
+    <button id="btn-save-syllabus" class="btn btn-primary" onclick="Syllabus.save()">Save Month</button>
+  </div>
+  <div id="syl-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
+  <div class="panel" id="syllabus-table-wrap"></div>
+</div>
+    <div id="page-payments" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
+      <select class="filter" id="pay-grade" onchange="Payments.setClass(this.value)">
+        <option value="Grade XI">Grade XI</option>
+        <option value="Grade XII">Grade XII</option>
+      </select>
+      <select class="filter" id="pay-status" onchange="Payments.render()">
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Trial">Trial</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:11px;font-family:'DM Mono',monospace">
+      <span style="color:var(--accent3)">&#9632; Paid</span>
+      <span style="color:var(--accent2)">&#9632; Pending</span>
+      <span style="color:var(--danger)">&#9632; Overdue</span>
+      <span style="color:var(--text3)">&#9633; Unset</span>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:'DM Mono',monospace">
+    &#9432; View-only. To edit payment details, click the <b style="color:var(--text2)">View</b> button to open the student's profile.
+  </p>
+  <div style="overflow-x:auto">
+    <div id="payments-wrap"></div>
+  </div>
+</div>
+    <div id="page-scores" class="page">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="score-search" placeholder="Search by student or title..." oninput="Scores.render()">
+    </div>
+    <select class="filter" id="score-class-filter" onchange="Scores.render()">
+      <option value="">All Classes</option>
+      <option value="Grade XI">Grade XI</option>
+      <option value="Grade XII">Grade XII</option>
+    </select>
+    <select class="filter" id="score-type-filter" onchange="Scores.render()">
+      <option value="">All Types</option>
+      <option>Homework</option><option>Quiz</option><option>Test</option><option>Exam</option>
+    </select>
+  </div>
+  <div id="scores-list"></div>
+</div>
+    <div id="page-profile" class="page">
+  <div id="profile-content"></div>
+</div>
+    <div id="page-settings" class="page">
+  <div class="grid2" style="margin-bottom:24px">
+
+    <!-- Grade XI -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#128214; Grade XI &mdash; Chapter List</span>
+        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px"
+          onclick="SettingsPage.reset('Grade XI')">Reset to Default</button>
+      </div>
+      <div style="padding:16px">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">
+          One chapter per line. The order here is the order shown in the Monthly Planner dropdown.
+          <b style="color:var(--text2)">"-- None --"</b> is always added automatically as the first option.
+        </p>
+        <textarea id="settings-xi" rows="20"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+                 padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;
+                 line-height:1.7;outline:none;resize:vertical"
+          placeholder="One chapter per line..."></textarea>
+        <div style="margin-top:10px;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="SettingsPage.save('Grade XI')">Save Grade XI Chapters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade XII -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">&#128214; Grade XII &mdash; Chapter List</span>
+        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px"
+          onclick="SettingsPage.reset('Grade XII')">Reset to Default</button>
+      </div>
+      <div style="padding:16px">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">
+          One chapter per line. The order here is the order shown in the Monthly Planner dropdown.
+          <b style="color:var(--text2)">"-- None --"</b> is always added automatically as the first option.
+        </p>
+        <textarea id="settings-xii" rows="20"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+                 padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;
+                 line-height:1.7;outline:none;resize:vertical"
+          placeholder="One chapter per line..."></textarea>
+        <div style="margin-top:10px;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="SettingsPage.save('Grade XII')">Save Grade XII Chapters</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="panel" style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <span class="panel-title" style="margin-right:8px">&#128197; Academic year</span>
+    <select id="settings-acad" style="min-width:220px"></select>
+    <button class="btn btn-primary" onclick="SettingsPage.saveAcad()">Save</button>
+    <span style="flex:1"></span>
+    <button class="btn btn-secondary" onclick="SettingsPage.backup(this)">Back up sheet now</button>
+    <button class="btn btn-danger" onclick="if(confirm('Sign out on this device?'))Data.logout()">Sign out</button>
+  </div>
+  <div class="panel" style="padding:16px 20px;margin-top:16px">
+    <p style="font-size:12px;color:var(--text3)">
+      &#9432; Chapter lists and the academic year are saved to the <b>Settings</b> tab of the PT sheet,
+      so every device sees the same lists.
+    </p>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- Passcode screen -->
+<div class="modal-overlay login-overlay" id="login-overlay">
+  <form class="modal login-box" onsubmit="return Login.submit(event)">
+    <div class="logo-title" style="font-size:22px;margin-bottom:4px">&#9883; PT</div>
+    <div style="color:var(--text3);font-size:13px;margin-bottom:18px">Physics Tuition Manager</div>
+    <div class="form-row" style="margin-bottom:0"><label for="login-pass">Passcode</label>
+    <input id="login-pass" type="password" autocomplete="current-password"></div>
+    <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
+    <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+  </form>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modal-student">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-student-title">Add Student</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-student')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid2">
+        <div class="form-row"><label>First Name *</label><input id="s-fname" placeholder="e.g. Arjun"></div>
+        <div class="form-row"><label>Last Name *</label><input id="s-lname" placeholder="e.g. Mehta"></div>
+      </div>
+      <div class="form-row"><label>School</label><input id="s-school" placeholder="e.g. Delhi Public School"></div>
+      <div class="form-row"><label>Parent / Guardian Name</label><input id="s-parent" placeholder="e.g. Mr. Ramesh Mehta"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Assign Class</label>
+          <select id="s-class">
+            <option value="">None</option>
+            <option value="Grade XI">Grade XI</option>
+            <option value="Grade XII">Grade XII</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Batch Type</label>
+          <select id="s-batch">
+            <option value="Regular">Regular</option>
+            <option value="Hourly">Hourly</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Parent Contact</label><input id="s-phone" placeholder="+91 98765 43210"></div>
+        <div class="form-row"><label>Student Contact</label><input id="s-student-phone" placeholder="+91 98765 43210"></div>
+      </div>
+      <div class="form-row"><label>Email</label><input id="s-email" type="email" placeholder="parent@email.com"></div>
+      <div class="form-row"><label>Address</label><textarea id="s-address" rows="2" placeholder="e.g. 12, MG Road, Sector 4"></textarea></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Country</label><input id="s-country" placeholder="India"></div>
+        <div class="form-row"><label>Monthly Fee (&#8377;)</label><input id="s-monthly-fee" type="number" placeholder="1500"></div>
+      </div>
+      <div class="form-row"><label>Notes</label><textarea id="s-notes" rows="2"></textarea></div>
+      <div class="form-row"><label>Status <span style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0">(auto-set from End Date · set Trial manually)</span></label>
+        <select id="s-status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Trial">Trial</option>
+        </select>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Start Date</label><input id="s-start-date" type="date"></div>
+        <div class="form-row"><label>End Date</label><input id="s-end-date" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-student')">Cancel</button>
+      <button class="btn btn-primary" onclick="Students.save()">Save Student</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-class">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-class-title">Add Class</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-class')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Class Name *</label><input id="c-name" placeholder="e.g. Grade XI Physics A"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Day</label>
+          <select id="c-day">
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Level</label>
+          <select id="c-level">
+            <option>Grade XI</option>
+            <option>Grade XII</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Start Time</label><input id="c-start" type="time" value="14:00"></div>
+        <div class="form-row"><label>End Time</label><input id="c-end" type="time" value="16:00"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Tutor Name</label><input id="c-tutor" placeholder="e.g. Mr. Sharma"></div>
+        <div class="form-row"><label>Room</label><input id="c-room" placeholder="e.g. Room 3A"></div>
+      </div>
+      <div class="form-row"><label>Monthly Fee (&#8377;)</label><input id="c-fee" type="number" placeholder="1500"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-class')">Cancel</button>
+      <button class="btn btn-primary" onclick="Classes.save()">Save Class</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-score">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-score-title">Add Score</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-score')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Student *</label><select id="sc-student"></select></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Type</label>
+          <select id="sc-type">
+            <option>Homework</option><option>Quiz</option><option>Test</option><option>Exam</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Date</label><input id="sc-date" type="date"></div>
+      </div>
+      <div class="form-row"><label>Title / Topic</label><input id="sc-title" placeholder="e.g. Kinematics Test 1"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Score Obtained</label><input id="sc-score" type="number" min="0" placeholder="85"></div>
+        <div class="form-row"><label>Total Marks</label><input id="sc-total" type="number" min="1" placeholder="100"></div>
+      </div>
+      <div class="form-row"><label>Remarks</label><input id="sc-remarks" placeholder="e.g. Good improvement!"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-score')">Cancel</button>
+      <button class="btn btn-primary" onclick="Scores.save()">Save Score</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT MODULES ===== -->
+<!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
+<script src="js/site-config.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/students.js"></script>
+<script src="js/classes.js"></script>
+<script src="js/attendance.js"></script>
+<script src="js/syllabus.js"></script>
+<script src="js/payments.js"></script>
+<script src="js/scores.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

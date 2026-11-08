@@ -1,0 +1,96 @@
+// ================================================================
+//  JS_Classes — Classes page and modal
+// ================================================================
+
+var Classes = (function () {
+  var _editIdx = -1;
+
+  function render() {
+    var D     = Data.get();
+    var tbody = Utils.el("classes-tbody");
+    var empty = Utils.el("classes-empty");
+
+    if (D.classes.length === 0) {
+      tbody.innerHTML = "";
+      empty.style.display = "";
+      return;
+    }
+    empty.style.display = "none";
+
+    // Count students per class
+    var cnt = {};
+    Data.allStudents().forEach(function (s) {
+      if (s.cls) cnt[s.cls] = (cnt[s.cls] || 0) + 1;
+    });
+
+    tbody.innerHTML = D.classes.map(function (c, i) {
+      return "<tr>" +
+        "<td>" + c.name + "</td>" +
+        "<td>" + c.day  + "</td>" +
+        "<td>" + c.start + " \u2013 " + c.end + "</td>" +
+        "<td><span class='badge badge-blue'>" + c.level + "</span></td>" +
+        "<td>" + (c.tutor || "\u2014") + "</td>" +
+        "<td><span class='badge badge-green'>" + (cnt[c.name] || 0) + " students</span></td>" +
+        "<td>" + (c.room || "\u2014") + "</td>" +
+        "<td style='white-space:nowrap'>" +
+          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Classes.openModal(" + i + ")'>Edit</button> " +
+          "<button class='btn btn-danger'    style='padding:4px 10px;font-size:11px' onclick='Classes.del(" + i + ")'>Del</button>" +
+        "</td></tr>";
+    }).join("");
+  }
+
+  function openModal(idx) {
+    _editIdx = (idx !== undefined) ? idx : -1;
+    var c = _editIdx >= 0 ? Data.get().classes[_editIdx] : null;
+    Utils.el("modal-class-title").textContent = _editIdx >= 0 ? "Edit Class" : "Add Class";
+    Utils.el("c-name").value  = c ? c.name  : "";
+    Utils.el("c-day").value   = c ? c.day   : "Monday";
+    Utils.el("c-level").value = c ? c.level : "Grade XI";
+    Utils.el("c-start").value = c ? c.start : "14:00";
+    Utils.el("c-end").value   = c ? c.end   : "16:00";
+    Utils.el("c-tutor").value = c ? (c.tutor || "") : "";
+    Utils.el("c-room").value  = c ? (c.room  || "") : "";
+    Utils.el("c-fee").value   = c ? (c.fee   || "") : "";
+    Utils.openModal("modal-class");
+  }
+
+  function save() {
+    var name = Utils.el("c-name").value.trim();
+    if (!name) { alert("Please enter a class name."); return; }
+
+    var cls = {
+      name:  name,
+      day:   Utils.el("c-day").value,
+      level: Utils.el("c-level").value,
+      start: Utils.el("c-start").value,
+      end:   Utils.el("c-end").value,
+      tutor: Utils.el("c-tutor").value,
+      room:  Utils.el("c-room").value,
+      fee:   Utils.el("c-fee").value
+    };
+
+    var D = Data.get();
+    if (_editIdx >= 0) {
+      D.classes[_editIdx] = cls;
+      Data.log("Updated class <b>" + name + "</b>");
+    } else {
+      D.classes.push(cls);
+      Data.log("Added class <b>" + name + "</b>");
+    }
+    Data.save();
+    Utils.closeModal("modal-class");
+    render();
+  }
+
+  function del(i) {
+    if (!confirm("Delete this class?")) return;
+    var D = Data.get();
+    var n = D.classes[i].name;
+    D.classes.splice(i, 1);
+    Data.log("Removed class <b>" + n + "</b>");
+    Data.save();
+    render();
+  }
+
+  return { render: render, openModal: openModal, save: save, del: del };
+})();
