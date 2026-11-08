@@ -27,7 +27,7 @@ var Attendance = (function () {
     var mn    = MONTHS[month - 1];
 
     var lbl = Utils.el("as-class-label");
-    if (lbl) lbl.textContent = _cls + " \u2014 " + mn + " " + year;
+    if (lbl) lbl.textContent = Utils.grade(_cls) + " \u2014 " + mn + " " + year;
 
     var sf       = (Utils.el("as-status") || {}).value || "";
     var students = Data.allStudents().filter(function (s) {
@@ -36,7 +36,7 @@ var Attendance = (function () {
     var wrap     = Utils.el("attsheet-wrap");
 
     if (students.length === 0) {
-      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No students in " + _cls + ".</div></div>";
+      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No students in " + Utils.grade(_cls) + ".</div></div>";
       return;
     }
 
@@ -144,7 +144,7 @@ var Attendance = (function () {
 
   function save() {
     Data.save();
-    Data.log("Saved attendance for <b>" + _cls + "</b> \u2014 " + (ACYR_LBL[Utils.el("attsheet-month").value] || ""));
+    Data.log("Saved attendance for <b>" + Utils.grade(_cls) + "</b> \u2014 " + (ACYR_LBL[Utils.el("attsheet-month").value] || ""));
   }
 
   return { init: init, setClass: setClass, render: render, save: save };

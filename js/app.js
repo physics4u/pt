@@ -31,7 +31,7 @@ var Dashboard = (function () {
     Utils.el("stat-p2").textContent = cnt(p2);
     Utils.el("stat-p2-sub").textContent = split(p2);
     Utils.el("stat-hr").textContent = cnt(hr);
-    Utils.el("stat-hr-sub").textContent = "+1: " + cnt(function (s) { return hr(s) && p1(s); }) + " \u00b7 +2: " + cnt(function (s) { return hr(s) && p2(s); });
+    Utils.el("stat-hr-sub").textContent = "Plus 1: " + cnt(function (s) { return hr(s) && p1(s); }) + " \u00b7 Plus 2: " + cnt(function (s) { return hr(s) && p2(s); });
 
     // Group fees (this academic year) + hourly payments
     var rev = 0, owed = 0, owedCount = 0;

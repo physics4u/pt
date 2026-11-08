@@ -39,7 +39,7 @@ var Scores = (function () {
               "<span class='report-card-title'>" + sc.title + "</span>" +
               "<span class='badge " + tc + "'>" + sc.type + "</span>" +
             "</div>" +
-            "<div style='font-size:12px;color:var(--text3)'>" + sc.student + " &bull; " + sc.cls + " &bull; " + sc.date + "</div>" +
+            "<div style='font-size:12px;color:var(--text3)'>" + sc.student + " &bull; " + Utils.grade(sc.cls) + " &bull; " + sc.date + "</div>" +
             (sc.remarks ? "<div style='font-size:12px;color:var(--text2);margin-top:4px'>" + sc.remarks + "</div>" : "") +
           "</div>" +
           "<div style='display:flex;align-items:center;gap:12px'>" +
