@@ -371,8 +371,7 @@ input,select,textarea{border-radius:8px;background:var(--bg);}
 details.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
 details.section > summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;padding:14px 18px;}
 details.section > summary::-webkit-details-marker{display:none;}
-details.section > summary::after{content:"\25BE";margin-left:auto;color:var(--text3);transition:transform 0.15s;}
-details.section:not([open]) > summary::after{transform:rotate(-90deg);}
+
 details.section > summary:hover{background:var(--surface2);}
 .section-title{font-weight:700;font-size:15px;color:var(--text);}
 .section-hint{font-size:12px;color:var(--text3);}
@@ -441,3 +440,37 @@ input:disabled{opacity:0.6;}
 .link-btn{background:none;border:none;padding:0;color:var(--text3);font-size:12px;text-decoration:underline;cursor:pointer;font-family:inherit;}
 .link-btn:hover{color:var(--accent);}
 @media (max-width:900px){ .chap-grid{grid-template-columns:1fr;} .chap-list{columns:1;} }
+
+/* ================================================================
+   Comfortable reading width (don't stretch across wide screens)
+================================================================ */
+.topbar,.content{width:100%;max-width:1240px;margin-left:auto;margin-right:auto;}
+
+/* Section headers: title · meta ......... [actions] [Show ▾] */
+details.section > summary{align-items:center;gap:6px;padding:12px 16px;}
+.section-title{font-size:15px;}
+.section-meta{font-size:12px;font-weight:600;color:var(--text3);}
+.section-actions{margin-left:auto;display:flex;gap:8px;}
+.section-actions + .show-pill{margin-left:0;}
+.show-pill{margin-left:auto;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;
+  font-weight:700;color:var(--text);white-space:nowrap;}
+.show-pill::after{content:"Show \25BE";}
+details.section[open] .show-pill::after{content:"Hide \25B4";}
+details.section > summary:hover .show-pill{border-color:var(--text3);}
+.section-body{padding:12px 16px 16px;}
+.section-note{font-size:12.5px;line-height:1.6;color:var(--text2);margin:0 0 12px;}
+.section-note code,.section-body code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:12px;}
+
+/* Users table, Zeron style */
+.users-table{border:none;margin-bottom:12px;}
+.users-table th{background:var(--surface2);text-transform:none;font-size:12px;letter-spacing:0;color:var(--text2);}
+.users-table td{padding:10px 14px;color:var(--text);}
+.users-table td.num{color:var(--text3);width:36px;}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;
+  background:var(--surface2);color:var(--text2);}
+.chip-gold{background:rgb(var(--accent-rgb) / 0.15);color:var(--accent);}
+.you{font-size:11px;color:var(--text3);font-weight:500;}
+.user-form{margin-bottom:12px;}
+.users-foot{display:flex;gap:8px;}
+.danger-link{color:var(--danger);}
+.danger-link:hover{color:var(--danger);}

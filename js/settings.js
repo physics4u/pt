@@ -12,6 +12,7 @@ var SettingsPage = (function () {
     _renderChapters("Grade XII");
     _editing("Grade XI", false);
     _editing("Grade XII", false);
+    Utils.el("acad-meta").textContent = "\u00b7 " + (ACYR_LBL[ACYR[0]] || "") + " \u2192 " + (ACYR_LBL[ACYR[ACYR.length - 1]] || "");
     var sel = Utils.el("settings-acad");
     var cur = Settings.get("acadStart") || defaultAcadStart();
     var y0  = Number(defaultAcadStart().slice(0, 4));
@@ -27,7 +28,7 @@ var SettingsPage = (function () {
   // Version information for both halves of PT.
   function _about() {
     var sv = Data.serverVersion();
-    Utils.el("about-hint").textContent = "Version " + PT_VERSION;
+    Utils.el("about-hint").textContent = "\u00b7 version " + PT_VERSION;
     var rows = [
       ["Website version", PT_VERSION + (PT_BUILD !== "dev" ? "  (build " + PT_BUILD + ")" : "")],
       ["Server version",  sv || "\u2014"],
@@ -51,6 +52,7 @@ var SettingsPage = (function () {
     Settings.set("acadStart", v);
     setAcademicYear(v);
     Utils.el("year-chip").textContent = ACYR[0].slice(0, 4) + "\u2013" + String(Number(ACYR[0].slice(0, 4)) + 1).slice(2);
+    Utils.el("acad-meta").textContent = "\u00b7 " + ACYR_LBL[ACYR[0]] + " \u2192 " + ACYR_LBL[ACYR[ACYR.length - 1]];
     Data.log("Set academic year to <b>" + (ACYR_LBL[ACYR[0]] || v) + "</b>");
   }
 
@@ -58,8 +60,10 @@ var SettingsPage = (function () {
     btn.disabled = true; btn.textContent = "Backing up\u2026";
     Data.backup().then(function (r) {
       btn.disabled = false;
-      btn.textContent = r.ok ? "\u2714 " + r.name : "Backup failed: " + (r.error || "");
-      setTimeout(function () { btn.textContent = "Back up sheet now"; }, 4000);
+      btn.textContent = r.ok ? "\u2714 Backed up" : "\u26a0 Failed";
+      if (!r.ok) Dialog.alert("Backup failed: " + (r.error || "unknown error"));
+      else Data.log("Backed up the sheet (<b>" + r.name + "</b>)");
+      setTimeout(function () { btn.textContent = "\u27f3 Back up now"; }, 4000);
     });
   }
 
@@ -72,6 +76,8 @@ var SettingsPage = (function () {
     var k = _k(grade), list = Settings.chapters(grade).slice(1);   // drop "-- None --"
     Utils.el("chap-list-" + k).innerHTML = list.map(function (c) { return "<li>" + _esc(c) + "</li>"; }).join("");
     Utils.el("chap-count-" + k).textContent = list.length + " chapters";
+    var xi = Settings.chapters("Grade XI").length - 1, xii = Settings.chapters("Grade XII").length - 1;
+    Utils.el("chap-meta").textContent = "\u00b7 Plus 1: " + xi + " \u00b7 Plus 2: " + xii;
   }
 
   function _editing(grade, on) {

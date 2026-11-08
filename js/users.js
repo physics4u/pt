@@ -1,5 +1,7 @@
 // ================================================================
-//  users.js — Settings → Users (admins) and My account (everyone).
+//  users.js — Settings → Users.
+//  One table for everyone (including the built-in Owner sign-in).
+//  The add/edit form and the password form stay hidden until needed.
 //  Users live in the "Users" tab of the PT sheet; passwords are
 //  hashed on the server and never sent back to the browser.
 // ================================================================
@@ -14,37 +16,76 @@ var Users = (function () {
   }
 
   function load() {
-    showMe();
-    if (!Data.isAdmin()) return;
+    var me = Data.me() || {};
+    Utils.el("pw-btn").style.display = me.username === "admin" && !_list.some(function (u) { return u.username === "admin"; })
+      ? "none" : "";   // the Owner's password is the PT_PASSCODE script property
+    if (!Data.isAdmin()) { _list = []; render(); return; }
     Data.api("listUsers").then(function (r) {
-      if (!r.ok) { _render("<tr><td colspan='6' style='color:var(--danger)'>" + _esc(r.error) + "</td></tr>"); return; }
+      if (!r.ok) {
+        Utils.el("users-tbody").innerHTML = "<tr><td colspan='7' style='color:var(--danger)'>" + _esc(r.error) + "</td></tr>";
+        return;
+      }
       _list = r.users || [];
       render();
+      load.done = true;
     });
   }
 
-  function _render(html) { Utils.el("users-tbody").innerHTML = html; }
+  function _roleChips(u) {
+    var c = u.owner ? "<span class='chip chip-gold'>Owner</span> " : "";
+    return c + (u.role === "admin" ? "<span class='chip chip-gold'>Admin</span>" : "<span class='chip'>User</span>");
+  }
 
   function render() {
     var me = Data.me() || {};
-    if (!_list.length) {
-      _render("<tr><td colspan='6' style='color:var(--text3)'>No users yet. You are signed in with the built-in " +
-              "<b>admin</b> account. Add yourself as an admin below, then everyone else.</td></tr>");
-      return;
+    var rows;
+    if (Data.isAdmin()) {
+      rows = _list.slice();
+      // The built-in Owner sign-in, unless someone created a real "admin" user.
+      if (!rows.some(function (u) { return u.username === "admin"; })) {
+        rows.unshift({ username: "admin", name: "Owner", role: "admin", active: true, created: "built-in", owner: true });
+      }
+    } else {
+      rows = [{ username: me.username, name: me.name, role: me.role, active: true, created: "" }];
     }
-    _render(_list.map(function (u) {
+    Utils.el("users-meta").textContent = Data.isAdmin() ? "· " + rows.length : "· your account";
+    Utils.el("users-tbody").innerHTML = rows.map(function (u, n) {
       var self = u.username === me.username;
+      var canEdit = Data.isAdmin() && !u.owner;
       return "<tr>" +
-        "<td>" + _esc(u.name) + (self ? " <span class='badge badge-blue'>you</span>" : "") + "</td>" +
+        "<td class='num'>" + (n + 1) + "</td>" +
+        "<td><b>" + _esc(u.name) + "</b>" + (self ? " <span class='you'>you</span>" : "") + "</td>" +
         "<td>" + _esc(u.username) + "</td>" +
-        "<td><span class='badge " + (u.role === "admin" ? "badge-orange'>Admin" : "badge-blue'>User") + "</span></td>" +
-        "<td><span class='badge " + (u.active ? "badge-green'>Active" : "badge-red'>Disabled") + "</span></td>" +
+        "<td>" + _roleChips(u) + "</td>" +
+        "<td>" + (u.active ? "Yes" : "<span style='color:var(--danger)'>No</span>") + "</td>" +
         "<td>" + _esc(u.created) + "</td>" +
         "<td style='white-space:nowrap;text-align:right'>" +
-          "<button class='btn btn-secondary btn-sm' onclick=\"Users.edit('" + _esc(u.username) + "')\">Edit</button> " +
-          (self ? "" : "<button class='btn btn-danger btn-sm' onclick=\"Users.del('" + _esc(u.username) + "')\">Delete</button>") +
+          (canEdit ? "<button class='btn btn-secondary btn-sm' onclick=\"Users.edit('" + _esc(u.username) + "')\">&#9998; Edit</button>" : "") +
         "</td></tr>";
-    }).join(""));
+    }).join("");
+  }
+
+  function _openSection() { Utils.el("sec-users").open = true; }
+
+  function _showForm(title, submitText) {
+    Utils.el("user-form-title").textContent = title;
+    Utils.el("u-submit").textContent = submitText;
+    Utils.el("user-form").style.display = "";
+    togglePw(false);
+    Utils.el("u-name").focus();
+  }
+
+  // "+ Add user" lives in the section header, so stop it toggling the section.
+  function addNew(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    _openSection();
+    _editing = null;
+    Utils.el("user-form").reset();
+    Utils.el("u-username").disabled = false;
+    Utils.el("u-active").checked = true;
+    Utils.el("u-password").placeholder = "At least 6 characters";
+    Utils.el("u-password-label").textContent = "Password";
+    _showForm("Add a user", "Add user");
   }
 
   function edit(username) {
@@ -59,22 +100,27 @@ var Users = (function () {
     Utils.el("u-password").value = "";
     Utils.el("u-password").placeholder = "Leave blank to keep the current password";
     Utils.el("u-password-label").textContent = "New password (optional)";
-    Utils.el("user-form-title").textContent = "Edit " + u.name;
-    Utils.el("u-submit").textContent = "Save changes";
-    Utils.el("u-cancel").style.display = "";
-    Utils.el("u-name").focus();
+    _showForm("Edit " + u.name, "Save changes");
+    _deleteBtn(username);
   }
 
-  function resetForm() {
+  // Delete lives inside the edit form, away from the table.
+  function _deleteBtn(username) {
+    var old = document.getElementById("u-delete"); if (old) old.remove();
+    var me = Data.me() || {};
+    if (!username || username === me.username) return;
+    var b = document.createElement("button");
+    b.type = "button"; b.id = "u-delete"; b.className = "link-btn danger-link";
+    b.textContent = "Delete this user";
+    b.onclick = function () { del(username); };
+    Utils.el("u-submit").parentNode.insertBefore(b, Utils.el("u-submit").parentNode.children[1]);
+  }
+
+  function closeForm() {
     _editing = null;
     Utils.el("user-form").reset();
-    Utils.el("u-username").disabled = false;
-    Utils.el("u-active").checked = true;
-    Utils.el("u-password").placeholder = "At least 6 characters";
-    Utils.el("u-password-label").textContent = "Password";
-    Utils.el("user-form-title").textContent = "Add a user";
-    Utils.el("u-submit").textContent = "Add user";
-    Utils.el("u-cancel").style.display = "none";
+    Utils.el("user-form").style.display = "none";
+    var d = document.getElementById("u-delete"); if (d) d.remove();
   }
 
   function submit(e) {
@@ -93,7 +139,7 @@ var Users = (function () {
       if (!r.ok) { Dialog.alert(r.error || "Could not save the user."); return; }
       Data.log((_editing ? "Updated user <b>" : "Added user <b>") + _esc(data.name) + "</b>");
       Data.save();
-      resetForm();
+      closeForm();
       load();
     });
     return false;
@@ -109,7 +155,7 @@ var Users = (function () {
         if (!r.ok) { Dialog.alert(r.error || "Could not delete the user."); return; }
         Data.log("Deleted user <b>" + _esc(u.name) + "</b>");
         Data.save();
-        if (_editing === username) resetForm();
+        closeForm();
         load();
       });
     });
@@ -119,16 +165,7 @@ var Users = (function () {
     var f = Utils.el("pw-form");
     if (show === undefined) show = f.style.display === "none";
     f.style.display = show ? "" : "none";
-    if (show) Utils.el("pw-old").focus(); else f.reset();
-  }
-
-  // "Signed in as" row at the top of the section
-  function showMe() {
-    var me = Data.me() || {};
-    var nm = me.name || me.username || "";
-    Utils.el("me-avatar").textContent = nm.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
-    Utils.el("me-name").textContent = nm;
-    Utils.el("acct-hint").textContent = (me.role === "admin" ? "Admin" : "User") + " \u00b7 signed in as " + (me.username || "");
+    if (show) { closeForm(); Utils.el("pw-old").focus(); } else f.reset();
   }
 
   function changePassword(e) {
@@ -142,5 +179,6 @@ var Users = (function () {
     return false;
   }
 
-  return { load: load, togglePw: togglePw, edit: edit, del: del, submit: submit, resetForm: resetForm, changePassword: changePassword };
+  return { load: load, addNew: addNew, edit: edit, closeForm: closeForm, submit: submit,
+           togglePw: togglePw, changePassword: changePassword };
 })();

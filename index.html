@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108110815">
+<link rel="stylesheet" href="css/styles.css?v=20261108111447">
 </head>
 <body>
 
@@ -276,55 +276,64 @@
 </div>
     <div id="page-settings" class="page">
 
-  <!-- Users & account: own account for everyone, user list for admins -->
+  <!-- Users -->
   <details class="section" id="sec-users" open>
-    <summary><span class="section-title">&#128101; Users &amp; account</span><span class="section-hint">Your sign-in, and who else can use PT</span></summary>
+    <summary>
+      <span class="section-title">Users</span><span class="section-meta" id="users-meta"></span>
+      <span class="section-actions">
+        <button type="button" class="btn btn-secondary btn-sm admin-only" onclick="Users.addNew(event)">+ Add user</button>
+      </span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
     <div class="section-body">
+      <p class="section-note admin-only"><b>User</b>: students, classes, planner, attendance, payments and scores.
+        <b>Admin</b>: also manages users, chapter lists, the academic year and backups.
+        The <b>Owner</b> is the built-in <code>admin</code> sign-in that uses the PT_PASSCODE; it always works, so you can't be locked out.</p>
 
-      <div class="me-row">
-        <span class="user-avatar" id="me-avatar"></span>
-        <div class="me-text"><div class="me-name" id="me-name"></div><div class="me-sub" id="acct-hint"></div></div>
-        <span style="flex:1"></span>
-        <button type="button" class="btn btn-secondary" onclick="Users.togglePw()">Change password</button>
-        <button type="button" class="btn btn-danger" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
-      </div>
-      <form id="pw-form" class="user-form user-form-grid pw-form" onsubmit="return Users.changePassword(event)" style="display:none">
-        <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
-        <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
-        <div class="user-form-actions" style="grid-column:1/-1">
-          <button type="button" class="btn btn-secondary" onclick="Users.togglePw(false)">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save new password</button>
+      <table class="users-table">
+        <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Role</th><th>Active</th><th>Added</th><th></th></tr></thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+
+      <form class="user-form" id="user-form" onsubmit="return Users.submit(event)" style="display:none">
+        <div class="user-form-title" id="user-form-title">Add a user</div>
+        <div class="user-form-grid">
+          <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
+          <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
+          <div class="form-row"><label for="u-role">Role</label>
+            <select id="u-role"><option value="user">User</option><option value="admin">Admin</option></select></div>
+          <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+        </div>
+        <div class="user-form-actions">
+          <label class="check" style="margin-right:auto"><input type="checkbox" id="u-active" checked> Can sign in</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="Users.closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="u-submit">Add user</button>
         </div>
       </form>
 
-      <div class="admin-only users-admin">
-        <div class="sub-title">All users</div>
-        <table class="users-table">
-          <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
-          <tbody id="users-tbody"><tr><td colspan="6" style="color:var(--text3)">Loading&hellip;</td></tr></tbody>
-        </table>
-        <form class="user-form" id="user-form" onsubmit="return Users.submit(event)">
-          <div class="user-form-title" id="user-form-title">Add a user</div>
-          <div class="user-form-grid">
-            <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
-            <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
-            <div class="form-row"><label for="u-role">Role</label>
-              <select id="u-role"><option value="user">User &mdash; manage students, classes, attendance, payments</option><option value="admin">Admin &mdash; everything, including users &amp; settings</option></select></div>
-            <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
-          </div>
-          <label class="check"><input type="checkbox" id="u-active" checked> Can sign in</label>
-          <div class="user-form-actions">
-            <button type="button" class="btn btn-secondary" id="u-cancel" onclick="Users.resetForm()" style="display:none">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="u-submit">Add user</button>
-          </div>
-        </form>
+      <form id="pw-form" class="user-form pw-form" onsubmit="return Users.changePassword(event)" style="display:none">
+        <div class="user-form-title">Change my password</div>
+        <div class="user-form-grid">
+          <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
+          <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
+        </div>
+        <div class="user-form-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="Users.togglePw(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save new password</button>
+        </div>
+      </form>
+
+      <div class="users-foot">
+        <button type="button" class="btn btn-secondary btn-sm" id="pw-btn" onclick="Users.togglePw()">&#128273; Change my password</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
       </div>
     </div>
   </details>
 
   <!-- Chapter lists (admins only) -->
   <details class="section admin-only">
-    <summary><span class="section-title">&#128214; Chapter lists</span><span class="section-hint">Chapters offered in the Monthly Planner</span></summary>
+    <summary>
+      <span class="section-title">Chapter lists</span><span class="section-meta" id="chap-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
     <div class="section-body">
       <div class="chap-grid">
         <div class="chap-card">
@@ -367,20 +376,37 @@
     </div>
   </details>
 
-  <!-- Academic year & backup (admins only) -->
+  <!-- Academic year (admins only) -->
   <details class="section admin-only">
-    <summary><span class="section-title">&#128197; Academic year &amp; backup</span><span class="section-hint">Which months PT shows, and a copy of the sheet</span></summary>
-    <div class="section-body" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <summary>
+      <span class="section-title">Academic year</span><span class="section-meta" id="acad-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
       <select id="settings-acad" style="width:auto;min-width:240px"></select>
-      <button class="btn btn-primary" onclick="SettingsPage.saveAcad()">Save year</button>
-      <span style="flex:1"></span>
-      <button class="btn btn-secondary" onclick="SettingsPage.backup(this)">Back up sheet now</button>
+      <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveAcad()">Save year</button>
+      <span class="section-note" style="margin:0">PT shows 14 months, from March to the following April.</span>
     </div>
   </details>
 
-  <!-- About / version -->
+  <!-- Backups (admins only) -->
+  <details class="section admin-only">
+    <summary>
+      <span class="section-title">Backups</span><span class="section-meta">&middot; copies go to the PT Backups folder</span>
+      <span class="section-actions">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="event.preventDefault();event.stopPropagation();SettingsPage.backup(this)">&#10227; Back up now</button>
+      </span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body section-note" style="margin:0">
+      Each backup is a full copy of the PT sheet, named with the date and time. PT keeps the newest 30.
+      For a daily copy, add a time-driven trigger for <code>backupNow</code> in Apps Script.
+    </div>
+  </details>
+
+  <!-- About -->
   <details class="section">
-    <summary><span class="section-title">&#9432; About PT</span><span class="section-hint" id="about-hint"></span></summary>
+    <summary>
+      <span class="section-title">About PT</span><span class="section-meta" id="about-hint"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
     <div class="section-body about" id="about-body"></div>
   </details>
 </div>
@@ -530,21 +556,21 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108110815"></script>
-<script src="js/version.js?v=20261108110815"></script>
-<script src="js/config.js?v=20261108110815"></script>
-<script src="js/data.js?v=20261108110815"></script>
-<script src="js/utils.js?v=20261108110815"></script>
-<script src="js/students.js?v=20261108110815"></script>
-<script src="js/classes.js?v=20261108110815"></script>
-<script src="js/attendance.js?v=20261108110815"></script>
-<script src="js/syllabus.js?v=20261108110815"></script>
-<script src="js/payments.js?v=20261108110815"></script>
-<script src="js/scores.js?v=20261108110815"></script>
-<script src="js/profile.js?v=20261108110815"></script>
-<script src="js/settings.js?v=20261108110815"></script>
-<script src="js/users.js?v=20261108110815"></script>
-<script src="js/app.js?v=20261108110815"></script>
+<script src="js/site-config.js?v=20261108111447"></script>
+<script src="js/version.js?v=20261108111447"></script>
+<script src="js/config.js?v=20261108111447"></script>
+<script src="js/data.js?v=20261108111447"></script>
+<script src="js/utils.js?v=20261108111447"></script>
+<script src="js/students.js?v=20261108111447"></script>
+<script src="js/classes.js?v=20261108111447"></script>
+<script src="js/attendance.js?v=20261108111447"></script>
+<script src="js/syllabus.js?v=20261108111447"></script>
+<script src="js/payments.js?v=20261108111447"></script>
+<script src="js/scores.js?v=20261108111447"></script>
+<script src="js/profile.js?v=20261108111447"></script>
+<script src="js/settings.js?v=20261108111447"></script>
+<script src="js/users.js?v=20261108111447"></script>
+<script src="js/app.js?v=20261108111447"></script>
 
 </body>
 </html>
