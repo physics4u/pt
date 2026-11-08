@@ -44,28 +44,6 @@ var Dashboard = (function () {
     _renderSyllabusChart(D, "Grade XI",  "syllabus-chart-xi",  "syllabus-empty-xi",  "syl-total-xi");
     _renderSyllabusChart(D, "Grade XII", "syllabus-chart-xii", "syllabus-empty-xii", "syl-total-xii");
 
-    // ---- Activity feed ----
-    var al = Utils.el("activity-list");
-    al.innerHTML = D.activity.length === 0
-      ? "<div class='empty'><div class='empty-text'>No activity yet.</div></div>"
-      : D.activity.map(function (a) {
-          return "<div class='activity-item'>" +
-                 "<div class='activity-dot' style='background:var(--accent)'></div>" +
-                 "<div class='activity-text'>" + a.text + "</div>" +
-                 "<div class='activity-time'>"  + a.time + "</div>" +
-                 "</div>";
-        }).join("");
-
-    // ---- Today's classes ----
-    var today = new Date().toLocaleDateString("en-US", {weekday:"long"});
-    var tc    = D.classes.filter(function (c) { return c.day === today; });
-    var tcl   = Utils.el("today-classes-list");
-    tcl.innerHTML = tc.length === 0
-      ? "<div class='empty'><div class='empty-text'>No classes scheduled today.</div></div>"
-      : "<table><thead><tr><th>Class</th><th>Time</th><th>Tutor</th></tr></thead><tbody>" +
-        tc.map(function (c) {
-          return "<tr><td>" + c.name + "</td><td>" + c.start + "\u2013" + c.end + "</td><td>" + (c.tutor || "\u2014") + "</td></tr>";
-        }).join("") + "</tbody></table>";
   }
 
   // ----------------------------------------------------------------
