@@ -23,17 +23,27 @@ var Dashboard = (function () {
     }).length;
     Utils.el("stat-classes").textContent  = D.classes.length;
 
-    var rev = 0, pending = 0;
-    if (D.paygrid) {
-      Object.values(D.paygrid).forEach(function (month) {
-        Object.values(month).forEach(function (r) {
-          if (r.status === "Paid")    rev += Number(r.amount) || 0;
-          if (r.status === "Pending" || r.status === "Overdue") pending++;
-        });
+    // Group fees (this academic year) + hourly payments
+    var rev = 0, owed = 0, owedCount = 0;
+    var byName = {};
+    D.students.forEach(function (s) { byName[Utils.fullName(s)] = s; });
+    Object.keys(D.paygrid || {}).forEach(function (sk) {
+      if (ACYR.indexOf(sk.split("|")[2]) < 0) return;
+      Object.keys(D.paygrid[sk]).forEach(function (nm) {
+        var r = D.paygrid[sk][nm];
+        if (r.status === "Paid") rev += Number(r.amount) || 0;
+        if (r.status === "Pending" || r.status === "Overdue") {
+          owed += Number(r.amount) || Number((byName[nm] || {}).monthlyFee) || 0; owedCount++;
+        }
       });
-    }
+    });
+    var H = Hourly.totals();
+    rev += H.paid; owed += H.balance;
     Utils.el("stat-revenue").textContent = "\u20b9" + rev.toLocaleString("en-IN");
-    Utils.el("stat-pending").textContent = pending;
+    Utils.el("stat-pending").textContent = "\u20b9" + Math.round(owed).toLocaleString("en-IN");
+    Utils.el("stat-pending-sub").textContent = owed > 0 ? "fees not yet paid" : "all fees paid";
+    Utils.el("stat-hourly").textContent = Hourly.hm(H.hours);
+    Utils.el("stat-hourly-sub").textContent = D.students.filter(Hourly.isHourly).length + " hourly students";
 
     // ---- Grade hours & days tiles ----
     _renderGradeStats(D, "Grade XI",  "stat-xi-hours",  "stat-xi-days");
@@ -128,6 +138,9 @@ var Dashboard = (function () {
         });
       });
     }
+    // Hourly payments count in the month they were received
+    var hi = Hourly.totals().income;
+    Object.keys(hi).forEach(function (ym) { if (monthlyRev.hasOwnProperty(ym)) monthlyRev[ym] += hi[ym]; });
 
     // Show full academic year March 2026 → April 2027
     var labels = ACYR.slice();

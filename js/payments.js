@@ -43,12 +43,13 @@ var Payments = (function () {
     var D       = Data.get();
     var sf       = (Utils.el("pay-status") || {}).value || "";
     var students = Data.allStudents().filter(function (s) {
-      return s.cls === _cls && (!sf || s.status === sf);
+      return s.cls === _cls && Hourly.inGroup(s) && (!sf || s.status === sf);
     });
     var wrap    = Utils.el("payments-wrap");
 
     if (students.length === 0) {
-      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No students in " + _cls + ".</div></div>";
+      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No group-class students in " + _cls + ".</div></div>" +
+                       Hourly.renderPaymentsTable(_cls);
       return;
     }
 
@@ -203,6 +204,7 @@ var Payments = (function () {
 
     wrap.innerHTML = "";
     wrap.appendChild(tbl);
+    wrap.insertAdjacentHTML("beforeend", Hourly.renderPaymentsTable(_cls));
   }
 
   return { init: init, setClass: setClass, render: render };

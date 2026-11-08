@@ -68,7 +68,18 @@ var Students = (function () {
     Utils.el("s-status").value        = s ? s.status        : "Active";
     Utils.el("s-start-date").value    = s ? (s.startDate    || "") : "";
     Utils.el("s-end-date").value      = s ? (s.endDate      || "") : "";
+    Utils.el("s-hourly-rate").value   = s ? (s.hourlyRate   || "") : "";
+    Utils.el("s-group-too").checked   = !!s && s.groupToo === "yes";
+    toggleBatch();
     Utils.openModal("modal-student");
+  }
+
+  // Hourly students get a rate per hour; the monthly fee only applies
+  // to students in the group classes.
+  function toggleBatch() {
+    var hourly = Utils.el("s-batch").value === "Hourly";
+    Utils.el("s-hourly-fields").style.display = hourly ? "" : "none";
+    Utils.el("s-fee-row").style.display = !hourly || Utils.el("s-group-too").checked ? "" : "none";
   }
 
   function save() {
@@ -92,27 +103,21 @@ var Students = (function () {
       notes:        Utils.el("s-notes").value,
       status:       Utils.el("s-status").value,
       startDate:    Utils.el("s-start-date").value,
-      endDate:      Utils.el("s-end-date").value
+      endDate:      Utils.el("s-end-date").value,
+      hourlyRate:   Utils.el("s-batch").value === "Hourly" ? Utils.el("s-hourly-rate").value : "",
+      groupToo:     Utils.el("s-batch").value === "Hourly" && Utils.el("s-group-too").checked ? "yes" : ""
     };
 
-    // Auto-derive status from endDate (mirrors _apply logic in JS_Data):
-    //   • Trial is always honoured — set manually, never overridden
-    //   • endDate empty           → Active
-    //   • endDate today or past   → Inactive
-    //   • endDate future          → keep Active
-    if (student.status !== "Trial") {
-      if (student.endDate) {
-        var endDt   = new Date(student.endDate); endDt.setHours(0,0,0,0);
-        var todayDt = new Date(); todayDt.setHours(0,0,0,0);
-        student.status = (endDt <= todayDt) ? "Inactive" : "Active";
-      } else {
-        student.status = "Active";
-      }
+    // A past end date always means Inactive; otherwise keep the status chosen.
+    if (student.endDate) {
+      var endDt   = new Date(student.endDate); endDt.setHours(0,0,0,0);
+      var todayDt = new Date(); todayDt.setHours(0,0,0,0);
+      if (endDt <= todayDt) student.status = "Inactive";
     }
 
     var D = Data.get();
     if (_editIdx >= 0) {
-      D.students[_editIdx] = student;
+      D.students[_editIdx] = Object.assign({}, D.students[_editIdx], student);   // keep any other fields
       Data.log("Updated student <b>" + fname + " " + lname + "</b>");
     } else {
       D.students.push(student);
@@ -135,5 +140,5 @@ var Students = (function () {
     });
   }
 
-  return { render: render, openModal: openModal, save: save, del: del };
+  return { render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch };
 })();

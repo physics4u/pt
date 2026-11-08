@@ -14,11 +14,13 @@
 var Data = (function () {
 
   var KEYS = ["students","classes","scores","activity",
-              "attendance","attsheets","syllabus","paygrid","settings"];
+              "attendance","attsheets","syllabus","paygrid","settings",
+              "sessions","hourpay"];
 
   var D = {
     students: [], classes: [], scores: [], activity: [],
-    attendance: {}, attsheets: {}, syllabus: {}, paygrid: {}, settings: {}
+    attendance: {}, attsheets: {}, syllabus: {}, paygrid: {}, settings: {},
+    sessions: [], hourpay: []
   };
 
   var CACHE_KEY = "pt_cache_v1";
@@ -181,6 +183,8 @@ var Data = (function () {
     D.syllabus   = d.syllabus   || {};
     D.paygrid    = d.paygrid    || {};
     D.settings   = d.settings   || {};
+    D.sessions   = d.sessions   || [];
+    D.hourpay    = d.hourpay    || [];
 
     D.scores.forEach(function (sc) {
       sc.score = Number(sc.score) || 0;
