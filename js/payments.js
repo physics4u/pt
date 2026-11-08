@@ -134,7 +134,7 @@ var Payments = (function () {
         pill.style.cssText =
           "display:inline-block;padding:3px 0;border-radius:20px;border:1px solid " + col.border + ";" +
           "background:" + col.bg + ";color:" + col.text + ";" +
-          "font-size:10px;font-family:'DM Mono',monospace;font-weight:600;" +
+          "font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;" +
           "min-width:60px;text-align:center;line-height:1.6";
 
         if (status === "") {
@@ -158,12 +158,12 @@ var Payments = (function () {
 
       // Paid count cell
       var pc = row.insertCell();
-      pc.style.cssText = "text-align:center;font-weight:600;color:var(--accent3);font-family:'DM Mono',monospace;font-size:12px";
+      pc.style.cssText = "text-align:center;font-weight:600;color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px";
       pc.textContent = paidCount + "/" + ACYR.length;
 
       // Due count cell
       var dc = row.insertCell();
-      dc.style.cssText = "text-align:center;font-weight:600;font-family:'DM Mono',monospace;font-size:12px";
+      dc.style.cssText = "text-align:center;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12px";
       dc.style.color   = dueCount > 0 ? "var(--danger)" : "var(--text3)";
       dc.textContent   = dueCount;
 
@@ -183,13 +183,13 @@ var Payments = (function () {
     sfr.className = "pay-summary-row";
 
     var s1 = sfr.insertCell(); s1.colSpan = 2;
-    s1.style.cssText = "position:sticky;left:0;background:var(--surface2);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-family:'DM Mono',monospace";
+    s1.style.cssText = "position:sticky;left:0;background:var(--surface2);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace";
     s1.textContent = "Monthly Total";
 
     ACYR.forEach(function (ym) {
       var t  = totals[ym];
       var sc = sfr.insertCell();
-      sc.style.cssText = "text-align:center;padding:6px 4px;font-size:10px;font-family:'DM Mono',monospace;line-height:1.7";
+      sc.style.cssText = "text-align:center;padding:6px 4px;font-size:10px;font-family:'JetBrains Mono',monospace;line-height:1.7";
       var lines = [];
       if (t.paid)    lines.push("<span style='color:var(--accent3)'>" + t.paid + "&#10003;</span>");
       if (t.pending) lines.push("<span style='color:var(--accent2)'>" + t.pending + "~</span>");
