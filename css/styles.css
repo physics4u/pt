@@ -518,3 +518,10 @@ input,select,textarea{font-size:15px;}
 .user-role{font-size:12px;}
 .dialog-msg{font-size:15px;}
 .about table td{font-size:14.5px;}
+
+/* Appearance: Dark | Light */
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.seg-btn{background:transparent;border:none;color:var(--text2);padding:8px 16px;font:inherit;font-weight:600;cursor:pointer;}
+.seg-btn + .seg-btn{border-left:1px solid var(--border);}
+.seg-btn.on{background:rgb(var(--accent-rgb) / 0.15);color:var(--accent);}
+.app-version{margin-top:6px;line-height:1.5;}
