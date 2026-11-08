@@ -46,7 +46,9 @@ var Profile = (function () {
       _detailRow("Email", s.email) +
       _detailRow("Address", s.address) +
       _detailRow("Country", s.country) +
-      _detailRow("Monthly Fee", s.monthlyFee ? "\u20b9" + s.monthlyFee : "\u2014") +
+      (Hourly.isHourly(s) ? _detailRow("Rate per hour", s.hourlyRate ? "\u20b9" + s.hourlyRate : "\u2014") +
+                            _detailRow("Group classes", s.groupToo === "yes" ? "Also attends" : "No") : "") +
+      (Hourly.inGroup(s) ? _detailRow("Monthly Fee", s.monthlyFee ? "\u20b9" + s.monthlyFee : "\u2014") : "") +
       _detailRow("Start Date",  s.startDate  || "\u2014") +
       _detailRow("End Date",    s.endDate    || "\u2014") +
       _detailRow("Notes", s.notes);
@@ -59,7 +61,9 @@ var Profile = (function () {
     ACYR.forEach(function (ym) {
       var sk    = "attsheet|" + s.cls + "|" + ym;
       var sheet = (D2.attsheets || {})[sk] || {};
-      var rec   = sheet[name] || {};
+      var rec   = Object.assign({}, sheet[name] || {});
+      // One-to-one sessions count as present days
+      if (Hourly.isHourly(s)) Hourly.sessionDays(name, ym).forEach(function (d) { rec[d] = "P"; });
       var vals  = Object.values(rec);
       var P     = vals.filter(function (v) { return v === "P"; }).length;
       var A     = vals.filter(function (v) { return v === "A"; }).length;
@@ -78,12 +82,15 @@ var Profile = (function () {
 
     grid.appendChild(detSec); grid.appendChild(attSec); div.appendChild(grid);
 
-    // ---- Fee history table ----
+    // ---- Hourly students: fees, sessions and payments ----
+    if (Hourly.isHourly(s)) Hourly.renderProfile(div, idx);
+
+    // ---- Fee history table (group classes) ----
     var feeSec = document.createElement("div"); feeSec.className = "profile-full";
     feeSec.style.marginBottom = "24px";
     var feeHeader = document.createElement("div"); feeHeader.className = "profile-section-title";
     feeHeader.style.cssText = "padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between";
-    feeHeader.innerHTML = "<span>Fee History (2026\u201327)</span>" +
+    feeHeader.innerHTML = "<span>" + (Hourly.isHourly(s) ? "Group class fees" : "Fee history") + " (" + ACYR_LBL[ACYR[0]].split(" ")[1] + "\u2013" + String(Number(ACYR_LBL[ACYR[0]].split(" ")[1]) + 1).slice(2) + ")</span>" +
       "<div style='display:flex;align-items:center;gap:8px'>" +
         "<label style='font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0'>Monthly Fee</label>" +
         "<input id='prof-fee-input' type='number' value='" + (s.monthlyFee || "") + "' placeholder='0'" +
@@ -152,7 +159,8 @@ var Profile = (function () {
           "<span style='color:var(--danger)'>Overdue: " + overdueCount + "</span></td>" +
       "<td></td><td></td>";
 
-    feeWrap.appendChild(feeTable); feeSec.appendChild(feeWrap); div.appendChild(feeSec);
+    feeWrap.appendChild(feeTable); feeSec.appendChild(feeWrap);
+    if (Hourly.inGroup(s)) div.appendChild(feeSec);
 
     // ---- Scores ----
     var scores = (Data.get().scores || []).filter(function (sc) { return sc.student === name; })
@@ -193,6 +201,7 @@ var Profile = (function () {
     document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
     Utils.el("page-profile").classList.add("active");
     Utils.el("page-title").textContent = name + " \u2014 Profile";
+    Utils.el("page-sub").textContent = (s.cls || "") + (Hourly.isHourly(s) ? " \u00b7 hourly student" : "");
     Utils.el("topbar-action").style.display = "none";
     currentPage = "profile";
   }

@@ -31,7 +31,7 @@ var Attendance = (function () {
 
     var sf       = (Utils.el("as-status") || {}).value || "";
     var students = Data.allStudents().filter(function (s) {
-      return s.cls === _cls && (!sf || s.status === sf);
+      return s.cls === _cls && Hourly.inGroup(s) && (!sf || s.status === sf);
     });
     var wrap     = Utils.el("attsheet-wrap");
 
