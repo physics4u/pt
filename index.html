@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108120359">
+<link rel="stylesheet" href="css/styles.css?v=20261108121919">
 </head>
 <body>
 
@@ -386,6 +386,27 @@
     </div>
   </details>
 
+  <!-- Storage (admins only) -->
+  <details class="section admin-only" id="sec-storage">
+    <summary>
+      <span class="section-title">Storage</span><span class="section-meta" id="storage-meta"></span>
+      <span class="section-mini"><span class="mini-bar"><span id="storage-mini"></span></span></span>
+      <span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div class="storage-head">
+        <span id="storage-text">Checking&hellip;</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="StoragePage.compact(this)">Free up space</button>
+      </div>
+      <div class="bar"><span id="storage-bar"></span></div>
+      <table class="storage-table">
+        <thead><tr><th>Area</th><th>Space used</th><th>Share</th></tr></thead>
+        <tbody id="storage-tbody"></tbody>
+      </table>
+      <p class="section-note" style="margin:10px 0 0">PT can hold up to 10 million cells. Every row and column reserved for an area counts, even when empty; PT trims empty space each time it saves, and <b>Free up space</b> trims everything at once. One academic year of data uses roughly 10,000 cells.</p>
+    </div>
+  </details>
+
   <!-- Backups (admins only) -->
   <details class="section admin-only">
     <summary>
@@ -579,6 +600,7 @@
         <li><b>Users</b>: everyone who can sign in, with their role and last sign-in. Admins use <b>+ Add user</b>, and <b>Edit</b> to rename, change role, reset a password, stop someone signing in (untick <b>Can sign in</b>) or delete them.</li>
         <li><b>Chapter lists</b> (admins): the chapters offered in the Monthly Planner. Press <b>Edit</b>, put one chapter per line, then <b>Save</b>. "Use the standard NCERT list" fills the box with the built-in list; nothing changes until you save.</li>
         <li><b>Academic year</b> (admins): PT shows 14 months, March to the following April. Choose the year and press <b>Save year</b>.</li>
+        <li><b>Storage</b> (admins): how much of PT's space is used, with a breakdown by area. <b>Free up space</b> releases empty space.</li>
         <li><b>Backups</b> (admins): <b>Back up now</b> saves a complete copy of PT's data. The newest 30 backups are kept.</li>
         <li><b>Appearance</b>: Dark or Light. This is remembered on each device separately.</li>
       </ul>
@@ -783,22 +805,23 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108120359"></script>
-<script src="js/version.js?v=20261108120359"></script>
-<script src="js/config.js?v=20261108120359"></script>
-<script src="js/data.js?v=20261108120359"></script>
-<script src="js/utils.js?v=20261108120359"></script>
-<script src="js/students.js?v=20261108120359"></script>
-<script src="js/classes.js?v=20261108120359"></script>
-<script src="js/attendance.js?v=20261108120359"></script>
-<script src="js/syllabus.js?v=20261108120359"></script>
-<script src="js/payments.js?v=20261108120359"></script>
-<script src="js/scores.js?v=20261108120359"></script>
-<script src="js/profile.js?v=20261108120359"></script>
-<script src="js/settings.js?v=20261108120359"></script>
-<script src="js/users.js?v=20261108120359"></script>
-<script src="js/help.js?v=20261108120359"></script>
-<script src="js/app.js?v=20261108120359"></script>
+<script src="js/site-config.js?v=20261108121919"></script>
+<script src="js/version.js?v=20261108121919"></script>
+<script src="js/config.js?v=20261108121919"></script>
+<script src="js/data.js?v=20261108121919"></script>
+<script src="js/utils.js?v=20261108121919"></script>
+<script src="js/students.js?v=20261108121919"></script>
+<script src="js/classes.js?v=20261108121919"></script>
+<script src="js/attendance.js?v=20261108121919"></script>
+<script src="js/syllabus.js?v=20261108121919"></script>
+<script src="js/payments.js?v=20261108121919"></script>
+<script src="js/scores.js?v=20261108121919"></script>
+<script src="js/profile.js?v=20261108121919"></script>
+<script src="js/settings.js?v=20261108121919"></script>
+<script src="js/users.js?v=20261108121919"></script>
+<script src="js/help.js?v=20261108121919"></script>
+<script src="js/storage.js?v=20261108121919"></script>
+<script src="js/app.js?v=20261108121919"></script>
 
 </body>
 </html>

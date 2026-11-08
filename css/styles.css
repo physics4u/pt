@@ -546,3 +546,16 @@ input,select,textarea{font-size:15px;}
 .chip-green{background:rgb(var(--accent3-rgb) / 0.15);color:var(--accent3);}
 .chip-red{background:rgb(var(--danger-rgb) / 0.15);color:var(--danger);}
 .help-foot{text-align:center;color:var(--text3);font-size:13px;margin-top:16px;}
+
+/* ---- Storage ---- */
+.storage-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:15px;}
+.bar{height:12px;border-radius:999px;background:var(--surface2);overflow:hidden;margin-bottom:14px;}
+.bar span,.mini-bar span{display:block;height:100%;border-radius:999px;transition:width 0.4s;}
+.lvl-ok{background:var(--accent3);} .lvl-warn{background:var(--accent);} .lvl-bad{background:var(--danger);}
+.section-mini{margin-left:auto;display:flex;align-items:center;}
+.section-mini + .show-pill{margin-left:10px;}
+.mini-bar{width:120px;height:6px;border-radius:999px;background:var(--surface2);overflow:hidden;display:block;}
+.storage-table{max-width:560px;}
+.storage-table td{padding:7px 14px;}
+.share{display:inline-block;width:80px;height:6px;border-radius:999px;background:var(--surface2);overflow:hidden;vertical-align:middle;margin-right:6px;}
+.share span{display:block;height:100%;background:var(--accent);}
