@@ -8,8 +8,10 @@ var SettingsPage = (function () {
   function init() {
     _about();
     var me = Data.me();
-    Utils.el("settings-xi").value  = Settings.getRaw("Grade XI");
-    Utils.el("settings-xii").value = Settings.getRaw("Grade XII");
+    _renderChapters("Grade XI");
+    _renderChapters("Grade XII");
+    _editing("Grade XI", false);
+    _editing("Grade XII", false);
     var sel = Utils.el("settings-acad");
     var cur = Settings.get("acadStart") || defaultAcadStart();
     var y0  = Number(defaultAcadStart().slice(0, 4));
@@ -61,32 +63,46 @@ var SettingsPage = (function () {
     });
   }
 
+  // ---- Chapter lists: compact view, Edit opens a text box ----
+  function _k(grade) { return grade === "Grade XI" ? "xi" : "xii"; }
+
+  function _esc(t) { return String(t).replace(/[&<>]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+
+  function _renderChapters(grade) {
+    var k = _k(grade), list = Settings.chapters(grade).slice(1);   // drop "-- None --"
+    Utils.el("chap-list-" + k).innerHTML = list.map(function (c) { return "<li>" + _esc(c) + "</li>"; }).join("");
+    Utils.el("chap-count-" + k).textContent = list.length + " chapters";
+  }
+
+  function _editing(grade, on) {
+    var k = _k(grade);
+    Utils.el("chap-list-" + k).style.display   = on ? "none" : "";
+    Utils.el("chap-editor-" + k).style.display = on ? "" : "none";
+    Utils.el("chap-edit-" + k).style.display   = on ? "none" : "";
+  }
+
+  function edit(grade) {
+    Utils.el("settings-" + _k(grade)).value = Settings.getRaw(grade);
+    _editing(grade, true);
+    Utils.el("settings-" + _k(grade)).focus();
+  }
+
+  function cancel(grade) { _editing(grade, false); }
+
   function save(grade) {
-    var id  = grade === "Grade XI" ? "settings-xi" : "settings-xii";
-    var txt = Utils.el(id).value;
+    var txt = Utils.el("settings-" + _k(grade)).value;
+    if (!txt.trim()) { Dialog.alert("The chapter list can't be empty."); return; }
     Settings.save(grade, txt);
-    var btn = (window.event && window.event.target) || document.activeElement;
-    var orig = btn.textContent;
-    btn.textContent = "Saved!";
-    btn.style.background = "var(--accent3)";
-    btn.style.color = "#0a0b0a";
-    setTimeout(function () {
-      btn.textContent = orig;
-      btn.style.background = "";
-      btn.style.color = "";
-    }, 1500);
     Data.log("Updated chapter list for <b>" + grade + "</b>");
+    _renderChapters(grade);
+    _editing(grade, false);
   }
 
-  function reset(grade) {
-    Dialog.confirm("Reset " + grade + " chapters to the default list? Your custom list will be lost.", {okText:"Reset", danger:true}).then(function (ok) {
-      if (!ok) return;
-      Settings.reset(grade);
-      var id = grade === "Grade XI" ? "settings-xi" : "settings-xii";
-      Utils.el(id).value = Settings.getRaw(grade);
-      Data.log("Reset chapter list for <b>" + grade + "</b> to default");
-    });
+  // Fills the box with the built-in list; nothing changes until Save.
+  function useStandard(grade) {
+    var std = grade === "Grade XI" ? DEFAULT_CHAPTERS_XI : DEFAULT_CHAPTERS_XII;
+    Utils.el("settings-" + _k(grade)).value = std.join("\n");
   }
 
-  return { init: init, save: save, reset: reset, saveAcad: saveAcad, backup: backup };
+  return { init: init, edit: edit, cancel: cancel, save: save, useStandard: useStandard, saveAcad: saveAcad, backup: backup };
 })();
