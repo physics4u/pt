@@ -27,11 +27,9 @@ var SettingsPage = (function () {
 
   // Version information for both halves of PT.
   function _about() {
-    var sv = Data.serverVersion();
     Utils.el("about-hint").textContent = "\u00b7 version " + PT_VERSION;
     var rows = [
-      ["Website",  "Version " + PT_VERSION],
-      ["Server",   sv ? "Version " + sv : "\u2014"],
+      ["Version",  PT_VERSION],
       ["Data",     "Google Sheet \u201cPT\u201d in the Physics Tuition folder"],
       ["Changes",  "CHANGELOG.md in the pt-code repository"]
     ];
@@ -39,7 +37,7 @@ var SettingsPage = (function () {
       return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>";
     }).join("") + "</table>" +
       "<div class='section-note' style='margin:10px 0 0'>&copy; PT &middot; Physics Tuition. " +
-      "Versions are the release date and that day's release number.</div>";
+      "The version is the release date and that day's release number.</div>";
   }
 
   function saveAcad() {
