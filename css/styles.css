@@ -416,3 +416,12 @@ input:disabled{opacity:0.6;}
 }
 .app-version{cursor:pointer;}
 .app-version:hover{color:var(--accent);}
+
+/* Users & account */
+.me-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.me-row .user-avatar{width:40px;height:40px;font-size:14px;}
+.me-name{font-weight:700;font-size:15px;}
+.me-sub{font-size:12px;color:var(--text3);}
+.pw-form{margin-top:12px;max-width:700px;}
+.users-admin{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+.sub-title{font-weight:700;font-size:13px;color:var(--text2);margin-bottom:10px;}

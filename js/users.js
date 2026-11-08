@@ -14,6 +14,7 @@ var Users = (function () {
   }
 
   function load() {
+    showMe();
     if (!Data.isAdmin()) return;
     Data.api("listUsers").then(function (r) {
       if (!r.ok) { _render("<tr><td colspan='6' style='color:var(--danger)'>" + _esc(r.error) + "</td></tr>"); return; }
@@ -114,16 +115,32 @@ var Users = (function () {
     });
   }
 
+  function togglePw(show) {
+    var f = Utils.el("pw-form");
+    if (show === undefined) show = f.style.display === "none";
+    f.style.display = show ? "" : "none";
+    if (show) Utils.el("pw-old").focus(); else f.reset();
+  }
+
+  // "Signed in as" row at the top of the section
+  function showMe() {
+    var me = Data.me() || {};
+    var nm = me.name || me.username || "";
+    Utils.el("me-avatar").textContent = nm.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
+    Utils.el("me-name").textContent = nm;
+    Utils.el("acct-hint").textContent = (me.role === "admin" ? "Admin" : "User") + " \u00b7 signed in as " + (me.username || "");
+  }
+
   function changePassword(e) {
     if (e) e.preventDefault();
     var oldPw = Utils.el("pw-old").value, newPw = Utils.el("pw-new").value;
     Data.api("changePassword", { oldPassword: oldPw, newPassword: newPw }).then(function (r) {
       if (!r.ok) { Dialog.alert(r.error || "Could not change the password."); return; }
-      Utils.el("pw-form").reset();
+      togglePw(false);
       Dialog.alert("Your password has been changed.");
     });
     return false;
   }
 
-  return { load: load, edit: edit, del: del, submit: submit, resetForm: resetForm, changePassword: changePassword };
+  return { load: load, togglePw: togglePw, edit: edit, del: del, submit: submit, resetForm: resetForm, changePassword: changePassword };
 })();

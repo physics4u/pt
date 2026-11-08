@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108105637">
+<link rel="stylesheet" href="css/styles.css?v=20261108110422">
 </head>
 <body>
 
@@ -276,29 +276,49 @@
 </div>
     <div id="page-settings" class="page">
 
-  <!-- Users (admins only) -->
-  <details class="section admin-only" id="sec-users" open>
-    <summary><span class="section-title">&#128101; Users</span><span class="section-hint">Who can sign in to PT</span></summary>
+  <!-- Users & account: own account for everyone, user list for admins -->
+  <details class="section" id="sec-users" open>
+    <summary><span class="section-title">&#128101; Users &amp; account</span><span class="section-hint">Your sign-in, and who else can use PT</span></summary>
     <div class="section-body">
-      <table class="users-table">
-        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
-        <tbody id="users-tbody"><tr><td colspan="6" style="color:var(--text3)">Loading&hellip;</td></tr></tbody>
-      </table>
-      <form class="user-form" id="user-form" onsubmit="return Users.submit(event)">
-        <div class="user-form-title" id="user-form-title">Add a user</div>
-        <div class="user-form-grid">
-          <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
-          <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
-          <div class="form-row"><label for="u-role">Role</label>
-            <select id="u-role"><option value="user">User &mdash; manage students, classes, attendance, payments</option><option value="admin">Admin &mdash; everything, including users &amp; settings</option></select></div>
-          <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
-        </div>
-        <label class="check"><input type="checkbox" id="u-active" checked> Can sign in</label>
-        <div class="user-form-actions">
-          <button type="button" class="btn btn-secondary" id="u-cancel" onclick="Users.resetForm()" style="display:none">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="u-submit">Add user</button>
+
+      <div class="me-row">
+        <span class="user-avatar" id="me-avatar"></span>
+        <div class="me-text"><div class="me-name" id="me-name"></div><div class="me-sub" id="acct-hint"></div></div>
+        <span style="flex:1"></span>
+        <button type="button" class="btn btn-secondary" onclick="Users.togglePw()">Change password</button>
+        <button type="button" class="btn btn-danger" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
+      </div>
+      <form id="pw-form" class="user-form user-form-grid pw-form" onsubmit="return Users.changePassword(event)" style="display:none">
+        <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
+        <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
+        <div class="user-form-actions" style="grid-column:1/-1">
+          <button type="button" class="btn btn-secondary" onclick="Users.togglePw(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save new password</button>
         </div>
       </form>
+
+      <div class="admin-only users-admin">
+        <div class="sub-title">All users</div>
+        <table class="users-table">
+          <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="6" style="color:var(--text3)">Loading&hellip;</td></tr></tbody>
+        </table>
+        <form class="user-form" id="user-form" onsubmit="return Users.submit(event)">
+          <div class="user-form-title" id="user-form-title">Add a user</div>
+          <div class="user-form-grid">
+            <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
+            <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
+            <div class="form-row"><label for="u-role">Role</label>
+              <select id="u-role"><option value="user">User &mdash; manage students, classes, attendance, payments</option><option value="admin">Admin &mdash; everything, including users &amp; settings</option></select></div>
+            <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="u-active" checked> Can sign in</label>
+          <div class="user-form-actions">
+            <button type="button" class="btn btn-secondary" id="u-cancel" onclick="Users.resetForm()" style="display:none">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="u-submit">Add user</button>
+          </div>
+        </form>
+      </div>
     </div>
   </details>
 
@@ -366,22 +386,6 @@
       <button class="btn btn-primary" onclick="SettingsPage.saveAcad()">Save year</button>
       <span style="flex:1"></span>
       <button class="btn btn-secondary" onclick="SettingsPage.backup(this)">Back up sheet now</button>
-    </div>
-  </details>
-
-  <!-- My account (everyone) -->
-  <details class="section">
-    <summary><span class="section-title">&#128100; My account</span><span class="section-hint" id="acct-hint"></span></summary>
-    <div class="section-body">
-      <form id="pw-form" class="user-form-grid" onsubmit="return Users.changePassword(event)" style="max-width:640px">
-        <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
-        <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
-        <div style="grid-column:1/-1;display:flex;gap:10px">
-          <button type="submit" class="btn btn-primary">Change password</button>
-          <span style="flex:1"></span>
-          <button type="button" class="btn btn-danger" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
-        </div>
-      </form>
     </div>
   </details>
 
@@ -537,21 +541,21 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108105637"></script>
-<script src="js/version.js?v=20261108105637"></script>
-<script src="js/config.js?v=20261108105637"></script>
-<script src="js/data.js?v=20261108105637"></script>
-<script src="js/utils.js?v=20261108105637"></script>
-<script src="js/students.js?v=20261108105637"></script>
-<script src="js/classes.js?v=20261108105637"></script>
-<script src="js/attendance.js?v=20261108105637"></script>
-<script src="js/syllabus.js?v=20261108105637"></script>
-<script src="js/payments.js?v=20261108105637"></script>
-<script src="js/scores.js?v=20261108105637"></script>
-<script src="js/profile.js?v=20261108105637"></script>
-<script src="js/settings.js?v=20261108105637"></script>
-<script src="js/users.js?v=20261108105637"></script>
-<script src="js/app.js?v=20261108105637"></script>
+<script src="js/site-config.js?v=20261108110422"></script>
+<script src="js/version.js?v=20261108110422"></script>
+<script src="js/config.js?v=20261108110422"></script>
+<script src="js/data.js?v=20261108110422"></script>
+<script src="js/utils.js?v=20261108110422"></script>
+<script src="js/students.js?v=20261108110422"></script>
+<script src="js/classes.js?v=20261108110422"></script>
+<script src="js/attendance.js?v=20261108110422"></script>
+<script src="js/syllabus.js?v=20261108110422"></script>
+<script src="js/payments.js?v=20261108110422"></script>
+<script src="js/scores.js?v=20261108110422"></script>
+<script src="js/profile.js?v=20261108110422"></script>
+<script src="js/settings.js?v=20261108110422"></script>
+<script src="js/users.js?v=20261108110422"></script>
+<script src="js/app.js?v=20261108110422"></script>
 
 </body>
 </html>

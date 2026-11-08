@@ -8,7 +8,6 @@ var SettingsPage = (function () {
   function init() {
     _about();
     var me = Data.me();
-    Utils.el("acct-hint").textContent = me ? (me.name || me.username) + " \u00b7 " + (me.role === "admin" ? "Admin" : "User") : "";
     Utils.el("settings-xi").value  = Settings.getRaw("Grade XI");
     Utils.el("settings-xii").value = Settings.getRaw("Grade XII");
     var sel = Utils.el("settings-acad");
@@ -36,7 +35,9 @@ var SettingsPage = (function () {
     var html = "<table>" + rows.map(function (r) {
       return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>";
     }).join("") + "</table>";
-    if (sv && sv !== PT_VERSION) {
+    // Website-only fixes bump the last number; only warn when x.y differ.
+    var mm = function (v) { return String(v).split(".").slice(0, 2).join("."); };
+    if (sv && mm(sv) !== mm(PT_VERSION)) {
       html += "<div class='about-warn'>\u26a0 The website and server versions differ. " +
               "Paste the latest Code.gs into Apps Script and redeploy.</div>";
     }
