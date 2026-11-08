@@ -111,11 +111,10 @@ var Hourly = (function () {
 
     // Fees by month
     var fee = document.createElement("div"); fee.className = "profile-full hourly-block";
-    var rows = ACYR.map(function (ym) {
+    var rows = ACYR.filter(function (ym) { var m = a.months[ym]; return m.count || m.paid; }).map(function (ym, i) {
       var m = a.months[ym];
-      if (!m.count && !m.paid) return "";
       var cls = {"Paid":"chip-green","Part-paid":"chip-gold","Due":"chip-red"}[m.status] || "";
-      return "<tr><td>" + ACYR_LBL[ym] + "</td><td>" + m.count + "</td><td>" + hm(m.hours) + "</td><td>" + money(m.fee) +
+      return "<tr><td class='num'>" + (i + 1) + "</td><td>" + ACYR_LBL[ym] + "</td><td>" + m.count + "</td><td>" + hm(m.hours) + "</td><td>" + money(m.fee) +
              "</td><td>" + money(m.paid) + "</td><td>" + (m.status ? "<span class='chip " + cls + "'>" + m.status + "</span>" : "") + "</td></tr>";
     }).join("");
     fee.innerHTML =
@@ -130,8 +129,8 @@ var Hourly = (function () {
         "<div class='" + (a.balance > 0.5 ? "due" : "ok") + "'><span>" + (a.balance > 0.5 ? "Balance due" : a.credit > 0.5 ? "In credit" : "Balance") +
           "</span><b>" + money(a.balance > 0 ? a.balance : a.credit) + "</b></div>" +
       "</div>" +
-      "<table class='hourly-table'><thead><tr><th>Month</th><th>Sessions</th><th>Hours</th><th>Fee</th><th>Paid</th><th>Status</th></tr></thead>" +
-      "<tbody>" + (rows || "<tr><td colspan='6' class='muted'>No sessions yet this year.</td></tr>") + "</tbody></table>";
+      "<table class='hourly-table'><thead><tr><th class='num'>#</th><th>Month</th><th>Sessions</th><th>Hours</th><th>Fee</th><th>Paid</th><th>Status</th></tr></thead>" +
+      "<tbody>" + (rows || "<tr><td colspan='7' class='muted'>No sessions yet this year.</td></tr>") + "</tbody></table>";
     div.appendChild(fee);
 
     // Sessions + payments side by side
@@ -157,15 +156,15 @@ var Hourly = (function () {
           "<button type='button' class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"ses-form\")'>Cancel</button>" +
           "<button type='submit' class='btn btn-primary btn-sm'>Add session</button></div>" +
       "</form>" +
-      "<div class='hourly-list'><table class='hourly-table'><thead><tr><th>Date</th><th>Time</th><th>Hours</th><th>Chapter</th><th></th></tr></thead><tbody>" +
-      (ses.length ? ses.map(function (x) {
+      "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Time</th><th>Hours</th><th>Chapter</th><th></th></tr></thead><tbody>" +
+      (ses.length ? ses.map(function (x, i) {
         var d = new Date(x.date + "T00:00:00");
-        return "<tr title='" + esc(x.notes || "") + "'><td>" + d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) +
+        return "<tr title='" + esc(x.notes || "") + "'><td class='num'>" + (ses.length - i) + "</td><td>" + d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) +
           " <span class='muted'>" + d.toLocaleDateString("en-GB", {weekday:"short"}) + "</span></td>" +
           "<td>" + esc(x.start) + "–" + esc(x.end) + "</td><td>" + hm(sessionHours(x)) + "</td>" +
           "<td>" + esc(x.chapter || "—") + (x.notes ? "<div class='muted small'>" + esc(x.notes) + "</div>" : "") + "</td>" +
           "<td><button class='link-btn danger-link' onclick='Hourly.delSession(" + idx + ",\"" + esc(x.id) + "\")'>Delete</button></td></tr>";
-      }).join("") : "<tr><td colspan='5' class='muted'>No sessions yet. Use + Add session.</td></tr>") +
+      }).join("") : "<tr><td colspan='6' class='muted'>No sessions yet. Use + Add session.</td></tr>") +
       "</tbody></table></div>";
 
     var pays = paymentsOf(name).slice().reverse();
@@ -183,12 +182,12 @@ var Hourly = (function () {
           "<button type='button' class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"pay-form\")'>Cancel</button>" +
           "<button type='submit' class='btn btn-primary btn-sm'>Add payment</button></div>" +
       "</form>" +
-      "<div class='hourly-list'><table class='hourly-table'><thead><tr><th>Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead><tbody>" +
-      (pays.length ? pays.map(function (p) {
-        return "<tr><td>" + new Date(p.date + "T00:00:00").toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + "</td>" +
+      "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead><tbody>" +
+      (pays.length ? pays.map(function (p, i) {
+        return "<tr><td class='num'>" + (pays.length - i) + "</td><td>" + new Date(p.date + "T00:00:00").toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + "</td>" +
           "<td>" + money(p.amount) + "</td><td>" + esc(p.notes || "") + "</td>" +
           "<td><button class='link-btn danger-link' onclick='Hourly.delPayment(" + idx + ",\"" + esc(p.id) + "\")'>Delete</button></td></tr>";
-      }).join("") : "<tr><td colspan='4' class='muted'>No payments yet.</td></tr>") +
+      }).join("") : "<tr><td colspan='5' class='muted'>No payments yet.</td></tr>") +
       "</tbody></table></div>";
 
     two.appendChild(sesSec); two.appendChild(paySec); div.appendChild(two);
@@ -254,24 +253,8 @@ var Hourly = (function () {
   }
 
   // Payments page: one table for the grade's hourly students.
-  function renderPaymentsTable(cls) {
-    var list = Data.allStudents().filter(function (s) { return isHourly(s) && (!cls || s.cls === cls); });
-    if (!list.length) return "";
-    var D = Data.get();
-    return "<div class='panel' style='margin-top:16px'><div class='panel-header'><span class='panel-title'>Hourly students</span>" +
-      "<span class='muted'>billed by the hour · payments applied to the oldest months first</span></div>" +
-      "<div style='overflow-x:auto'><table class='hourly-table'><thead><tr><th>Student</th><th>Rate</th><th>Hours</th><th>Billed</th><th>Paid</th><th>Balance</th></tr></thead><tbody>" +
-      list.map(function (s) {
-        var a = account(Utils.fullName(s)), i = D.students.indexOf(s);
-        return "<tr><td><b>" + Utils.studentLink(Utils.fullName(s)) + "</b></td><td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
-          "<td>" + hm(a.hours) + "</td><td>" + money(a.billed) + "</td><td>" + money(a.paid) + "</td>" +
-          "<td>" + (a.balance > 0.5 ? "<span class='chip chip-red'>" + money(a.balance) + " due</span>" : "<span class='chip chip-green'>Settled</span>") + "</td>" +
-          "</tr>";
-      }).join("") + "</tbody></table></div></div>";
-  }
-
   return { parseTime: parseTime, hm: hm, isHourly: isHourly, inGroup: inGroup, sessionHours: sessionHours,
            account: account, totals: totals, sessionDays: sessionDays, renderProfile: renderProfile,
-           renderPaymentsTable: renderPaymentsTable, toggle: toggle, setRate: setRate,
+           toggle: toggle, setRate: setRate,
            addSession: addSession, delSession: delSession, addPayment: addPayment, delPayment: delPayment };
 })();

@@ -633,7 +633,7 @@ html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier 
 
 /* Scores: full-width sections */
 .tests-section .tests-table th{white-space:nowrap;}
-.tests-section .tests-table td:nth-child(3){min-width:220px;}
+.tests-section .tests-table th.portions{min-width:220px;}
 /* Mark sheet: entered marks are locked; Edit shows on hover */
 .mark-table tr.locked .mark-in{background:transparent;border-color:transparent;color:var(--text);font-weight:700;cursor:default;}
 .mark-table tr.editing .mark-in{border-color:var(--accent);}
@@ -658,3 +658,29 @@ table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
 .mark-table tr.locked .mark-in{-moz-appearance:textfield;appearance:textfield;}
 .inactive-toggle{margin:0;font-size:13px;}
 .sheet-hint{padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+
+/* Test details: locked until the hover ✏ is pressed */
+.sheet-edit .panel-header .row-edit{margin-left:6px;}
+.sheet-edit .panel-header:hover .row-edit,.sheet-edit .panel-header:focus-within .row-edit{visibility:visible;}
+.sheet-edit.locked input:disabled{opacity:1;background:transparent;border-color:transparent;color:var(--text);cursor:default;padding-left:0;}
+.sheet-edit.locked input[type=date]:disabled::-webkit-calendar-picker-indicator{display:none;}
+.danger-zone{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.btn-danger{background:var(--danger);color:#fff;border:1px solid var(--danger);}
+.btn-danger:hover{filter:brightness(1.08);}
+/* Payments: compact one-line rows */
+.pay-section summary{position:relative;}
+.pay-grid{font-size:12px;min-width:100%;}
+.pay-grid th{padding:6px 6px;white-space:nowrap;}
+.pay-grid td{padding:3px 4px;white-space:nowrap;}
+.pay-grid td.nm{padding:3px 10px;font-weight:500;}
+.pay-grid .yr{font-size:9px;color:var(--text3);font-weight:400;letter-spacing:0;}
+.pay-grid .sticky0{position:sticky;left:0;z-index:2;background:var(--surface);}
+.pay-grid .sticky1{position:sticky;left:44px;z-index:2;background:var(--surface);}
+.pay-grid thead .sticky0,.pay-grid thead .sticky1,.pay-grid .pay-summary-row td{background:var(--surface2);}
+.pay-grid .pay-summary-row td{font-size:10px;color:var(--text3);}
+.pay-grid .pay-summary-row td.sticky0{text-transform:uppercase;letter-spacing:1px;}
+.pay-pill{display:inline-block;min-width:54px;padding:1px 6px;border-radius:20px;border:1px solid var(--border);font-size:10.5px;font-weight:600;line-height:1.5;color:var(--text3);}
+.pp-paid{border-color:var(--accent3);background:rgba(91,248,184,0.13);color:var(--accent3);}
+.pp-pending{border-color:var(--accent2);background:rgba(248,160,91,0.13);color:var(--accent2);}
+.pp-overdue{border-color:var(--danger);background:rgba(248,91,110,0.13);color:var(--danger);}
+.pay-grid .num{width:44px;min-width:44px;max-width:44px;box-sizing:border-box;text-align:center;padding:3px 4px;}

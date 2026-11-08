@@ -22,9 +22,9 @@ var StoragePage = (function () {
     });
     Utils.el("storage-text").innerHTML = "<b>" + fmt(r.cells) + "</b> of " + fmt(r.limit) +
       " cells used (" + pctText + ") &middot; " + fmt(r.limit - r.cells) + " free";
-    Utils.el("storage-tbody").innerHTML = (r.parts || []).map(function (x) {
+    Utils.el("storage-tbody").innerHTML = (r.parts || []).map(function (x, i) {
       var share = r.cells ? Math.round(x.cells / r.cells * 100) : 0;
-      return "<tr><td>" + x.name + "</td><td>" + fmt(x.cells) + "</td>" +
+      return "<tr><td class='num'>" + (i + 1) + "</td><td>" + x.name + "</td><td>" + fmt(x.cells) + "</td>" +
              "<td><span class='share'><span style='width:" + share + "%'></span></span> " + share + "%</td></tr>";
     }).join("");
   }

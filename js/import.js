@@ -21,8 +21,8 @@ var ImportPage = (function () {
   // What the records contain, laid out to compare with the workbook's Home screen.
   function summaryHtml(year, S) {
     var row = function (a, b) { return "<tr><td>" + a + "</td><td><b>" + b + "</b></td></tr>"; };
-    var hourly = (S.hourly || []).map(function (h) {
-      return "<tr><td>" + h.name + "</td><td>" + h.sessions + "</td><td>" + h.hours + "</td><td>\u20b9" +
+    var hourly = (S.hourly || []).map(function (h, i) {
+      return "<tr><td class='num'>" + (i + 1) + "</td><td>" + h.name + "</td><td>" + h.sessions + "</td><td>" + h.hours + "</td><td>\u20b9" +
         Math.round(h.billed).toLocaleString("en-IN") + "</td><td>\u20b9" + Math.round(h.paid).toLocaleString("en-IN") +
         "</td><td>" + (h.ok ? "<span class='chip chip-green'>matches</span>" : "<span class='chip chip-red'>check</span>") + "</td></tr>";
     }).join("");
@@ -39,7 +39,7 @@ var ImportPage = (function () {
         row("Test scores", S.scores) + row("Weekly classes", S.classes) +
       "</table>" +
       (hourly ? "<div class='sub-title' style='margin-top:10px'>Hourly students</div><table class='hourly-table'><thead><tr>" +
-        "<th>Student</th><th>Sessions</th><th>Hours</th><th>Billed</th><th>Paid</th><th></th></tr></thead><tbody>" + hourly + "</tbody></table>" : "") +
+        "<th class='num'>#</th><th>Student</th><th>Sessions</th><th>Hours</th><th>Billed</th><th>Paid</th><th></th></tr></thead><tbody>" + hourly + "</tbody></table>" : "") +
       ((S.notes || []).length ? "<div class='muted' style='margin-top:8px'>" + S.notes.join("<br>") + "</div>" : "") +
       "<div style='margin-top:10px'>Nothing in PT has been changed yet. Press <b>Import</b> to load these records.</div></div>";
   }

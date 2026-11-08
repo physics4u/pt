@@ -24,7 +24,7 @@ var Classes = (function () {
     });
 
     tbody.innerHTML = D.classes.map(function (c, i) {
-      return "<tr>" +
+      return "<tr><td class='num'>" + (i + 1) + "</td>" +
         "<td>" + c.name + "</td>" +
         "<td>" + c.day  + "</td>" +
         "<td>" + c.start + " \u2013 " + c.end + "</td>" +

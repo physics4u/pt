@@ -103,12 +103,12 @@ var Profile = (function () {
     var feeTable = document.createElement("table"); feeTable.className = "pay-table";
     feeTable.style.cssText = "margin:0";
     var ft = feeTable.createTHead(); var fhr = ft.insertRow();
-    ["Month","Amount (\u20b9)","Status","Payment Date","Notes"].forEach(function(h){
-      var th = document.createElement("th"); th.textContent = h; fhr.appendChild(th);
+    ["#","Month","Amount (\u20b9)","Status","Payment Date","Notes"].forEach(function(h){
+      var th = document.createElement("th"); th.textContent = h; if (h === "#") th.className = "num"; fhr.appendChild(th);
     });
     var ftb = feeTable.createTBody();
     var paidCount = 0, pendingCount = 0, overdueCount = 0;
-    ACYR.forEach(function (ym) {
+    ACYR.forEach(function (ym, mi) {
       var sk  = "paygrid|" + s.cls + "|" + ym;
       var D3  = Data.get();
       if (!D3.paygrid)      D3.paygrid      = {};
@@ -120,6 +120,7 @@ var Profile = (function () {
       if (rec.status === "Overdue") overdueCount++;
 
       var row = ftb.insertRow();
+      var nc0 = row.insertCell(); nc0.className = "num"; nc0.textContent = mi + 1;
       // Month
       var mc = row.insertCell(); mc.style.cssText = "font-weight:500;color:var(--text)"; mc.textContent = ACYR_LBL[ym] || ym;
       // Amount
@@ -153,7 +154,7 @@ var Profile = (function () {
     });
     // Summary row
     var sr = ftb.insertRow();
-    sr.innerHTML = "<td colspan='2' style='font-weight:600;color:var(--text2)'>Summary</td>" +
+    sr.innerHTML = "<td colspan='3' style='font-weight:600;color:var(--text2)'>Summary</td>" +
       "<td><span style='color:var(--accent3)'>Paid: " + paidCount + "</span> &nbsp; " +
           "<span style='color:var(--accent2)'>Pending: " + pendingCount + "</span> &nbsp; " +
           "<span style='color:var(--danger)'>Overdue: " + overdueCount + "</span></td>" +
@@ -172,12 +173,12 @@ var Profile = (function () {
     var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
     scSec.innerHTML = "<div class='profile-section-title hourly-head'><span>Report card</span>" +
       (avg === null ? "" : "<span>Average <b style='color:var(--accent);font-size:18px'>" + avg + "%</b></span>") + "</div>" +
-      (scores.length ? "<table class='tests-table'><thead><tr><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>Out of</th><th class='c'>%</th></tr></thead><tbody>" +
-        scores.map(function (r) {
+      (scores.length ? "<table class='tests-table'><thead><tr><th class='num'>#</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>Out of</th><th class='c'>%</th></tr></thead><tbody>" +
+        scores.map(function (r, i) {
           var p = Number(r.total) > 0 ? Math.round(Number(r.score) / Number(r.total) * 100) : null;
           var col = p === null ? "" : p >= 75 ? "var(--accent3)" : p >= 50 ? "var(--accent2)" : "var(--danger)";
           var d = r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-GB", {day: "2-digit", month: "short"}) : "\u2014";
-          return "<tr><td>" + esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
+          return "<tr><td class='num'>" + (i + 1) + "</td><td>" + esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
             "</td><td>" + esc(r.title) + "</td><td class='c'><b>" + esc(r.score) + "</b></td><td class='c'>" + esc(r.total) +
             "</td><td class='c' style='color:" + col + ";font-weight:700'>" + (p === null ? "\u2014" : p + "%") + "</td></tr>";
         }).join("") + "</tbody></table>"
