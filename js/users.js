@@ -2,7 +2,7 @@
 //  users.js — Settings → Users.
 //  One table for everyone (including the built-in Owner sign-in).
 //  The add/edit form and the password form stay hidden until needed.
-//  Users live in the "Users" tab of the PT sheet; passwords are
+//  Users are stored on the PT server; passwords are
 //  hashed on the server and never sent back to the browser.
 // ================================================================
 var Users = (function () {
@@ -28,7 +28,7 @@ var Users = (function () {
   function load() {
     var me = Data.me() || {};
     Utils.el("pw-btn").style.display = me.username === "admin" && !_list.some(function (u) { return u.username === "admin"; })
-      ? "none" : "";   // the Owner's password is the PT_PASSCODE script property
+      ? "none" : "";   // the Owner's password is the owner passcode
     if (!Data.isAdmin()) { _list = []; render(); return; }
     Data.api("listUsers").then(function (r) {
       if (!r.ok) {

@@ -6,7 +6,6 @@
 var SettingsPage = (function () {
 
   function init() {
-    _about();
     var me = Data.me();
     _renderChapters("Grade XI");
     _renderChapters("Grade XII");
@@ -25,21 +24,6 @@ var SettingsPage = (function () {
     }).join("");
   }
 
-  // Version information for both halves of PT.
-  function _about() {
-    Utils.el("about-hint").textContent = "\u00b7 version " + PT_VERSION;
-    var rows = [
-      ["Version",  PT_VERSION],
-      ["Data",     "Google Sheet \u201cPT\u201d in the Physics Tuition folder"],
-      ["Changes",  "CHANGELOG.md in the pt-code repository"]
-    ];
-    Utils.el("about-body").innerHTML = "<table>" + rows.map(function (r) {
-      return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>";
-    }).join("") + "</table>" +
-      "<div class='section-note' style='margin:10px 0 0'>&copy; PT &middot; Physics Tuition. " +
-      "The version is the release date and that day's release number.</div>";
-  }
-
   function saveAcad() {
     var v = Utils.el("settings-acad").value;
     Settings.set("acadStart", v);
@@ -55,7 +39,7 @@ var SettingsPage = (function () {
       btn.disabled = false;
       btn.textContent = r.ok ? "\u2714 Backed up" : "\u26a0 Failed";
       if (!r.ok) Dialog.alert("Backup failed: " + (r.error || "unknown error"));
-      else Data.log("Backed up the sheet (<b>" + r.name + "</b>)");
+      else Data.log("Made a backup (<b>" + r.name + "</b>)");
       setTimeout(function () { btn.textContent = "\u27f3 Back up now"; }, 4000);
     });
   }

@@ -144,7 +144,7 @@ var Attendance = (function () {
   function save() {
     Data.save();
     Utils.flash(Utils.el("btn-save-attsheet"));
-    Data.log("Saved Attendance Sheet for <b>" + _cls + "</b> \u2014 " + (ACYR_LBL[Utils.el("attsheet-month").value] || ""));
+    Data.log("Saved attendance for <b>" + _cls + "</b> \u2014 " + (ACYR_LBL[Utils.el("attsheet-month").value] || ""));
   }
 
   return { init: init, setClass: setClass, render: render, save: save };

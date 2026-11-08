@@ -67,12 +67,13 @@ var PAGE_CFG = {
   dashboard: {title:"Dashboard",        sub:"Students, income and teaching hours for the academic year", btn:null},
   students:  {title:"Students",         sub:"Everyone enrolled, with contact details and status", btn:"+ Add student", action:function(){ Students.openModal(); }},
   classes:   {title:"Class schedule",   sub:"Weekly classes by grade", btn:"+ Add class",   action:function(){ Classes.openModal(); }},
-  attsheet:  {title:"Attendance sheet", sub:"Mark present or absent for each class day", btn:null},
+  attsheet:  {title:"Attendance",       sub:"Mark present or absent for each class day", btn:null},
   syllabus:  {title:"Monthly planner",  sub:"Chapter and timing for each day of the month", btn:null},
   payments:  {title:"Payments",         sub:"Monthly fees by student", btn:null},
   scores:    {title:"Scores & grades",  sub:"Tests, quizzes and exams", btn:"+ Add score",   action:function(){ Scores.openModal(); }},
   profile:   {title:"Student profile",  sub:"", btn:null},
-  settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, your account and version", btn:null}
+  help:      {title:"Help",             sub:"About PT and the user guide", btn:null},
+  settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, backups and appearance", btn:null}
 };
 
 function showPage(id) {
@@ -104,6 +105,7 @@ function showPage(id) {
   else if (id === "payments")  Payments.init();
   else if (id === "scores")    Scores.render();
   else if (id === "settings")  { SettingsPage.init(); Users.load(); }
+  else if (id === "help")      Help.init();
 }
 
 function topbarAction() {
