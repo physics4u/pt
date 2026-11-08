@@ -107,10 +107,11 @@ var Data = (function () {
   // ----------------------------------------------------------------
   function _call(action, data, extra) {
     var req = { action: action, token: _lsGet(TOKEN_KEY) || "", data: data };
-    if (extra) Object.keys(extra).forEach(function (k) { req[k] = extra[k]; });
+    if (extra) Object.keys(extra).forEach(function (k) { if (k !== "_wait") req[k] = extra[k]; });
     var body = JSON.stringify(req);
     var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 45000);
+    var wait = (extra && extra._wait) || 45000;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, wait);
     return fetch(_url(), {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -283,7 +284,7 @@ var Data = (function () {
   function backup() { return _call("backup"); }
 
   // Generic call for other modules (Users etc.)
-  function api(action, data) { return _call(action, data); }
+  function api(action, data, waitMs) { return _call(action, data, waitMs ? { _wait: waitMs } : null); }
 
   return {
     get: get, isConfigured: isConfigured,
