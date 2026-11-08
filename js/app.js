@@ -142,7 +142,7 @@ var Dashboard = (function () {
     totalEl.textContent = "Total: \u20b9" + total.toLocaleString("en-IN");
 
     var dpr = window.devicePixelRatio || 1;
-    var W = canvas.parentElement.clientWidth - 48, H = 260;
+    var W = canvas.parentElement.clientWidth - 48, H = 190;
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
@@ -150,7 +150,7 @@ var Dashboard = (function () {
     var COL_BAR = _css("--income"), COL_HOV = _css("--income"), COL_GRID = _css("--border");
     var COL_TEXT = _css("--text3"), COL_LABEL = _css("--text2"), COL_VALUE = _css("--text");
     // Taller bottom padding: two-line X labels (month + year separator)
-    var PAD_L = 72, PAD_R = 16, PAD_T = 16, PAD_B = 56;
+    var PAD_L = 64, PAD_R = 16, PAD_T = 18, PAD_B = 40;
     var chartW = W - PAD_L - PAD_R, chartH = H - PAD_T - PAD_B;
 
     var maxVal = Math.max.apply(null, values) || 1;
@@ -287,7 +287,7 @@ var Dashboard = (function () {
 
     // ---- Drawing ----
     var dpr    = window.devicePixelRatio || 1;
-    var ROW_H  = 36;
+    var ROW_H  = 24;
     var PAD_L  = 176;   // space for chapter labels
     var PAD_R  = 52;    // space for value labels
     var PAD_T  = 12;

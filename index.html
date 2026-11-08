@@ -5,16 +5,19 @@
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/styles.css?v=20261108103312">
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="stylesheet" href="css/styles.css?v=20261108103712">
 </head>
 <body>
 
 <!-- ===== SIDEBAR ===== -->
 <aside class="sidebar">
-  <div class="logo">
-    <div class="logo-title"><span class="logo-mark">&#9883;</span>PT</div>
-    <div class="logo-sub">PHYSICS TUITION</div>
+  <div class="logo" onclick="showPage('dashboard')" title="Home">
+    <img src="logo.png" alt="PT logo">
+    <div>
+      <div class="logo-title">PT</div>
+      <div class="logo-sub">PHYSICS TUITION</div>
+    </div>
   </div>
   <nav class="nav">
     <div class="nav-section">Overview</div>
@@ -60,7 +63,7 @@
     <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-sub">fees paid</div></div>
     <div class="stat-card red"><div class="stat-label">Pending</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub">payments due</div></div>
   </div>
-  <div class="stat-grid" style="margin-top:-12px">
+  <div class="stat-grid">
     <div class="stat-card blue"><div class="stat-label">+1 Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
     <div class="stat-card blue"><div class="stat-label">+1 Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
     <div class="stat-card orange"><div class="stat-label">+2 Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
@@ -68,12 +71,12 @@
   </div>
 
   <!-- Revenue Chart -->
-  <div class="panel" style="margin-bottom:20px">
+  <div class="panel" style="margin-bottom:12px">
     <div class="panel-header">
       <span class="panel-title">Income &mdash; Monthly</span>
       <span id="chart-total" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
     </div>
-    <div style="padding:24px 24px 16px;overflow-x:auto">
+    <div style="padding:12px 24px 8px;overflow-x:auto">
       <canvas id="revenue-chart" height="220" style="width:100%;display:block"></canvas>
       <div id="chart-empty" style="display:none;text-align:center;padding:40px;color:var(--text3);font-size:13px">
         No paid fees recorded yet. Mark payments as Paid in the Payments page to see revenue here.
@@ -82,7 +85,7 @@
   </div>
 
   <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
-  <div class="grid2" style="margin-bottom:20px">
+  <div class="grid2" style="margin-bottom:12px">
 
     <!-- Grade XI -->
     <div class="panel">
@@ -90,7 +93,7 @@
         <span class="panel-title">Plus 1 &mdash; Teaching Hours</span>
         <span id="syl-total-xi" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
       </div>
-      <div style="padding:20px 20px 12px;overflow-x:auto">
+      <div style="padding:10px 20px 8px;overflow-x:auto">
         <canvas id="syllabus-chart-xi" style="width:100%;display:block"></canvas>
         <div id="syllabus-empty-xi" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
           No Grade XI syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
@@ -104,7 +107,7 @@
         <span class="panel-title">Plus 2 &mdash; Teaching Hours</span>
         <span id="syl-total-xii" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
       </div>
-      <div style="padding:20px 20px 12px;overflow-x:auto">
+      <div style="padding:10px 20px 8px;overflow-x:auto">
         <canvas id="syllabus-chart-xii" style="width:100%;display:block"></canvas>
         <div id="syllabus-empty-xii" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
           No Grade XII syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
@@ -474,19 +477,19 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108103312"></script>
-<script src="js/config.js?v=20261108103312"></script>
-<script src="js/data.js?v=20261108103312"></script>
-<script src="js/utils.js?v=20261108103312"></script>
-<script src="js/students.js?v=20261108103312"></script>
-<script src="js/classes.js?v=20261108103312"></script>
-<script src="js/attendance.js?v=20261108103312"></script>
-<script src="js/syllabus.js?v=20261108103312"></script>
-<script src="js/payments.js?v=20261108103312"></script>
-<script src="js/scores.js?v=20261108103312"></script>
-<script src="js/profile.js?v=20261108103312"></script>
-<script src="js/settings.js?v=20261108103312"></script>
-<script src="js/app.js?v=20261108103312"></script>
+<script src="js/site-config.js?v=20261108103712"></script>
+<script src="js/config.js?v=20261108103712"></script>
+<script src="js/data.js?v=20261108103712"></script>
+<script src="js/utils.js?v=20261108103712"></script>
+<script src="js/students.js?v=20261108103712"></script>
+<script src="js/classes.js?v=20261108103712"></script>
+<script src="js/attendance.js?v=20261108103712"></script>
+<script src="js/syllabus.js?v=20261108103712"></script>
+<script src="js/payments.js?v=20261108103712"></script>
+<script src="js/scores.js?v=20261108103712"></script>
+<script src="js/profile.js?v=20261108103712"></script>
+<script src="js/settings.js?v=20261108103712"></script>
+<script src="js/app.js?v=20261108103712"></script>
 
 </body>
 </html>
