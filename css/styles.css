@@ -344,6 +344,7 @@ input,select,textarea{border-radius:8px;background:var(--bg);}
 #page-dashboard .panel-header{padding:10px 16px;}
 #page-dashboard .panel-title{font-size:14px;}
 #page-dashboard .grid2{gap:12px;}
+#page-dashboard .grid2 .panel{margin-bottom:0;}
 .topbar{padding-top:20px;}
 .content{padding-top:14px;}
 
