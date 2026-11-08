@@ -75,6 +75,10 @@ var Scores = (function () {
   // ---------- list view ----------
   function show() { _view = null; render(); }
 
+  // Which sections are open (kept while moving around PT)
+  var _open = { "Grade XI": true, "Grade XII": true, "one|Grade XI": false, "one|Grade XII": false };
+  function toggle(key, el) { _open[key] = el.open; }
+
   function render() {
     ensure();
     var box = Utils.el("scores-view");
@@ -82,56 +86,71 @@ var Scores = (function () {
     _view = null;
     Utils.el("page-title").textContent = "Scores";
     var D = Data.get();
-    var panel = function (cls) {
-      var tests = D.tests.filter(function (t) { return t.kind !== "one" && t.cls === cls; })
-        .sort(function (a, b) { return _num(a) - _num(b) || String(a.date).localeCompare(b.date); });
-      var rows = tests.map(function (t) {
-        var s = stats(t);
-        return "<tr><td><b>" + _esc(t.num) + "</b></td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
-          "<td class='c'>" + _esc(t.total) + "</td><td class='c'>" + pctTxt(s.avg) + "</td><td class='c'>" + mk(s.top) + "</td>" +
-          "<td class='c muted'>" + s.taken + "</td>" +
-          "<td class='c'><button class='btn btn-secondary btn-sm' onclick='Scores.open(\"" + t.id + "\")'>&#9998; Marks</button></td></tr>";
-      }).join("");
-      return "<div class='panel tests-panel'><div class='panel-header'><span class='panel-title'>" + Utils.grade(cls) +
-        "</span><span class='muted'>" + tests.length + " tests</span></div>" +
-        "<div style='overflow-x:auto'><table class='tests-table'><thead><tr><th>Test #</th><th>Date</th><th>Portions</th>" +
-        "<th class='c'>Out of</th><th class='c'>Average</th><th class='c'>Top</th><th class='c'>Took</th><th></th></tr></thead><tbody>" +
-        (rows || "<tr><td colspan='8' class='muted'>No tests yet. Use <b>+ Add test</b>.</td></tr>") + "</tbody></table></div></div>";
+
+    var section = function (key, title, tests, head, row) {
+      return "<details class='section tests-section'" + (_open[key] ? " open" : "") +
+        " ontoggle='Scores.toggle(\"" + key + "\", this)'><summary><span class='section-title'>" + title +
+        "</span><span class='section-meta'>&middot; " + tests.length + " test" + (tests.length === 1 ? "" : "s") +
+        "</span><span class='show-pill' aria-hidden='true'></span></summary><div class='section-body' style='padding:0'>" +
+        "<div style='overflow-x:auto'><table class='tests-table'><thead><tr>" + head + "</tr></thead><tbody>" +
+        (tests.length ? tests.map(row).join("") : "<tr><td colspan='9' class='muted'>No tests yet. Use <b>+ Add test</b>.</td></tr>") +
+        "</tbody></table></div></div></details>";
     };
-    var ones = D.tests.filter(function (t) { return t.kind === "one"; })
-      .sort(function (a, b) { return String(a.student).localeCompare(b.student) || String(a.date).localeCompare(b.date); });
-    var oneRows = ones.map(function (t) {
+    var marksBtn = function (t) {
+      return "<td class='c'><button class='btn btn-secondary btn-sm' onclick='Scores.open(\"" + t.id + "\")'>&#9998; Marks</button></td>";
+    };
+
+    var classHead = "<th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Out of</th><th class='c'>Average</th>" +
+                    "<th class='c'>Top</th><th class='c'>Took</th><th></th>";
+    var classRow = function (t) {
+      var st = stats(t);
+      return "<tr><td><b>" + _esc(t.num) + "</b></td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
+        "<td class='c'>" + _esc(t.total) + "</td><td class='c'>" + pctTxt(st.avg) + "</td><td class='c'>" + mk(st.top) + "</td>" +
+        "<td class='c muted'>" + st.taken + "</td>" + marksBtn(t) + "</tr>";
+    };
+    var oneHead = "<th>Student</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>%</th><th></th>";
+    var oneRow = function (t) {
       var r = marksOf(t.id)[0], total = Number(t.total) || 0;
       return "<tr><td><b>" + _esc(t.student) + "</b></td><td>" + _esc(t.num) + "</td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
-        "<td class='c'>" + (r ? mk(Number(r.score)) + " / " + _esc(t.total) : "—") + "</td>" +
-        "<td class='c'>" + (r && total ? Math.round(Number(r.score) / total * 100) + "%" : "—") + "</td>" +
-        "<td class='c'><button class='btn btn-secondary btn-sm' onclick='Scores.open(\"" + t.id + "\")'>&#9998; Marks</button></td></tr>";
-    }).join("");
-    Utils.el("scores-view").innerHTML =
-      "<div class='grid2 tests-grid'>" + panel("Grade XI") + panel("Grade XII") + "</div>" +
-      "<details class='section' style='margin-top:12px'" + (ones.length ? "" : " hidden") + ">" +
-        "<summary><span class='section-title'>One-to-one tests</span><span class='section-meta'>&middot; " + ones.length +
-        " tests for hourly students</span><span class='show-pill' aria-hidden='true'></span></summary>" +
-        "<div class='section-body' style='padding:0'><table class='tests-table'><thead><tr><th>Student</th><th>Test #</th><th>Date</th><th>Portions</th>" +
-        "<th class='c'>Marks</th><th class='c'>%</th><th></th></tr></thead><tbody>" + oneRows + "</tbody></table></div></details>";
+        "<td class='c'>" + (r ? mk(Number(r.score)) + " / " + _esc(t.total) : "\u2014") + "</td>" +
+        "<td class='c'>" + (r && total ? Math.round(Number(r.score) / total * 100) + "%" : "\u2014") + "</td>" + marksBtn(t) + "</tr>";
+    };
+    var classTests = function (cls) {
+      return D.tests.filter(function (t) { return t.kind !== "one" && t.cls === cls; })
+        .sort(function (a, b) { return _num(a) - _num(b) || String(a.date).localeCompare(b.date); });
+    };
+    var oneTests = function (cls) {
+      return D.tests.filter(function (t) { return t.kind === "one" && t.cls === cls; })
+        .sort(function (a, b) { return String(a.student).localeCompare(b.student) || String(a.date).localeCompare(b.date); });
+    };
+    box.innerHTML =
+      section("Grade XI", "Plus 1", classTests("Grade XI"), classHead, classRow) +
+      section("Grade XII", "Plus 2", classTests("Grade XII"), classHead, classRow) +
+      section("one|Grade XI", "Hourly (Plus 1)", oneTests("Grade XI"), oneHead, oneRow) +
+      section("one|Grade XII", "Hourly (Plus 2)", oneTests("Grade XII"), oneHead, oneRow);
   }
 
   // ---------- mark sheet ----------
   function open(id) { _view = id; render(); window.scrollTo(0, 0); }
 
+  // Everyone in the class (active or not), plus anyone already marked.
   function _students(t) {
-    var who = _byStudent(), names = {}, today = new Date(); today.setHours(0, 0, 0, 0);
     if (t.kind === "one") return [t.student];
+    var names = {}, order = Data.allStudents().map(Utils.fullName);
     Data.allStudents().forEach(function (s) {
-      if (s.cls !== t.cls || !Hourly.inGroup(s)) return;
-      var active = s.status === "Active" && !(s.endDate && new Date(s.endDate) < today);
-      if (active) names[Utils.fullName(s)] = true;
+      if (s.cls === t.cls && Hourly.inGroup(s)) names[Utils.fullName(s)] = true;
     });
-    marksOf(t.id).forEach(function (r) { names[r.student] = true; });   // anyone already marked
+    marksOf(t.id).forEach(function (r) { names[r.student] = true; });
     return Object.keys(names).sort(function (a, b) {
-      var A = who[a], B = who[b];
-      return (A && B ? Data.allStudents().indexOf(A) - Data.allStudents().indexOf(B) : a.localeCompare(b));
+      var i = order.indexOf(a), j = order.indexOf(b);
+      return (i < 0 ? 1e6 : i) - (j < 0 ? 1e6 : j) || a.localeCompare(b);
     });
+  }
+
+  function _isActive(name) {
+    var s = _byStudent()[name]; if (!s) return false;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    return s.status === "Active" && !(s.endDate && new Date(s.endDate) < today);
   }
 
   function _headerHtml(t) {
@@ -148,9 +167,12 @@ var Scores = (function () {
     var total = Number(t.total) || 0;
     var rows = _students(t).map(function (name, i) {
       var r = byName[name], v = r ? r.score : "";
-      return "<tr><td class='num'>" + (i + 1) + "</td><td>" + _esc(name) + "</td>" +
-        "<td class='c'><input class='mark-in' type='number' step='0.5' min='0' data-name='" + _esc(name) + "' value='" + _esc(v) + "' placeholder='---'></td>" +
-        "<td class='c mark-pct'>" + (r && total ? Math.round(Number(v) / total * 100) + "%" : "---") + "</td></tr>";
+      return "<tr" + (r ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + _esc(name) +
+        (_isActive(name) ? "" : " <span class='muted small'>inactive</span>") + "</td>" +
+        "<td class='c'><input class='mark-in' type='number' step='0.5' min='0' data-name='" + _esc(name) + "' value='" + _esc(v) +
+          "' placeholder='---'" + (r ? " readonly tabindex='-1'" : "") + "></td>" +
+        "<td class='c mark-pct'>" + (r && total ? Math.round(Number(v) / total * 100) + "%" : "---") + "</td>" +
+        "<td class='c edit-cell'>" + (r ? "<button type='button' class='row-edit' title='Change this mark' onclick='Scores.unlock(this)'>&#9998; Edit</button>" : "") + "</td></tr>";
     }).join("");
     var chapters = Settings.chapters(t.cls).slice(1).map(function (c) { return "<option value='" + _esc(c) + "'>"; }).join("");
     return "<div class='sheet-head panel'>" +
@@ -159,9 +181,9 @@ var Scores = (function () {
         "<div class='muted'>Portions: <b style='color:var(--text)'>" + _esc(t.title || "—") + "</b> · " + fmtDate(t.date) + "</div></div></div>" +
         "<div class='sheet-stats' id='sheet-stats'>" + _headerHtml(t) + "</div></div>" +
       "<div class='sheet-body'>" +
-        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><span class='muted'>marks save automatically</span></div>" +
-          "<table class='tests-table mark-table'><thead><tr><th class='num'>#</th><th>Name of student</th><th class='c'>Marks obtained</th><th class='c'>Marks (%)</th></tr></thead>" +
-          "<tbody>" + (rows || "<tr><td colspan='4' class='muted'>No active students in this class.</td></tr>") + "</tbody></table></div>" +
+        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><span class='muted'>marks save automatically &middot; hover a row and press Edit to change a mark</span></div>" +
+          "<table class='tests-table mark-table'><thead><tr><th class='num'>#</th><th>Name of student</th><th class='c'>Marks obtained</th><th class='c'>Marks (%)</th><th></th></tr></thead>" +
+          "<tbody>" + (rows || "<tr><td colspan='5' class='muted'>No students in this class.</td></tr>") + "</tbody></table></div>" +
         "<div class='panel sheet-edit'><div class='panel-header'><span class='panel-title'>Test details</span></div><div style='padding:12px 16px'>" +
           "<div class='form-row'><label>Test #</label><input id='te-num' value='" + _esc(t.num) + "'></div>" +
           "<div class='form-row'><label>Date</label><input id='te-date' type='date' value='" + _esc(t.date) + "'></div>" +
@@ -176,16 +198,33 @@ var Scores = (function () {
     var t = testOf(_view);
     document.querySelectorAll(".mark-in").forEach(function (inp) {
       inp.addEventListener("change", function () { setMark(t.id, inp.dataset.name, inp.value, inp); });
-      inp.addEventListener("keydown", function (e) {           // Enter moves down the list
+      inp.addEventListener("blur", function () { if (inp.value !== "") _lock(inp); });
+      inp.addEventListener("keydown", function (e) {           // Enter → next student still to mark
         if (e.key !== "Enter") return;
         e.preventDefault();
         var all = Array.prototype.slice.call(document.querySelectorAll(".mark-in")), i = all.indexOf(inp);
-        if (all[i + 1]) all[i + 1].focus(); else inp.blur();
+        var next = all.slice(i + 1).filter(function (x) { return !x.readOnly; })[0];
+        inp.blur();
+        if (next) next.focus();
       });
     });
     ["te-num", "te-date", "te-title", "te-total"].forEach(function (id) {
       Utils.el(id).addEventListener("change", function () { _saveDetails(t.id); });
     });
+  }
+
+  // A row with a mark is locked; its Edit button (shown on hover) unlocks it.
+  function _lock(inp) {
+    var tr = inp.closest("tr");
+    inp.readOnly = true; inp.tabIndex = -1; tr.classList.add("locked"); tr.classList.remove("editing");
+    var cell = tr.querySelector(".edit-cell");
+    if (cell && !cell.querySelector(".row-edit"))
+      cell.innerHTML = "<button type='button' class='row-edit' title='Change this mark' onclick='Scores.unlock(this)'>&#9998; Edit</button>";
+  }
+  function unlock(btn) {
+    var tr = btn.closest("tr"), inp = tr.querySelector(".mark-in");
+    inp.readOnly = false; inp.tabIndex = 0; tr.classList.remove("locked"); tr.classList.add("editing");
+    inp.focus(); inp.select();
   }
 
   function setMark(id, name, value, inp) {
@@ -205,6 +244,7 @@ var Scores = (function () {
       if (idx >= 0) rows[idx] = row; else rows.push(row);
     }
     Data.save();
+    if (value !== "") _lock(inp); else { var ec = inp.closest("tr").querySelector(".edit-cell"); if (ec) ec.innerHTML = ""; inp.closest("tr").classList.remove("locked", "editing"); }
     var cell = inp.closest("tr").querySelector(".mark-pct");
     cell.textContent = value !== "" && total ? Math.round(Number(value) / total * 100) + "%" : "---";
     Utils.el("sheet-stats").innerHTML = _headerHtml(t);
@@ -281,6 +321,6 @@ var Scores = (function () {
     open(t.id);
   }
 
-  return { render: render, show: show, open: open, openModal: openModal, saveTest: saveTest,
+  return { render: render, show: show, open: open, toggle: toggle, unlock: unlock, openModal: openModal, saveTest: saveTest,
            modalClass: modalClass, modalWho: modalWho, delTest: delTest, ensure: ensure };
 })();

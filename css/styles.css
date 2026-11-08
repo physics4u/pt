@@ -630,3 +630,16 @@ html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier 
 .mark-table tbody tr:focus-within td{background:rgb(var(--accent-rgb) / 0.18);}
 @media (max-width:900px){ .sheet-body{grid-template-columns:1fr;} }
 .tests-table td:nth-child(2){white-space:nowrap;}
+
+/* Scores: full-width sections */
+.tests-section .tests-table th{white-space:nowrap;}
+.tests-section .tests-table td:nth-child(3){min-width:220px;}
+/* Mark sheet: entered marks are locked; Edit shows on hover */
+.mark-table tr.locked .mark-in{background:transparent;border-color:transparent;color:var(--text);font-weight:700;cursor:default;}
+.mark-table tr.editing .mark-in{border-color:var(--accent);}
+.row-edit{visibility:hidden;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text2);
+  font:inherit;font-size:12px;padding:3px 8px;cursor:pointer;}
+.row-edit:hover{border-color:var(--accent);color:var(--accent);}
+.mark-table tr:hover .row-edit,.mark-table tr:focus-within .row-edit{visibility:visible;}
+@media (hover:none){ .row-edit{visibility:visible;} }
+.edit-cell{width:80px;}
