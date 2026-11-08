@@ -74,7 +74,7 @@ var Students = (function () {
   function save() {
     var fname = Utils.el("s-fname").value.trim();
     var lname = Utils.el("s-lname").value.trim();
-    if (!fname) { alert("Please enter first name."); return; }
+    if (!fname) { Dialog.alert("Please enter the first name."); return; }
 
     var student = {
       fname: fname,
@@ -124,13 +124,15 @@ var Students = (function () {
   }
 
   function del(i) {
-    if (!confirm("Delete this student?")) return;
-    var D = Data.get();
-    var n = Utils.fullName(D.students[i]);
-    D.students.splice(i, 1);
-    Data.log("Removed student <b>" + n + "</b>");
-    Data.save();
-    render();
+    Dialog.confirm("Delete " + Utils.fullName(Data.get().students[i]) + "? Their attendance and payment history stays in the sheet.", {okText:"Delete", danger:true}).then(function (ok) {
+      if (!ok) return;
+      var D = Data.get();
+      var n = Utils.fullName(D.students[i]);
+      D.students.splice(i, 1);
+      Data.log("Removed student <b>" + n + "</b>");
+      Data.save();
+      render();
+    });
   }
 
   return { render: render, openModal: openModal, save: save, del: del };

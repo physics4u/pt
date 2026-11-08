@@ -352,3 +352,67 @@ input,select,textarea{border-radius:8px;background:var(--bg);}
   .topbar,.content{padding-left:16px;padding-right:16px;}
   .stat-grid,.grid2{grid-template-columns:1fr 1fr;}
 }
+
+/* ---- Header chips: academic year + signed-in user ---- */
+.topbar{align-items:center;}
+.year-chip{font-weight:700;font-size:13px;color:var(--accent);border:1px solid rgb(var(--accent-rgb) / 0.5);
+  border-radius:999px;padding:6px 12px;white-space:nowrap;}
+.user-chip{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--border);
+  border-radius:999px;background:var(--surface);cursor:pointer;}
+.user-chip:hover{border-color:var(--text3);}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;}
+.user-meta{display:flex;flex-direction:column;line-height:1.15;}
+.user-name{font-weight:700;font-size:13px;color:var(--text);}
+.user-role{font-size:11px;color:var(--text3);}
+.topbar-title{flex:0 1 auto;margin-right:auto;}
+
+/* ---- Collapsible sections (Settings) ---- */
+details.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+details.section > summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;padding:14px 18px;}
+details.section > summary::-webkit-details-marker{display:none;}
+details.section > summary::after{content:"\25BE";margin-left:auto;color:var(--text3);transition:transform 0.15s;}
+details.section:not([open]) > summary::after{transform:rotate(-90deg);}
+details.section > summary:hover{background:var(--surface2);}
+.section-title{font-weight:700;font-size:15px;color:var(--text);}
+.section-hint{font-size:12px;color:var(--text3);}
+.section-body{padding:16px 18px;border-top:1px solid var(--border);}
+.section-body .panel{background:var(--bg);}
+body.role-user .admin-only{display:none !important;}
+
+/* ---- Users ---- */
+.users-table{margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.user-form{border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:var(--bg);}
+.user-form-title{font-weight:700;margin-bottom:10px;color:var(--accent);}
+.user-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+.user-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;}
+label.check{display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;color:var(--text2);cursor:pointer;}
+label.check input{width:auto;}
+.btn-sm{padding:4px 10px;font-size:12px;}
+input:disabled{opacity:0.6;}
+
+/* ---- About ---- */
+.about table td{padding:6px 12px 6px 0;}
+.about table td:first-child{color:var(--text3);font-weight:500;width:160px;}
+.about-warn{margin-top:10px;color:var(--accent2);font-size:13px;}
+
+/* ---- Sign-in screen ---- */
+.login-box{width:360px;padding:28px;text-align:left;}
+.login-logo{width:72px;display:block;margin:0 auto 10px;}
+.login-title{text-align:center;font-weight:700;font-size:16px;margin-bottom:18px;color:var(--text);}
+
+/* ---- PT pop-up boxes (replace the browser's alert/confirm) ---- */
+.dialog-overlay{z-index:600;background:rgba(4,14,26,0.6);}
+.dialog{width:400px;padding:0;}
+.dialog-head{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border);
+  font-weight:700;font-size:13px;color:var(--accent);}
+.dialog-head img{width:24px;height:auto;}
+.dialog-msg{padding:18px;font-size:14px;line-height:1.5;color:var(--text);white-space:pre-line;}
+.dialog-actions{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 16px;}
+
+@media (max-width:900px){
+  .user-form-grid{grid-template-columns:1fr;}
+  .user-meta{display:none;}
+}
+.app-version{cursor:pointer;}
+.app-version:hover{color:var(--accent);}

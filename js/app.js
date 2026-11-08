@@ -437,6 +437,7 @@ var Theme = (function () {
     }
   });
 
+  Utils.el("app-version").textContent = "PT v" + PT_VERSION;
   Theme.init();
   Data.init();
 })();

@@ -72,7 +72,7 @@ var PAGE_CFG = {
   payments:  {title:"Payments",         sub:"Monthly fees by student", btn:null},
   scores:    {title:"Scores & grades",  sub:"Tests, quizzes and exams", btn:"+ Add score",   action:function(){ Scores.openModal(); }},
   profile:   {title:"Student profile",  sub:"", btn:null},
-  settings:  {title:"Settings",         sub:"Chapter lists, academic year and backups", btn:null}
+  settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, your account and version", btn:null}
 };
 
 function showPage(id) {
@@ -103,10 +103,72 @@ function showPage(id) {
   else if (id === "syllabus")  Syllabus.init();
   else if (id === "payments")  Payments.init();
   else if (id === "scores")    Scores.render();
-  else if (id === "settings")  SettingsPage.init();
+  else if (id === "settings")  { SettingsPage.init(); Users.load(); }
 }
 
 function topbarAction() {
   var cfg = PAGE_CFG[currentPage];
   if (cfg && cfg.action) cfg.action();
 }
+
+// ================================================================
+//  Dialog — PT-styled replacements for alert() / confirm().
+//  The browser's own boxes show the website address as the title
+//  and ignore the app's colours; these match the dashboard.
+//    Dialog.alert("Saved")                       → Promise
+//    Dialog.confirm("Delete?", {okText:"Delete", danger:true}) → Promise<bool>
+// ================================================================
+var Dialog = (function () {
+  var _open = null;
+
+  function _build() {
+    var o = document.createElement("div");
+    o.className = "modal-overlay dialog-overlay";
+    o.innerHTML =
+      "<div class='modal dialog' role='alertdialog' aria-modal='true' aria-labelledby='dlg-title'>" +
+        "<div class='dialog-head'><img src='logo.png' alt=''><span id='dlg-title'>PT &mdash; Physics Tuition</span></div>" +
+        "<div class='dialog-msg' id='dlg-msg'></div>" +
+        "<div class='dialog-actions'>" +
+          "<button class='btn btn-secondary' id='dlg-cancel'>Cancel</button>" +
+          "<button class='btn btn-primary' id='dlg-ok'>OK</button>" +
+        "</div>" +
+      "</div>";
+    document.body.appendChild(o);
+    return o;
+  }
+
+  function _show(msg, opts, withCancel) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+      var o = document.querySelector(".dialog-overlay") || _build();
+      var ok = o.querySelector("#dlg-ok"), cancel = o.querySelector("#dlg-cancel");
+      o.querySelector("#dlg-msg").textContent = msg;
+      ok.textContent = opts.okText || "OK";
+      ok.className = "btn " + (opts.danger ? "btn-danger" : "btn-primary");
+      cancel.textContent = opts.cancelText || "Cancel";
+      cancel.style.display = withCancel ? "" : "none";
+      function done(v) {
+        o.classList.remove("open");
+        document.removeEventListener("keydown", onKey, true);
+        ok.onclick = cancel.onclick = o.onclick = null;
+        _open = null;
+        resolve(v);
+      }
+      function onKey(e) {
+        if (e.key === "Escape") { e.preventDefault(); done(false); }
+        else if (e.key === "Enter") { e.preventDefault(); done(true); }
+      }
+      ok.onclick = function () { done(true); };
+      cancel.onclick = function () { done(false); };
+      o.onclick = function (e) { if (e.target === o) done(false); };
+      document.addEventListener("keydown", onKey, true);
+      o.classList.add("open");
+      _open = o;
+      setTimeout(function () { (withCancel ? cancel : ok).focus(); }, 30);
+    });
+  }
+
+  function alert(msg, opts)   { return _show(msg, opts, false); }
+  function confirm(msg, opts) { return _show(msg, opts, true); }
+  return { alert: alert, confirm: confirm };
+})();
