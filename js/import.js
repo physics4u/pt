@@ -11,8 +11,9 @@ var ImportPage = (function () {
     Data.api("importCheck", { year: year }, 360000).then(function (r) {
       btn.disabled = false; btn.textContent = "Check";
       if (!r.ok) { out.innerHTML = "<span style='color:var(--danger)'>" + (r.error || "Could not check.") + "</span>"; return; }
-      out.innerHTML = "Found the " + year.replace("-", "\u2013") + " records with <b>" + r.tabs + "</b> sections. " +
-        "Nothing has been changed yet.";
+      out.innerHTML = "Found the " + year.replace("-", "\u2013") + " records" +
+        (r.slim ? " and prepared them for import" : " with <b>" + r.tabs + "</b> sections") +
+        ". Nothing in PT has been changed yet.";
       Data.log("Checked the " + year + " records for import");
       Data.save();
     });
