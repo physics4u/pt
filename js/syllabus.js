@@ -149,7 +149,6 @@ var Syllabus = (function () {
 
   function save() {
     Data.save();
-    Utils.flash(Utils.el("btn-save-syllabus"));
     Data.log("Saved Monthly Planner for " + _cls + " \u2014 " + (ACYR_LBL[Utils.el("syllabus-month").value] || ""));
   }
 

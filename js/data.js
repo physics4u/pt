@@ -34,6 +34,7 @@ var Data = (function () {
   var _loaded    = false;  // true once a server load succeeded
   var _saveTimer = null;
   var _saving    = false;
+  var _failed    = false;  // last save failed → warn before leaving
 
   function get()          { return D; }
   function _url()         { return (window.PT_CONFIG && PT_CONFIG.apiUrl) || ""; }
@@ -107,7 +108,7 @@ var Data = (function () {
   // ----------------------------------------------------------------
   //  API call — POST with a text/plain body (no CORS preflight)
   // ----------------------------------------------------------------
-  function _call(action, data, extra) {
+  function _call(action, data, extra, keepalive) {
     var req = { action: action, token: _lsGet(TOKEN_KEY) || "", data: data };
     if (extra) Object.keys(extra).forEach(function (k) { if (k !== "_wait") req[k] = extra[k]; });
     var body = JSON.stringify(req);
@@ -119,6 +120,7 @@ var Data = (function () {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: body,
       redirect: "follow",
+      keepalive: !!keepalive && body.length < 60000,   // let a last save finish as the page closes
       signal: ctrl ? ctrl.signal : undefined
     }).then(function (r) {
       clearTimeout(timer);
@@ -228,11 +230,12 @@ var Data = (function () {
     }
     Utils.setSyncStatus("pending");
     clearTimeout(_saveTimer);
-    _saveTimer = setTimeout(_flush, 1500);
+    _saveTimer = setTimeout(_flush, 800);
   }
 
-  function _flush() {
-    if (_saving) { _saveTimer = setTimeout(_flush, 2000); return; }
+  function _flush(leaving) {
+    _saveTimer = null;
+    if (_saving && !leaving) { _saveTimer = setTimeout(_flush, 1000); return; }
     var changed = {}, snap = {}, n = 0;
     KEYS.forEach(function (k) {
       var j = JSON.stringify(D[k]);
@@ -242,8 +245,9 @@ var Data = (function () {
 
     _saving = true;
     Utils.setSyncStatus("saving");
-    _callWithRetry("save", changed).then(function (resp) {
+    (leaving ? _call("save", changed, null, true) : _callWithRetry("save", changed)).then(function (resp) {
       _saving = false;
+      _failed = !resp.ok;
       if (resp.ok) {
         Object.keys(snap).forEach(function (k) { _synced[k] = snap[k]; });
         Utils.setSyncStatus("saved");
@@ -260,8 +264,15 @@ var Data = (function () {
     return _loaded && KEYS.some(function (k) { return JSON.stringify(D[k]) !== _synced[k]; });
   }
 
+  // Leaving the page: send any waiting change straight away instead of
+  // asking. The browser's own "leave page?" box (which PT can't style)
+  // only appears if the last save failed, e.g. while offline.
+  function _leaving() { if (_loaded && _saveTimer) { clearTimeout(_saveTimer); _flush(true); } }
+  window.addEventListener("pagehide", _leaving);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") _leaving(); });
   window.addEventListener("beforeunload", function (e) {
-    if (hasUnsaved()) { e.preventDefault(); e.returnValue = ""; }
+    _leaving();
+    if (_failed && hasUnsaved()) { e.preventDefault(); e.returnValue = ""; }
   });
 
   // ---- Activity log ----

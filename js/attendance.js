@@ -138,12 +138,12 @@ var Attendance = (function () {
     var cur  = D.attsheets[key][student][day] || "";
     var next = cur === "" ? "P" : cur === "P" ? "A" : "";
     D.attsheets[key][student][day] = next;
+    Data.save();      // saves automatically
     render(); // re-render to keep totals accurate
   }
 
   function save() {
     Data.save();
-    Utils.flash(Utils.el("btn-save-attsheet"));
     Data.log("Saved attendance for <b>" + _cls + "</b> \u2014 " + (ACYR_LBL[Utils.el("attsheet-month").value] || ""));
   }
 

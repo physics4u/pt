@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108215530">
+<link rel="stylesheet" href="css/styles.css?v=20261108222428">
 </head>
 <body>
 
@@ -62,13 +62,15 @@
     <!-- Each page is in its own HTML file, included here -->
     <div id="page-dashboard" class="page active">
   <div class="stat-grid five">
-    <div class="stat-card blue hero"><div class="stat-label">Active students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub">enrolled</div></div>
-    <div class="stat-card orange"><div class="stat-label">Classes</div><div class="stat-value" id="stat-classes">0</div><div class="stat-sub">this year</div></div>
+    <div class="stat-card blue hero"><div class="stat-label">Students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub" id="stat-students-sub">active</div></div>
+    <div class="stat-card blue"><div class="stat-label">Plus 1</div><div class="stat-value" id="stat-p1">0</div><div class="stat-sub" id="stat-p1-sub">active</div></div>
+    <div class="stat-card orange"><div class="stat-label">Plus 2</div><div class="stat-value" id="stat-p2">0</div><div class="stat-sub" id="stat-p2-sub">active</div></div>
+    <div class="stat-card blue"><div class="stat-label">Hourly</div><div class="stat-value" id="stat-hr">0</div><div class="stat-sub" id="stat-hr-sub">active</div></div>
     <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-sub">fees paid</div></div>
+  </div>
+  <div class="stat-grid six">
     <div class="stat-card red"><div class="stat-label">Outstanding</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub" id="stat-pending-sub">fees not yet paid</div></div>
     <div class="stat-card blue"><div class="stat-label">Hourly hours</div><div class="stat-value" id="stat-hourly">0:00</div><div class="stat-sub" id="stat-hourly-sub">one-to-one sessions</div></div>
-  </div>
-  <div class="stat-grid">
     <div class="stat-card blue"><div class="stat-label">+1 Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
     <div class="stat-card blue"><div class="stat-label">+1 Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
     <div class="stat-card orange"><div class="stat-label">+2 Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
@@ -129,6 +131,7 @@
       <span class="search-icon">&#128269;</span>
       <input type="text" placeholder="Search students..." id="student-search" oninput="Students.render()">
     </div>
+    <span class="list-count" id="students-count"></span>
     <select class="filter" id="student-filter" onchange="Students.render()">
       <option value="">All Classes</option>
       <option value="Grade XI">Grade XI</option>
@@ -193,7 +196,7 @@
         <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
       </select>
     </div>
-    <button id="btn-save-attsheet" class="btn btn-primary" onclick="Attendance.save()">Save Attendance</button>
+    <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
   <div id="as-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
   <div style="overflow-x:auto">
@@ -218,7 +221,7 @@
         <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
       </select>
     </div>
-    <button id="btn-save-syllabus" class="btn btn-primary" onclick="Syllabus.save()">Save Month</button>
+    <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
   <div id="syl-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
   <div class="panel" id="syllabus-table-wrap"></div>
@@ -452,6 +455,10 @@
         <button type="button" class="seg-btn" id="theme-dark"  role="radio" onclick="Theme.set('dark')">&#9790; Dark</button>
         <button type="button" class="seg-btn" id="theme-light" role="radio" onclick="Theme.set('light')">&#9728; Light</button>
       </div>
+      <div class="seg" role="radiogroup" aria-label="Font">
+        <button type="button" class="seg-btn" id="font-modern"  role="radio" onclick="Theme.setFont('modern')">Modern</button>
+        <button type="button" class="seg-btn courier" id="font-courier" role="radio" onclick="Theme.setFont('courier')">Courier New</button>
+      </div>
       <span class="section-note" style="margin:0">Saved on this device only.</span>
     </div>
   </details>
@@ -487,8 +494,8 @@
         <li><b>Sign in</b> with the username and password your admin gave you. The very first time, the owner signs in as <code>admin</code> with the owner passcode.</li>
         <li><b>Check the year.</b> The gold chip at the top right shows the academic year (for example <b>2026&ndash;27</b>). Admins can change it in <b>Settings &rarr; Academic year</b>.</li>
         <li><b>Add students</b> on the <b>Students</b> page with <b>+ Add student</b>. Set each student's class (Grade XI or XII) and monthly fee.</li>
-        <li><b>Plan the month</b> in <b>Monthly Planner</b>: pick the chapter and times for each class day, then press <b>Save Month</b>.</li>
-        <li><b>Take attendance</b> in <b>Attendance</b>, then press <b>Save Attendance</b>.</li>
+        <li><b>Plan the month</b> in <b>Monthly Planner</b>: pick the chapter and times for each class day.</li>
+        <li><b>Take attendance</b> in <b>Attendance</b>. Everything saves automatically.</li>
         <li><b>Record fees</b> from a student's profile (<b>Students &rarr; View</b>).</li>
         <li>The <b>Dashboard</b> adds everything up for you.</li>
       </ol>
@@ -590,7 +597,7 @@
       <ol>
         <li>Choose the <b>grade</b> and the <b>month</b> at the top.</li>
         <li>For each day you teach, pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>. Add notes if you like (for example the topics covered).</li>
-        <li>Press <b>Save Month</b>. <b>Changes are not saved until you press it.</b></li>
+        <li>That's it: each change saves automatically.</li>
       </ol>
       <p>Days with an entry are highlighted; weekends are tinted. The Dashboard's hours, days and Teaching Hours charts come from this page.</p>
       <p>The chapter list comes from <b>Settings &rarr; Chapter lists</b> (admins can edit it).</p>
@@ -603,8 +610,7 @@
     <div class="section-body guide">
       <ol>
         <li>Choose the <b>grade</b>, the <b>month</b>, and whether to show active or all students.</li>
-        <li>Click a day's box for a student to mark it: <b>first click = P</b> (present), <b>second click = A</b> (absent), <b>third click = blank</b>.</li>
-        <li>Press <b>Save Attendance</b>. <b>Marks are not saved until you press it.</b></li>
+        <li>Click a day's box for a student to mark it: <b>first click = P</b> (present), <b>second click = A</b> (absent), <b>third click = blank</b>. Each click saves automatically.</li>
       </ol>
       <p>The P and A columns count each student's month; the bottom row counts each day.</p>
     </div>
@@ -656,9 +662,9 @@
     <div class="section-body guide">
       <ul>
         <li>Everything you enter is stored securely in PT's online database. Only people with a PT sign-in can see or change it.</li>
-        <li>Most changes save by themselves within a couple of seconds. The <b>Monthly Planner</b> and <b>Attendance</b> save when you press their Save buttons.</li>
+        <li>Every change saves by itself within a second or two. There are no Save buttons to remember.</li>
         <li>While saving, the bottom of the side menu briefly shows <b>Saving&hellip;</b>. If something goes wrong it shows <b>&#9888; Not saved</b>: check your internet connection and try again.</li>
-        <li>If you try to close the page with unsaved changes, your browser will warn you.</li>
+        <li>If you close the page just after a change, PT finishes saving it. Your browser only warns you if a save has failed (for example when you're offline).</li>
         <li>PT keeps a copy on your device so it opens quickly, then refreshes it from the database. If the database can't be reached, PT shows the copy but <b>won't save</b> until it reconnects, so nothing is ever overwritten by mistake.</li>
         <li>PT keeps an activity log of each change and who made it.</li>
       </ul>
@@ -857,25 +863,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108215530"></script>
-<script src="js/version.js?v=20261108215530"></script>
-<script src="js/config.js?v=20261108215530"></script>
-<script src="js/data.js?v=20261108215530"></script>
-<script src="js/utils.js?v=20261108215530"></script>
-<script src="js/students.js?v=20261108215530"></script>
-<script src="js/classes.js?v=20261108215530"></script>
-<script src="js/attendance.js?v=20261108215530"></script>
-<script src="js/syllabus.js?v=20261108215530"></script>
-<script src="js/payments.js?v=20261108215530"></script>
-<script src="js/scores.js?v=20261108215530"></script>
-<script src="js/profile.js?v=20261108215530"></script>
-<script src="js/settings.js?v=20261108215530"></script>
-<script src="js/users.js?v=20261108215530"></script>
-<script src="js/help.js?v=20261108215530"></script>
-<script src="js/storage.js?v=20261108215530"></script>
-<script src="js/import.js?v=20261108215530"></script>
-<script src="js/hourly.js?v=20261108215530"></script>
-<script src="js/app.js?v=20261108215530"></script>
+<script src="js/site-config.js?v=20261108222428"></script>
+<script src="js/version.js?v=20261108222428"></script>
+<script src="js/config.js?v=20261108222428"></script>
+<script src="js/data.js?v=20261108222428"></script>
+<script src="js/utils.js?v=20261108222428"></script>
+<script src="js/students.js?v=20261108222428"></script>
+<script src="js/classes.js?v=20261108222428"></script>
+<script src="js/attendance.js?v=20261108222428"></script>
+<script src="js/syllabus.js?v=20261108222428"></script>
+<script src="js/payments.js?v=20261108222428"></script>
+<script src="js/scores.js?v=20261108222428"></script>
+<script src="js/profile.js?v=20261108222428"></script>
+<script src="js/settings.js?v=20261108222428"></script>
+<script src="js/users.js?v=20261108222428"></script>
+<script src="js/help.js?v=20261108222428"></script>
+<script src="js/storage.js?v=20261108222428"></script>
+<script src="js/import.js?v=20261108222428"></script>
+<script src="js/hourly.js?v=20261108222428"></script>
+<script src="js/app.js?v=20261108222428"></script>
 
 </body>
 </html>
