@@ -7,6 +7,16 @@
 // ================================================================
 var Users = (function () {
   var _list = [];
+  var _ownerLast = "";
+
+  // "2026-11-08T10:15:00Z" → "08 Nov 2026 15:45" (local time)
+  function _when(iso) {
+    if (!iso) return "<span style='color:var(--text3)'>never</span>";
+    var d = new Date(iso);
+    if (isNaN(d)) return _esc(iso);
+    return d.toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + " " +
+           d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  }
   var _editing = null;   // username being edited, or null when adding
 
   function _esc(s) {
@@ -26,6 +36,7 @@ var Users = (function () {
         return;
       }
       _list = r.users || [];
+      _ownerLast = r.ownerLastLogin || "";
       render();
       load.done = true;
     });
@@ -43,10 +54,10 @@ var Users = (function () {
       rows = _list.slice();
       // The built-in Owner sign-in, unless someone created a real "admin" user.
       if (!rows.some(function (u) { return u.username === "admin"; })) {
-        rows.unshift({ username: "admin", name: "Owner", role: "admin", active: true, created: "built-in", owner: true });
+        rows.unshift({ username: "admin", name: "Owner", role: "admin", active: true, lastLogin: _ownerLast, owner: true });
       }
     } else {
-      rows = [{ username: me.username, name: me.name, role: me.role, active: true, created: "" }];
+      rows = [{ username: me.username, name: me.name, role: me.role, active: true, lastLogin: "", self: true }];
     }
     Utils.el("users-meta").textContent = Data.isAdmin() ? "· " + rows.length : "· your account";
     Utils.el("users-tbody").innerHTML = rows.map(function (u, n) {
@@ -58,7 +69,7 @@ var Users = (function () {
         "<td>" + _esc(u.username) + "</td>" +
         "<td>" + _roleChips(u) + "</td>" +
         "<td>" + (u.active ? "Yes" : "<span style='color:var(--danger)'>No</span>") + "</td>" +
-        "<td>" + _esc(u.created) + "</td>" +
+        "<td>" + (u.self ? "now" : _when(u.lastLogin)) + "</td>" +
         "<td style='white-space:nowrap;text-align:right'>" +
           (canEdit ? "<button class='btn btn-secondary btn-sm' onclick=\"Users.edit('" + _esc(u.username) + "')\">&#9998; Edit</button>" : "") +
         "</td></tr>";

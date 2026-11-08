@@ -444,7 +444,6 @@ input:disabled{opacity:0.6;}
 /* ================================================================
    Comfortable reading width (don't stretch across wide screens)
 ================================================================ */
-.topbar,.content{width:100%;max-width:1240px;margin-left:auto;margin-right:auto;}
 
 /* Section headers: title · meta ......... [actions] [Show ▾] */
 details.section > summary{align-items:center;gap:6px;padding:12px 16px;}
@@ -474,3 +473,48 @@ details.section > summary:hover .show-pill{border-color:var(--text3);}
 .users-foot{display:flex;gap:8px;}
 .danger-link{color:var(--danger);}
 .danger-link:hover{color:var(--danger);}
+
+/* ================================================================
+   LAYOUT — the menu and the page sit together as one centred block,
+   so on a wide monitor there is no gap between them.
+================================================================ */
+body{justify-content:center;}
+.sidebar{position:sticky;top:0;height:100vh;flex:0 0 248px;width:248px;}
+.main{margin-left:0;flex:1 1 auto;min-width:0;max-width:1240px;}
+@media (min-width:1500px){ .sidebar{border-left:1px solid var(--border);} }
+
+/* ================================================================
+   READABILITY — larger type throughout
+================================================================ */
+body{font-size:15px;}
+.nav-item{font-size:15px;padding:10px 12px;}
+.nav-section{font-size:11.5px;}
+.topbar-title{font-size:26px;}
+.topbar-sub{font-size:14px;}
+table{font-size:14.5px;}
+td{color:var(--text);}
+thead th{font-size:12.5px;}
+.users-table th{font-size:13px;}
+.btn{font-size:14px;}
+.btn-sm{font-size:13px;padding:6px 12px;}
+label{font-size:13px;}
+input,select,textarea{font-size:15px;}
+.stat-label{font-size:13.5px;}
+.stat-sub{font-size:12.5px;}
+.stat-value,.stat-card.blue .stat-value,.stat-card.orange .stat-value,
+.stat-card.green .stat-value,.stat-card.red .stat-value{font-size:26px;}
+#page-dashboard .panel-title,.panel-title{font-size:15.5px;}
+.section-title{font-size:16.5px;}
+.section-meta{font-size:13.5px;}
+.section-note{font-size:14px;}
+.show-pill{font-size:13px;}
+.chip{font-size:12px;padding:3px 9px;}
+.badge{font-size:12px;}
+.chap-list{font-size:14px;}
+.chap-name{font-size:15px;}
+.chap-count,.chap-help{font-size:13px;}
+.sidebar-footer{font-size:13px;}
+.user-name{font-size:14px;}
+.user-role{font-size:12px;}
+.dialog-msg{font-size:15px;}
+.about table td{font-size:14.5px;}
