@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108103712">
+<link rel="stylesheet" href="css/styles.css?v=20261108104248">
 </head>
 <body>
 
@@ -70,20 +70,6 @@
     <div class="stat-card orange"><div class="stat-label">+2 Days</div><div class="stat-value" id="stat-xii-days">0</div><div class="stat-sub">class days</div></div>
   </div>
 
-  <!-- Revenue Chart -->
-  <div class="panel" style="margin-bottom:12px">
-    <div class="panel-header">
-      <span class="panel-title">Income &mdash; Monthly</span>
-      <span id="chart-total" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
-    </div>
-    <div style="padding:12px 24px 8px;overflow-x:auto">
-      <canvas id="revenue-chart" height="220" style="width:100%;display:block"></canvas>
-      <div id="chart-empty" style="display:none;text-align:center;padding:40px;color:var(--text3);font-size:13px">
-        No paid fees recorded yet. Mark payments as Paid in the Payments page to see revenue here.
-      </div>
-    </div>
-  </div>
-
   <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
   <div class="grid2" style="margin-bottom:12px">
 
@@ -115,6 +101,20 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="panel" style="margin-bottom:12px">
+    <div class="panel-header">
+      <span class="panel-title">Income &mdash; Monthly</span>
+      <span id="chart-total" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
+    </div>
+    <div style="padding:12px 24px 8px;overflow-x:auto">
+      <canvas id="revenue-chart" height="220" style="width:100%;display:block"></canvas>
+      <div id="chart-empty" style="display:none;text-align:center;padding:40px;color:var(--text3);font-size:13px">
+        No paid fees recorded yet. Mark payments as Paid in the Payments page to see revenue here.
+      </div>
+    </div>
   </div>
 
 </div>
@@ -477,19 +477,19 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108103712"></script>
-<script src="js/config.js?v=20261108103712"></script>
-<script src="js/data.js?v=20261108103712"></script>
-<script src="js/utils.js?v=20261108103712"></script>
-<script src="js/students.js?v=20261108103712"></script>
-<script src="js/classes.js?v=20261108103712"></script>
-<script src="js/attendance.js?v=20261108103712"></script>
-<script src="js/syllabus.js?v=20261108103712"></script>
-<script src="js/payments.js?v=20261108103712"></script>
-<script src="js/scores.js?v=20261108103712"></script>
-<script src="js/profile.js?v=20261108103712"></script>
-<script src="js/settings.js?v=20261108103712"></script>
-<script src="js/app.js?v=20261108103712"></script>
+<script src="js/site-config.js?v=20261108104248"></script>
+<script src="js/config.js?v=20261108104248"></script>
+<script src="js/data.js?v=20261108104248"></script>
+<script src="js/utils.js?v=20261108104248"></script>
+<script src="js/students.js?v=20261108104248"></script>
+<script src="js/classes.js?v=20261108104248"></script>
+<script src="js/attendance.js?v=20261108104248"></script>
+<script src="js/syllabus.js?v=20261108104248"></script>
+<script src="js/payments.js?v=20261108104248"></script>
+<script src="js/scores.js?v=20261108104248"></script>
+<script src="js/profile.js?v=20261108104248"></script>
+<script src="js/settings.js?v=20261108104248"></script>
+<script src="js/app.js?v=20261108104248"></script>
 
 </body>
 </html>
