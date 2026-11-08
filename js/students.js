@@ -6,46 +6,67 @@
 var Students = (function () {
   var _editIdx = -1;
 
+  // Four collapsible sections like Payments: Plus 1, Plus 2, Hourly (Plus 1),
+  // Hourly (Plus 2). All closed when the page is opened from the menu;
+  // a search opens the sections that have a match.
+  var _open = {};
+  function show() { _open = {}; render(); }
+  function toggle(key, el) { _open[key] = el.open; }
+
   function render() {
     var D    = Data.get();
-    var q    = (Utils.el("student-search").value || "").toLowerCase();
-    var cf   = Utils.el("student-filter").value;
-    var bf   = Utils.el("student-batch-filter").value;
+    var q    = (Utils.el("student-search").value || "").trim().toLowerCase();
     var sf   = Utils.el("student-status-filter").value;
-    var list = Data.allStudents().filter(function (s) {
-      return Utils.fullName(s).toLowerCase().includes(q) &&
-             (!cf || s.cls === cf) &&
-             (!bf || (s.batch || "Regular") === bf) &&
-             (!sf || s.status === sf);
+    var all  = Data.allStudents();
+    var list = all.filter(function (s) {
+      return Utils.fullName(s).toLowerCase().includes(q) && (!sf || s.status === sf);
     });
 
-    var tbody = Utils.el("students-tbody");
-    var empty = Utils.el("students-empty");
     var total = D.students.length;
     Utils.el("students-count").innerHTML = list.length === total
       ? "<b>" + total + "</b> students"
       : "Showing <b>" + list.length + "</b> of " + total + " students";
+    Utils.el("students-empty").style.display = total ? "none" : "";
 
-    if (list.length === 0) {
-      tbody.innerHTML = "";
-      empty.style.display = "";
-      return;
-    }
-    empty.style.display = "none";
-
-    tbody.innerHTML = list.map(function (s, n) {
-      var i   = D.students.indexOf(s);
-      var sc  = s.status === "Active" ? "green" : s.status === "Trial" ? "orange" : "red";
-      var bc  = (s.batch || "Regular") === "Hourly" ? "orange" : "green";
-      return "<tr>" +
-        "<td class='num'>" + (n + 1) + "</td>" +
-        "<td>" + Utils.studentLink(Utils.fullName(s)) + "</td>" +
-        "<td>" + (s.school || "\u2014") + "</td>" +
-        "<td>" + (Utils.grade(s.cls) || "\u2014") + "</td>" +
-        "<td><span class='badge badge-" + bc + "'>" + (s.batch || "Regular") + "</span></td>" +
-        "<td>" + (s.phone  || "\u2014") + "</td>" +
-        "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +
-        "<td class='edit-cell'>" + Utils.hoverEdit("Students.openModal(" + i + ")", "Edit student") + "</td></tr>";
+    var groups = [
+      { key: "Grade XI",      title: "Plus 1",          test: function (s) { return s.cls === "Grade XI"  && !Hourly.isHourly(s); } },
+      { key: "Grade XII",     title: "Plus 2",          test: function (s) { return s.cls === "Grade XII" && !Hourly.isHourly(s); } },
+      { key: "one|Grade XI",  title: "Hourly (Plus 1)", test: function (s) { return s.cls === "Grade XI"  && Hourly.isHourly(s); } },
+      { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return s.cls === "Grade XII" && Hourly.isHourly(s); } },
+      { key: "none",          title: "No class set",    test: function (s) { return s.cls !== "Grade XI" && s.cls !== "Grade XII"; } }
+    ];
+    Utils.el("students-wrap").innerHTML = groups.map(function (g) {
+      var inGroup = all.filter(g.test), rows = list.filter(g.test);
+      if (!inGroup.length && g.key === "none") return "";
+      var active = inGroup.filter(function (s) { return s.status === "Active"; }).length;
+      var isOpen = q ? rows.length > 0 : _open[g.key];
+      var meta = (rows.length !== inGroup.length ? rows.length + " of " : "") + inGroup.length + " student" + (inGroup.length === 1 ? "" : "s") +
+                 (active !== inGroup.length ? " &middot; " + active + " active" : "");
+      var hourly = g.key.indexOf("one|") === 0;
+      var body = rows.length ?
+        "<table><thead><tr><th class='num'>#</th><th>Name</th><th>School</th><th>Contact</th>" +
+          (hourly ? "<th>Rate</th>" : "<th>Monthly fee</th>") + "<th>Status</th><th></th></tr></thead><tbody>" +
+        rows.map(function (s, n) {
+          var i  = D.students.indexOf(s);
+          var sc = s.status === "Active" ? "green" : s.status === "Trial" ? "orange" : "red";
+          var fee = hourly ? (s.hourlyRate ? "₹" + Number(s.hourlyRate).toLocaleString("en-IN") + "/hr" : "—")
+                           : (s.monthlyFee ? "₹" + Number(s.monthlyFee).toLocaleString("en-IN") : "—");
+          return "<tr>" +
+            "<td class='num'>" + (n + 1) + "</td>" +
+            "<td>" + Utils.studentLink(Utils.fullName(s)) +
+              (hourly && Hourly.inGroup(s) ? " <span class='muted small'>+ group classes</span>" : "") + "</td>" +
+            "<td>" + (s.school || "—") + "</td>" +
+            "<td>" + (s.phone  || "—") + "</td>" +
+            "<td>" + fee + "</td>" +
+            "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +
+            "<td class='edit-cell'>" + Utils.hoverEdit("Students.openModal(" + i + ")", "Edit student") + "</td></tr>";
+        }).join("") + "</tbody></table>"
+        : "<div class='empty' style='padding:20px'><div class='empty-text'>" + (inGroup.length ? "No matching students." : "No students yet.") + "</div></div>";
+      return "<details class='section tests-section stu-section'" + (isOpen ? " open" : "") +
+        (q ? "" : " ontoggle='Students.toggle(\"" + g.key + "\", this)'") +
+        "><summary><span class='section-title'>" + g.title + "</span><span class='section-meta'>&middot; " + meta +
+        "</span><span class='show-pill' aria-hidden='true'></span></summary>" +
+        "<div class='section-body' style='padding:0'><div style='overflow-x:auto'>" + body + "</div></div></details>";
     }).join("");
   }
 
@@ -127,6 +148,8 @@ var Students = (function () {
     }
     Data.save();
     Utils.closeModal("modal-student");
+    // Open the section the student is in, so the change is visible
+    _open[(student.batch === "Hourly" ? "one|" : "") + (student.cls === "Grade XI" || student.cls === "Grade XII" ? student.cls : "none")] = true;
     render();
   }
 
@@ -148,5 +171,5 @@ var Students = (function () {
     del(_editIdx, function () { Utils.closeModal("modal-student"); });
   }
 
-  return { render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };
+  return { show: show, toggle: toggle, render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };
 })();

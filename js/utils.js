@@ -116,7 +116,7 @@ function showPage(id) {
 
   // Page-specific init
   if      (id === "dashboard") Dashboard.render();
-  else if (id === "students")  Students.render();
+  else if (id === "students")  Students.show();
   else if (id === "classes")   Classes.render();
   else if (id === "attsheet")  Attendance.init();
   else if (id === "syllabus")  Syllabus.init();

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108233036">
+<link rel="stylesheet" href="css/styles.css?v=20261108234714">
 </head>
 <body>
 
@@ -132,16 +132,6 @@
       <input type="text" placeholder="Search students..." id="student-search" oninput="Students.render()">
     </div>
     <span class="list-count" id="students-count"></span>
-    <select class="filter" id="student-filter" onchange="Students.render()">
-      <option value="">All Classes</option>
-      <option value="Grade XI">Plus 1</option>
-      <option value="Grade XII">Plus 2</option>
-    </select>
-    <select class="filter" id="student-batch-filter" onchange="Students.render()">
-      <option value="">All Batches</option>
-      <option value="Regular">Regular</option>
-      <option value="Hourly">Hourly</option>
-    </select>
     <select class="filter" id="student-status-filter" onchange="Students.render()">
       <option value="">All Status</option>
       <option value="Active">Active</option>
@@ -149,15 +139,10 @@
       <option value="Trial">Trial</option>
     </select>
   </div>
-  <div class="panel">
-    <table>
-      <thead><tr><th class="num">#</th><th>Name</th><th>School</th><th>Class</th><th>Batch</th><th>Contact</th><th>Status</th><th></th></tr></thead>
-      <tbody id="students-tbody"></tbody>
-    </table>
-    <div id="students-empty" class="empty" style="display:none">
-      <div class="empty-icon">&#128101;</div>
-      <div class="empty-text">No students yet. Click "+ Add Student" to get started.</div>
-    </div>
+  <div id="students-wrap"></div>
+  <div id="students-empty" class="empty" style="display:none">
+    <div class="empty-icon">&#128101;</div>
+    <div class="empty-text">No students yet. Click "+ Add Student" to get started.</div>
   </div>
 </div>
     <div id="page-classes" class="page">
@@ -534,7 +519,7 @@
         <li><b>Start / End date</b>: once the end date has passed, PT marks the student Inactive automatically.</li>
       </ul>
       <h4>Find students</h4>
-      <p>Use the search box (name) and the filters for class, batch and status.</p>
+      <p>Students are grouped into <b>Plus 1</b>, <b>Plus 2</b>, <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b>, all closed when you open the page; click a heading to open it. Typing in the search box opens the sections with a match. The status filter narrows every section.</p>
       <h4>Student profile</h4>
       <p>Click a student's <b>name</b> anywhere in PT (Students, Attendance, Payments, Scores) to see everything about them: details, attendance month by month, payments and scores. This is also where you <b>record fees</b> (see Payments).</p>
       <h4>Delete a student</h4>
@@ -847,25 +832,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108233036"></script>
-<script src="js/version.js?v=20261108233036"></script>
-<script src="js/config.js?v=20261108233036"></script>
-<script src="js/data.js?v=20261108233036"></script>
-<script src="js/utils.js?v=20261108233036"></script>
-<script src="js/students.js?v=20261108233036"></script>
-<script src="js/classes.js?v=20261108233036"></script>
-<script src="js/attendance.js?v=20261108233036"></script>
-<script src="js/syllabus.js?v=20261108233036"></script>
-<script src="js/payments.js?v=20261108233036"></script>
-<script src="js/scores.js?v=20261108233036"></script>
-<script src="js/profile.js?v=20261108233036"></script>
-<script src="js/settings.js?v=20261108233036"></script>
-<script src="js/users.js?v=20261108233036"></script>
-<script src="js/help.js?v=20261108233036"></script>
-<script src="js/storage.js?v=20261108233036"></script>
-<script src="js/import.js?v=20261108233036"></script>
-<script src="js/hourly.js?v=20261108233036"></script>
-<script src="js/app.js?v=20261108233036"></script>
+<script src="js/site-config.js?v=20261108234714"></script>
+<script src="js/version.js?v=20261108234714"></script>
+<script src="js/config.js?v=20261108234714"></script>
+<script src="js/data.js?v=20261108234714"></script>
+<script src="js/utils.js?v=20261108234714"></script>
+<script src="js/students.js?v=20261108234714"></script>
+<script src="js/classes.js?v=20261108234714"></script>
+<script src="js/attendance.js?v=20261108234714"></script>
+<script src="js/syllabus.js?v=20261108234714"></script>
+<script src="js/payments.js?v=20261108234714"></script>
+<script src="js/scores.js?v=20261108234714"></script>
+<script src="js/profile.js?v=20261108234714"></script>
+<script src="js/settings.js?v=20261108234714"></script>
+<script src="js/users.js?v=20261108234714"></script>
+<script src="js/help.js?v=20261108234714"></script>
+<script src="js/storage.js?v=20261108234714"></script>
+<script src="js/import.js?v=20261108234714"></script>
+<script src="js/hourly.js?v=20261108234714"></script>
+<script src="js/app.js?v=20261108234714"></script>
 
 </body>
 </html>
