@@ -2,5 +2,5 @@
 //  PT version. Bump PT_VERSION for every release and add a line to
 //  CHANGELOG.md. publish.sh replaces "dev" with the build time.
 // ================================================================
-var PT_VERSION = "4.3.0";
-var PT_BUILD   = "20261108112113";
+var PT_VERSION = "4.3.1";
+var PT_BUILD   = "20261108114858";
