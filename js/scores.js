@@ -73,10 +73,15 @@ var Scores = (function () {
   function mk(v) { return v === null ? "—" : (Math.round(v * 100) / 100).toString(); }
 
   // ---------- list view ----------
-  function show() { _view = null; render(); }
+  // Opening Scores from the menu: list view, every section collapsed.
+  function show() { _view = null; _open = {}; render(); }
+  // "← All tests" from a mark sheet keeps the sections as they were.
+  function back() { _view = null; render(); }
+  function showInactive(on) { _showInactive = !!on; render(); }
 
   // Which sections are open (kept while moving around PT)
-  var _open = { "Grade XI": true, "Grade XII": true, "one|Grade XI": false, "one|Grade XII": false };
+  var _open = {};               // all sections start collapsed when Scores is opened
+  var _showInactive = false;    // mark sheets hide inactive students unless ticked
   function toggle(key, el) { _open[key] = el.open; }
 
   function render() {
@@ -141,10 +146,20 @@ var Scores = (function () {
       if (s.cls === t.cls && Hourly.inGroup(s)) names[Utils.fullName(s)] = true;
     });
     marksOf(t.id).forEach(function (r) { names[r.student] = true; });
+    if (!_showInactive) Object.keys(names).forEach(function (n) { if (!_isActive(n)) delete names[n]; });
     return Object.keys(names).sort(function (a, b) {
       var i = order.indexOf(a), j = order.indexOf(b);
       return (i < 0 ? 1e6 : i) - (j < 0 ? 1e6 : j) || a.localeCompare(b);
     });
+  }
+
+  function _hiddenNote(t) {
+    if (t.kind === "one") return "";
+    var n = 0;
+    Data.allStudents().forEach(function (s) {
+      if (s.cls === t.cls && Hourly.inGroup(s) && !_isActive(Utils.fullName(s))) n++;
+    });
+    return n ? " <span class='muted'>(" + n + " hidden)</span>" : "";
   }
 
   function _isActive(name) {
@@ -154,11 +169,12 @@ var Scores = (function () {
   }
 
   function _headerHtml(t) {
-    var s = stats(t), n = _students(t).length;
+    var s = stats(t), listed = _students(t), n = listed.length;
+    var took = marksOf(t.id).filter(function (r) { return listed.indexOf(r.student) >= 0; }).length;
     return "<div class='sheet-stat'><span>Marks out of</span><b>" + _esc(t.total || "—") + "</b></div>" +
       "<div class='sheet-stat'><span>" + (t.kind === "one" ? "Marks" : "Class top") + "</span><b>" + mk(s.top) + "</b></div>" +
       "<div class='sheet-stat'><span>Average</span><b>" + pctTxt(s.avg) + "</b></div>" +
-      "<div class='sheet-stat'><span>Took the test</span><b>" + s.taken + " of " + n + "</b></div>";
+      "<div class='sheet-stat'><span>Took the test</span><b>" + took + " of " + n + "</b></div>";
   }
 
   function _sheetHtml(t) {
@@ -166,22 +182,23 @@ var Scores = (function () {
     var byName = {}; marksOf(t.id).forEach(function (r) { byName[r.student] = r; });
     var total = Number(t.total) || 0;
     var rows = _students(t).map(function (name, i) {
-      var r = byName[name], v = r ? r.score : "";
-      return "<tr" + (r ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + Utils.studentLink(name) +
+      var r = byName[name], v = r ? r.score : "", lock = !!r || !_isActive(name);
+      return "<tr" + (lock ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + Utils.studentLink(name) +
         (_isActive(name) ? "" : " <span class='muted small'>inactive</span>") + "</td>" +
         "<td class='c'><input class='mark-in' type='number' step='0.5' min='0' data-name='" + _esc(name) + "' value='" + _esc(v) +
-          "' placeholder='---'" + (r ? " readonly tabindex='-1'" : "") + "></td>" +
+          "' placeholder='---'" + (lock ? " readonly tabindex='-1'" : "") + "></td>" +
         "<td class='c mark-pct'>" + (r && total ? Math.round(Number(v) / total * 100) + "%" : "---") + "</td>" +
-        "<td class='c edit-cell'>" + (r ? "<button type='button' class='row-edit' title='Change this mark' onclick='Scores.unlock(this)'>&#9998; Edit</button>" : "") + "</td></tr>";
+        "<td class='c edit-cell'>" + (lock ? "<button type='button' class='row-edit' title='Change this mark' onclick='Scores.unlock(this)'>&#9998; Edit</button>" : "") + "</td></tr>";
     }).join("");
     var chapters = Settings.chapters(t.cls).slice(1).map(function (c) { return "<option value='" + _esc(c) + "'>"; }).join("");
     return "<div class='sheet-head panel'>" +
-        "<div class='sheet-title'><button class='btn btn-secondary btn-sm' onclick='Scores.show()'>&#8592; All tests</button>" +
+        "<div class='sheet-title'><button class='btn btn-secondary btn-sm' onclick='Scores.back()'>&#8592; All tests</button>" +
         "<div><div class='sheet-name'>" + Utils.grade(t.cls) + " · " + _esc(t.num) + (t.kind === "one" ? " · " + _esc(t.student) : "") + "</div>" +
         "<div class='muted'>Portions: <b style='color:var(--text)'>" + _esc(t.title || "—") + "</b> · " + fmtDate(t.date) + "</div></div></div>" +
         "<div class='sheet-stats' id='sheet-stats'>" + _headerHtml(t) + "</div></div>" +
       "<div class='sheet-body'>" +
-        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><span class='muted'>marks save automatically &middot; hover a row and press Edit to change a mark</span></div>" +
+        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><label class='check inactive-toggle'><input type='checkbox' onchange='Scores.showInactive(this.checked)'" + (_showInactive ? " checked" : "") + "> Show inactive students" + (_showInactive ? "" : _hiddenNote(t)) + "</label></div>" +
+          "<div class='sheet-hint muted'>Marks save automatically. Hover a row and press <b>Edit</b> to change a saved mark.</div>" +
           "<table class='tests-table mark-table'><thead><tr><th class='num'>#</th><th>Name of student</th><th class='c'>Marks obtained</th><th class='c'>Marks (%)</th><th></th></tr></thead>" +
           "<tbody>" + (rows || "<tr><td colspan='5' class='muted'>No students in this class.</td></tr>") + "</tbody></table></div>" +
         "<div class='panel sheet-edit'><div class='panel-header'><span class='panel-title'>Test details</span></div><div style='padding:12px 16px'>" +
@@ -198,7 +215,7 @@ var Scores = (function () {
     var t = testOf(_view);
     document.querySelectorAll(".mark-in").forEach(function (inp) {
       inp.addEventListener("change", function () { setMark(t.id, inp.dataset.name, inp.value, inp); });
-      inp.addEventListener("blur", function () { if (inp.value !== "") _lock(inp); });
+      inp.addEventListener("blur", function () { if (inp.value !== "" || !_isActive(inp.dataset.name)) _lock(inp); });
       inp.addEventListener("keydown", function (e) {           // Enter → next student still to mark
         if (e.key !== "Enter") return;
         e.preventDefault();
@@ -244,7 +261,7 @@ var Scores = (function () {
       if (idx >= 0) rows[idx] = row; else rows.push(row);
     }
     Data.save();
-    if (value !== "") _lock(inp); else { var ec = inp.closest("tr").querySelector(".edit-cell"); if (ec) ec.innerHTML = ""; inp.closest("tr").classList.remove("locked", "editing"); }
+    if (value !== "" || !_isActive(name)) _lock(inp); else { var ec = inp.closest("tr").querySelector(".edit-cell"); if (ec) ec.innerHTML = ""; inp.closest("tr").classList.remove("locked", "editing"); }
     var cell = inp.closest("tr").querySelector(".mark-pct");
     cell.textContent = value !== "" && total ? Math.round(Number(value) / total * 100) + "%" : "---";
     Utils.el("sheet-stats").innerHTML = _headerHtml(t);
@@ -321,6 +338,6 @@ var Scores = (function () {
     open(t.id);
   }
 
-  return { render: render, show: show, open: open, toggle: toggle, unlock: unlock, openModal: openModal, saveTest: saveTest,
+  return { render: render, show: show, back: back, showInactive: showInactive, open: open, toggle: toggle, unlock: unlock, openModal: openModal, saveTest: saveTest,
            modalClass: modalClass, modalWho: modalWho, delTest: delTest, ensure: ensure };
 })();

@@ -651,3 +651,10 @@ html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier 
 table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
 .edit-cell{width:56px;text-align:right;}
 .row-edit{font-size:14px;line-height:1;padding:4px 8px;}
+
+/* Mark sheet: no number arrows on saved (locked) marks */
+.mark-table tr.locked .mark-in::-webkit-outer-spin-button,
+.mark-table tr.locked .mark-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.mark-table tr.locked .mark-in{-moz-appearance:textfield;appearance:textfield;}
+.inactive-toggle{margin:0;font-size:13px;}
+.sheet-hint{padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px;}
