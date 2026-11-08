@@ -56,7 +56,7 @@ var Classes = (function () {
 
   function save() {
     var name = Utils.el("c-name").value.trim();
-    if (!name) { alert("Please enter a class name."); return; }
+    if (!name) { Dialog.alert("Please enter a class name."); return; }
 
     var cls = {
       name:  name,
@@ -83,13 +83,15 @@ var Classes = (function () {
   }
 
   function del(i) {
-    if (!confirm("Delete this class?")) return;
-    var D = Data.get();
-    var n = D.classes[i].name;
-    D.classes.splice(i, 1);
-    Data.log("Removed class <b>" + n + "</b>");
-    Data.save();
-    render();
+    Dialog.confirm("Delete the class \u201c" + Data.get().classes[i].name + "\u201d?", {okText:"Delete", danger:true}).then(function (ok) {
+      if (!ok) return;
+      var D = Data.get();
+      var n = D.classes[i].name;
+      D.classes.splice(i, 1);
+      Data.log("Removed class <b>" + n + "</b>");
+      Data.save();
+      render();
+    });
   }
 
   return { render: render, openModal: openModal, save: save, del: del };

@@ -6,6 +6,9 @@
 var SettingsPage = (function () {
 
   function init() {
+    _about();
+    var me = Data.me();
+    Utils.el("acct-hint").textContent = me ? (me.name || me.username) + " \u00b7 " + (me.role === "admin" ? "Admin" : "User") : "";
     Utils.el("settings-xi").value  = Settings.getRaw("Grade XI");
     Utils.el("settings-xii").value = Settings.getRaw("Grade XII");
     var sel = Utils.el("settings-acad");
@@ -20,10 +23,31 @@ var SettingsPage = (function () {
     }).join("");
   }
 
+  // Version information for both halves of PT.
+  function _about() {
+    var sv = Data.serverVersion();
+    Utils.el("about-hint").textContent = "Version " + PT_VERSION;
+    var rows = [
+      ["Website version", PT_VERSION + (PT_BUILD !== "dev" ? "  (build " + PT_BUILD + ")" : "")],
+      ["Server version",  sv || "\u2014"],
+      ["Data",            "Google Sheet \u201cPT\u201d in the Physics Tuition folder"],
+      ["Changes",         "See CHANGELOG.md in the pt-code repository"]
+    ];
+    var html = "<table>" + rows.map(function (r) {
+      return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>";
+    }).join("") + "</table>";
+    if (sv && sv !== PT_VERSION) {
+      html += "<div class='about-warn'>\u26a0 The website and server versions differ. " +
+              "Paste the latest Code.gs into Apps Script and redeploy.</div>";
+    }
+    Utils.el("about-body").innerHTML = html;
+  }
+
   function saveAcad() {
     var v = Utils.el("settings-acad").value;
     Settings.set("acadStart", v);
     setAcademicYear(v);
+    Utils.el("year-chip").textContent = ACYR[0].slice(0, 4) + "\u2013" + String(Number(ACYR[0].slice(0, 4)) + 1).slice(2);
     Data.log("Set academic year to <b>" + (ACYR_LBL[ACYR[0]] || v) + "</b>");
   }
 
@@ -54,12 +78,13 @@ var SettingsPage = (function () {
   }
 
   function reset(grade) {
-    if (!confirm("Reset " + grade + " chapters to default? Your custom list will be lost.")) return;
-    Settings.reset(grade);
-    // Reload textarea
-    var id = grade === "Grade XI" ? "settings-xi" : "settings-xii";
-    Utils.el(id).value = Settings.getRaw(grade);
-    Data.log("Reset chapter list for <b>" + grade + "</b> to default");
+    Dialog.confirm("Reset " + grade + " chapters to the default list? Your custom list will be lost.", {okText:"Reset", danger:true}).then(function (ok) {
+      if (!ok) return;
+      Settings.reset(grade);
+      var id = grade === "Grade XI" ? "settings-xi" : "settings-xii";
+      Utils.el(id).value = Settings.getRaw(grade);
+      Data.log("Reset chapter list for <b>" + grade + "</b> to default");
+    });
   }
 
   return { init: init, save: save, reset: reset, saveAcad: saveAcad, backup: backup };

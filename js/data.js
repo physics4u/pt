@@ -22,7 +22,11 @@ var Data = (function () {
   };
 
   var CACHE_KEY = "pt_cache_v1";
-  var PASS_KEY  = "pt_passcode";
+  var TOKEN_KEY = "pt_token";
+  var ME_KEY    = "pt_me";
+
+  var _me = null;            // {username, name, role} of whoever is signed in
+  var _serverVersion = "";
 
   var _synced    = {};     // key → JSON string last confirmed by the server
   var _loaded    = false;  // true once a server load succeeded
@@ -48,26 +52,63 @@ var Data = (function () {
       Utils.setSyncStatus("unconfigured", "set apiUrl in js/site-config.js");
       return;
     }
-    if (!_lsGet(PASS_KEY)) { Login.show(); return; }
+    try { _me = JSON.parse(_lsGet(ME_KEY) || "null"); } catch (e) { _me = null; }
+    _lsDel("pt_passcode");                      // from the old passcode-only version
+    if (!_lsGet(TOKEN_KEY)) { Login.show(); return; }
+    _showMe();
     _loadFromSheets(1);
   }
 
-  function login(passcode) {
-    _lsSet(PASS_KEY, passcode);
-    _loadFromSheets(1);
+  function login(username, password) {
+    return _call("login", undefined, { username: username, password: password }).then(function (resp) {
+      if (!resp.ok) return resp;
+      _lsSet(TOKEN_KEY, resp.token);
+      _setMe(resp.me);
+      _serverVersion = resp.version || "";
+      _loadFromSheets(1);
+      return resp;
+    });
   }
 
   function logout() {
-    _lsDel(PASS_KEY);
+    _loaded = false;                 // skip the "unsaved changes" browser prompt
+    _lsDel(TOKEN_KEY);
+    _lsDel(ME_KEY);
     _lsDel(CACHE_KEY);
     location.reload();
   }
 
+  function _setMe(me) {
+    _me = me || null;
+    _lsSet(ME_KEY, JSON.stringify(_me));
+    _showMe();
+  }
+
+  // Header chip + role class (body.role-user hides admin-only parts)
+  function _showMe() {
+    var chip = document.getElementById("user-chip");
+    document.body.classList.toggle("role-user", !!_me && _me.role !== "admin");
+    if (!chip) return;
+    if (!_me) { chip.style.display = "none"; return; }
+    var initials = String(_me.name || _me.username).split(/\s+/).map(function (w) { return w.charAt(0); })
+                     .join("").slice(0, 2).toUpperCase();
+    document.getElementById("user-avatar").textContent = initials;
+    document.getElementById("user-name").textContent   = _me.name || _me.username;
+    document.getElementById("user-role").textContent   = _me.role === "admin" ? "Admin" : "User";
+    chip.style.display = "";
+  }
+
+  function me()            { return _me; }
+  function isAdmin()       { return !!_me && _me.role === "admin"; }
+  function serverVersion() { return _serverVersion; }
+
   // ----------------------------------------------------------------
   //  API call — POST with a text/plain body (no CORS preflight)
   // ----------------------------------------------------------------
-  function _call(action, data) {
-    var body = JSON.stringify({ action: action, token: _lsGet(PASS_KEY) || "", data: data });
+  function _call(action, data, extra) {
+    var req = { action: action, token: _lsGet(TOKEN_KEY) || "", data: data };
+    if (extra) Object.keys(extra).forEach(function (k) { req[k] = extra[k]; });
+    var body = JSON.stringify(req);
     var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 45000);
     return fetch(_url(), {
@@ -102,6 +143,8 @@ var Data = (function () {
     Utils.setSyncStatus("loading");
     _callWithRetry("load").then(function (resp) {
       if (resp.ok && resp.data) {
+        if (resp.me) _setMe(resp.me);
+        _serverVersion = resp.version || _serverVersion;
         _apply(resp.data);
         KEYS.forEach(function (k) { _synced[k] = JSON.stringify(D[k]); });
         _loaded = true;
@@ -110,8 +153,8 @@ var Data = (function () {
         Utils.setSyncStatus("loaded");
         _afterApply();
       } else if (resp.error === "unauthorized") {
-        _lsDel(PASS_KEY);
-        Login.show("Wrong passcode — please try again.");
+        _lsDel(TOKEN_KEY);
+        Login.show("Your session has ended \u2014 please sign in again.");
         Utils.setSyncStatus("error", "not signed in");
       } else {
         Utils.setSyncStatus("error", (resp.error || "no response") + " — showing cached copy, changes NOT saved");
@@ -163,6 +206,8 @@ var Data = (function () {
 
   function _afterApply() {
     setAcademicYear(D.settings && D.settings.acadStart);
+    var yc = document.getElementById("year-chip");
+    if (yc) yc.textContent = ACYR[0].slice(0, 4) + "\u2013" + String(Number(ACYR[0].slice(0, 4)) + 1).slice(2);
     if (typeof currentPage !== "undefined" && typeof showPage === "function") showPage(currentPage);
     else Dashboard.render();
   }
@@ -198,8 +243,8 @@ var Data = (function () {
         Object.keys(snap).forEach(function (k) { _synced[k] = snap[k]; });
         Utils.setSyncStatus("saved");
       } else if (resp.error === "unauthorized") {
-        _lsDel(PASS_KEY);
-        Login.show("Session expired — enter the passcode to keep saving.");
+        _lsDel(TOKEN_KEY);
+        Login.show("Your session has ended \u2014 sign in again to keep saving.");
       } else {
         Utils.setSyncStatus("error", resp.error || "save failed");
       }
@@ -222,6 +267,7 @@ var Data = (function () {
   }
 
   function log(txt) {
+    if (_me) txt += " \u2014 " + (_me.name || _me.username);
     D.activity.unshift({ text: txt, time: _time() });
     if (D.activity.length > 50) D.activity.length = 50;
   }
@@ -236,9 +282,13 @@ var Data = (function () {
 
   function backup() { return _call("backup"); }
 
+  // Generic call for other modules (Users etc.)
+  function api(action, data) { return _call(action, data); }
+
   return {
     get: get, isConfigured: isConfigured,
-    init: init, login: login, logout: logout,
+    init: init, login: login, logout: logout, api: api,
+    me: me, isAdmin: isAdmin, serverVersion: serverVersion,
     save: save, reload: reload, log: log, backup: backup,
     allStudents: allStudents, hasUnsaved: hasUnsaved
   };
@@ -252,15 +302,29 @@ var Login = (function () {
     var o = document.getElementById("login-overlay");
     o.classList.add("open");
     document.getElementById("login-msg").textContent = msg || "";
-    setTimeout(function () { document.getElementById("login-pass").focus(); }, 50);
+    setTimeout(function () {
+      var u = document.getElementById("login-user");
+      (u.value ? document.getElementById("login-pass") : u).focus();
+    }, 50);
   }
   function hide() { document.getElementById("login-overlay").classList.remove("open"); }
   function submit(e) {
     if (e) e.preventDefault();
-    var p = document.getElementById("login-pass").value.trim();
-    if (!p) return false;
-    document.getElementById("login-msg").textContent = "Checking…";
-    Data.login(p);
+    var u = document.getElementById("login-user").value.trim();
+    var p = document.getElementById("login-pass").value;
+    var msg = document.getElementById("login-msg");
+    if (!u || !p) { msg.textContent = "Enter your username and password."; return false; }
+    msg.textContent = "Signing in\u2026";
+    Data.login(u, p).then(function (resp) {
+      if (!resp.ok) {
+        msg.textContent = resp.error === "unauthorized" || /Unknown action/.test(resp.error || "")
+          ? "The server needs updating \u2014 paste the new Code.gs and redeploy."
+          : (resp.error || "Could not sign in");
+      } else {
+        document.getElementById("login-pass").value = "";
+        msg.textContent = "";
+      }
+    });
     return false;
   }
   return { show: show, hide: hide, submit: submit };

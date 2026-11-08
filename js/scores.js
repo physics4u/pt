@@ -84,7 +84,7 @@ var Scores = (function () {
 
   function save() {
     var student = Utils.el("sc-student").value;
-    if (!student) { alert("Please select a student."); return; }
+    if (!student) { Dialog.alert("Please select a student."); return; }
     var score = {
       student: student,
       cls:     (Data.allStudents().find(function (s) { return Utils.fullName(s) === student; }) || {}).cls || "",
@@ -110,11 +110,13 @@ var Scores = (function () {
   }
 
   function del(i) {
-    if (!confirm("Delete this score?")) return;
-    var D = Data.get();
-    D.scores.splice(i, 1);
-    Data.save();
-    render();
+    Dialog.confirm("Delete this score?", {okText:"Delete", danger:true}).then(function (ok) {
+      if (!ok) return;
+      var D = Data.get();
+      D.scores.splice(i, 1);
+      Data.save();
+      render();
+    });
   }
 
   return { render: render, openModal: openModal, save: save, del: del };

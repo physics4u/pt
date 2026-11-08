@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108104248">
+<link rel="stylesheet" href="css/styles.css?v=20261108105637">
 </head>
 <body>
 
@@ -42,7 +42,8 @@
   </div>
   <div class="sidebar-footer">
     <div id="sync-status" style="margin-bottom:6px;display:none"></div>
-    <span id="today-date"></span>
+    <span id="today-date"></span><br>
+    <span id="app-version" class="app-version" onclick="showPage('settings')" title="About PT"></span>
   </div>
 </aside>
 
@@ -51,6 +52,11 @@
   <div class="topbar">
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-sub" id="page-sub"></div>
+    <div class="year-chip" id="year-chip" title="Academic year"></div>
+    <div class="user-chip" id="user-chip" onclick="showPage('settings')" title="My account" style="display:none">
+      <span class="user-avatar" id="user-avatar"></span>
+      <span class="user-meta"><span class="user-name" id="user-name"></span><span class="user-role" id="user-role"></span></span>
+    </div>
     <button class="topbar-btn" id="topbar-action" onclick="topbarAction()" style="display:none">Action</button>
   </div>
   <div class="content">
@@ -269,7 +275,38 @@
   <div id="profile-content"></div>
 </div>
     <div id="page-settings" class="page">
-  <div class="grid2" style="margin-bottom:24px">
+
+  <!-- Users (admins only) -->
+  <details class="section admin-only" id="sec-users" open>
+    <summary><span class="section-title">&#128101; Users</span><span class="section-hint">Who can sign in to PT</span></summary>
+    <div class="section-body">
+      <table class="users-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
+        <tbody id="users-tbody"><tr><td colspan="6" style="color:var(--text3)">Loading&hellip;</td></tr></tbody>
+      </table>
+      <form class="user-form" id="user-form" onsubmit="return Users.submit(event)">
+        <div class="user-form-title" id="user-form-title">Add a user</div>
+        <div class="user-form-grid">
+          <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
+          <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
+          <div class="form-row"><label for="u-role">Role</label>
+            <select id="u-role"><option value="user">User &mdash; manage students, classes, attendance, payments</option><option value="admin">Admin &mdash; everything, including users &amp; settings</option></select></div>
+          <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="u-active" checked> Can sign in</label>
+        <div class="user-form-actions">
+          <button type="button" class="btn btn-secondary" id="u-cancel" onclick="Users.resetForm()" style="display:none">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="u-submit">Add user</button>
+        </div>
+      </form>
+    </div>
+  </details>
+
+  <!-- Chapter lists (admins only) -->
+  <details class="section admin-only">
+    <summary><span class="section-title">&#128214; Chapter lists</span><span class="section-hint">Chapters shown in the Monthly Planner</span></summary>
+    <div class="section-body">
+  <div class="grid2">
 
     <!-- Grade XI -->
     <div class="panel">
@@ -318,31 +355,54 @@
     </div>
 
   </div>
-  <div class="panel" style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
-    <span class="panel-title" style="margin-right:8px">&#128197; Academic year</span>
-    <select id="settings-acad" style="min-width:220px"></select>
-    <button class="btn btn-primary" onclick="SettingsPage.saveAcad()">Save</button>
-    <span style="flex:1"></span>
-    <button class="btn btn-secondary" onclick="SettingsPage.backup(this)">Back up sheet now</button>
-    <button class="btn btn-danger" onclick="if(confirm('Sign out on this device?'))Data.logout()">Sign out</button>
-  </div>
-  <div class="panel" style="padding:16px 20px;margin-top:16px">
-    <p style="font-size:12px;color:var(--text3)">
-      &#9432; Chapter lists and the academic year are saved to the <b>Settings</b> tab of the PT sheet,
-      so every device sees the same lists.
-    </p>
-  </div>
+    </div>
+  </details>
+
+  <!-- Academic year & backup (admins only) -->
+  <details class="section admin-only">
+    <summary><span class="section-title">&#128197; Academic year &amp; backup</span><span class="section-hint">Which months PT shows, and a copy of the sheet</span></summary>
+    <div class="section-body" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+      <select id="settings-acad" style="width:auto;min-width:240px"></select>
+      <button class="btn btn-primary" onclick="SettingsPage.saveAcad()">Save year</button>
+      <span style="flex:1"></span>
+      <button class="btn btn-secondary" onclick="SettingsPage.backup(this)">Back up sheet now</button>
+    </div>
+  </details>
+
+  <!-- My account (everyone) -->
+  <details class="section">
+    <summary><span class="section-title">&#128100; My account</span><span class="section-hint" id="acct-hint"></span></summary>
+    <div class="section-body">
+      <form id="pw-form" class="user-form-grid" onsubmit="return Users.changePassword(event)" style="max-width:640px">
+        <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
+        <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
+        <div style="grid-column:1/-1;display:flex;gap:10px">
+          <button type="submit" class="btn btn-primary">Change password</button>
+          <span style="flex:1"></span>
+          <button type="button" class="btn btn-danger" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
+        </div>
+      </form>
+    </div>
+  </details>
+
+  <!-- About / version -->
+  <details class="section">
+    <summary><span class="section-title">&#9432; About PT</span><span class="section-hint" id="about-hint"></span></summary>
+    <div class="section-body about" id="about-body"></div>
+  </details>
 </div>
 
   </div>
 </div>
 
-<!-- Passcode screen -->
+<!-- Sign-in screen -->
 <div class="modal-overlay login-overlay" id="login-overlay">
   <form class="modal login-box" onsubmit="return Login.submit(event)">
-    <div class="logo-title" style="font-size:22px;margin-bottom:4px">&#9883; PT</div>
-    <div style="color:var(--text3);font-size:13px;margin-bottom:18px">Physics Tuition Manager</div>
-    <div class="form-row" style="margin-bottom:0"><label for="login-pass">Passcode</label>
+    <img src="logo.png" alt="" class="login-logo">
+    <div class="login-title">Physics Tuition Manager</div>
+    <div class="form-row"><label for="login-user">Username</label>
+    <input id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+    <div class="form-row" style="margin-bottom:0"><label for="login-pass">Password</label>
     <input id="login-pass" type="password" autocomplete="current-password"></div>
     <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
     <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
@@ -477,19 +537,21 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108104248"></script>
-<script src="js/config.js?v=20261108104248"></script>
-<script src="js/data.js?v=20261108104248"></script>
-<script src="js/utils.js?v=20261108104248"></script>
-<script src="js/students.js?v=20261108104248"></script>
-<script src="js/classes.js?v=20261108104248"></script>
-<script src="js/attendance.js?v=20261108104248"></script>
-<script src="js/syllabus.js?v=20261108104248"></script>
-<script src="js/payments.js?v=20261108104248"></script>
-<script src="js/scores.js?v=20261108104248"></script>
-<script src="js/profile.js?v=20261108104248"></script>
-<script src="js/settings.js?v=20261108104248"></script>
-<script src="js/app.js?v=20261108104248"></script>
+<script src="js/site-config.js?v=20261108105637"></script>
+<script src="js/version.js?v=20261108105637"></script>
+<script src="js/config.js?v=20261108105637"></script>
+<script src="js/data.js?v=20261108105637"></script>
+<script src="js/utils.js?v=20261108105637"></script>
+<script src="js/students.js?v=20261108105637"></script>
+<script src="js/classes.js?v=20261108105637"></script>
+<script src="js/attendance.js?v=20261108105637"></script>
+<script src="js/syllabus.js?v=20261108105637"></script>
+<script src="js/payments.js?v=20261108105637"></script>
+<script src="js/scores.js?v=20261108105637"></script>
+<script src="js/profile.js?v=20261108105637"></script>
+<script src="js/settings.js?v=20261108105637"></script>
+<script src="js/users.js?v=20261108105637"></script>
+<script src="js/app.js?v=20261108105637"></script>
 
 </body>
 </html>
