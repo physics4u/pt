@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108231023">
+<link rel="stylesheet" href="css/styles.css?v=20261108233036">
 </head>
 <body>
 
@@ -163,7 +163,7 @@
     <div id="page-classes" class="page">
   <div class="panel">
     <table>
-      <thead><tr><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th></th></tr></thead>
+      <thead><tr><th class="num">#</th><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th></th></tr></thead>
       <tbody id="classes-tbody"></tbody>
     </table>
     <div id="classes-empty" class="empty" style="display:none">
@@ -228,18 +228,15 @@
 </div>
     <div id="page-payments" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
-    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:14px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
-      <select class="filter" id="pay-grade" onchange="Payments.setClass(this.value)">
-        <option value="Grade XI">Plus 1</option>
-        <option value="Grade XII">Plus 2</option>
-      </select>
       <select class="filter" id="pay-status" onchange="Payments.render()">
         <option value="">All Status</option>
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
         <option value="Trial">Trial</option>
       </select>
+      <label class="check"><input type="checkbox" id="pay-dues" onchange="Payments.duesOnly(this.checked)"> Only students with dues</label>
     </div>
     <div style="display:flex;align-items:center;gap:16px;font-size:11px;font-family:var(--font-ui)">
       <span style="color:var(--accent3)">&#9632; Paid</span>
@@ -249,11 +246,9 @@
     </div>
   </div>
   <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--font-ui)">
-    &#9432; View-only. To edit payment details, click the <b style="color:var(--text2)">View</b> button to open the student's profile.
+    &#9432; View only. To record a fee, click the student's name to open their profile.
   </p>
-  <div style="overflow-x:auto">
-    <div id="payments-wrap"></div>
-  </div>
+  <div id="payments-wrap"></div>
 </div>
     <div id="page-scores" class="page">
   <div id="scores-view"></div>
@@ -389,7 +384,7 @@
       </div>
       <div class="bar"><span id="storage-bar"></span></div>
       <table class="storage-table">
-        <thead><tr><th>Area</th><th>Space used</th><th>Share</th></tr></thead>
+        <thead><tr><th class="num">#</th><th>Area</th><th>Space used</th><th>Share</th></tr></thead>
         <tbody id="storage-tbody"></tbody>
       </table>
       <p class="section-note" style="margin:10px 0 0">PT can hold up to 10 million cells. Every row and column reserved for an area counts, even when empty; PT trims empty space each time it saves, and <b>Free up space</b> trims everything at once. One academic year of data uses roughly 10,000 cells.</p>
@@ -561,7 +556,7 @@
       <p>Press <b>+ Add payment</b> and enter the date and amount received. Payments don't have to match a month: PT applies them to the oldest unpaid months first and shows each month as <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>, with the balance at the top.</p>
       <h4>Where they appear</h4>
       <ul>
-        <li><b>Payments</b>: an <b>Hourly students</b> table for the grade shows rate, hours, billed, paid and balance.</li>
+        <li><b>Payments</b>: the <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b> sections show rate, hours, billed, paid and balance.</li>
         <li><b>Dashboard</b>: <b>Hourly hours</b> counts their sessions; <b>Revenue</b> and <b>Outstanding</b> include them. The Teaching Hours charts show group classes only.</li>
       </ul>
     </div>
@@ -606,7 +601,7 @@
     <summary><span class="section-title">Payments</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <h4>See who has paid</h4>
-      <p>The <b>Payments</b> page shows every student against every month of the academic year: <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. Filter by grade or status. Click a name to open that student.</p>
+      <p>The <b>Payments</b> page shows every student against every month of the academic year: <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. It has four sections, <b>Plus 1</b>, <b>Plus 2</b>, <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b>, all closed when you open the page; click a heading to open it. Tick <b>Only students with dues</b> to list just the students who owe fees. Click a name to open that student.</p>
       <h4>Record a payment</h4>
       <ol>
         <li>Open the student (<b>Students &rarr; click their name</b>, or their name on the Payments page).</li>
@@ -625,9 +620,9 @@
       <h4>Add a test</h4>
       <p>Press <b>+ Add test</b>, choose the class, date, portions and marks out of. PT numbers the test for you (Test 12, Test 13&hellip;) and opens its mark sheet.</p>
       <h4>Enter marks</h4>
-      <p>Press <b>&#9998; Marks</b> on a test. Every active student in the class is listed (tick <b>Show inactive students</b> to see the others); type each mark and press <b>Enter</b> to move to the next student. Marks save automatically and the percentage fills in. Leave a mark blank if the student didn't take the test (it shows "---"). Saved marks are locked: hover over the row and press <b>Edit</b> to change one.</p>
+      <p>Press <b>&#9998; Marks</b> on a test. Every active student in the class is listed (tick <b>Show inactive students</b> to see the others); type each mark and press <b>Enter</b> to move to the next student. Marks save automatically and the percentage fills in. Leave a mark blank if the student didn't take the test (it shows "---"). Once a test has marks, the mark sheet opens locked, blank rows included: hover over a row and press <b>Edit</b> to change a mark or add a late one.</p>
       <h4>Change or delete a test</h4>
-      <p>On the mark sheet, change the test number, date, portions or marks out of under <b>Test details</b>. <b>Delete this test</b> is at the bottom of that box.</p>
+      <p><b>Test details</b> (test number, date, portions, marks out of) are locked. Hover over the title and press &#9998; to change them; <b>Delete this test</b> appears at the bottom only then. Press <b>Done</b> when finished.</p>
       <h4>One-to-one tests</h4>
       <p>For hourly students, choose <b>For: One-to-one: &lt;student&gt;</b> when adding a test. These are listed separately under <b>One-to-one tests</b>.</p>
       <p>Each student's tests, marks and percentages also appear on their profile.</p>
@@ -852,25 +847,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108231023"></script>
-<script src="js/version.js?v=20261108231023"></script>
-<script src="js/config.js?v=20261108231023"></script>
-<script src="js/data.js?v=20261108231023"></script>
-<script src="js/utils.js?v=20261108231023"></script>
-<script src="js/students.js?v=20261108231023"></script>
-<script src="js/classes.js?v=20261108231023"></script>
-<script src="js/attendance.js?v=20261108231023"></script>
-<script src="js/syllabus.js?v=20261108231023"></script>
-<script src="js/payments.js?v=20261108231023"></script>
-<script src="js/scores.js?v=20261108231023"></script>
-<script src="js/profile.js?v=20261108231023"></script>
-<script src="js/settings.js?v=20261108231023"></script>
-<script src="js/users.js?v=20261108231023"></script>
-<script src="js/help.js?v=20261108231023"></script>
-<script src="js/storage.js?v=20261108231023"></script>
-<script src="js/import.js?v=20261108231023"></script>
-<script src="js/hourly.js?v=20261108231023"></script>
-<script src="js/app.js?v=20261108231023"></script>
+<script src="js/site-config.js?v=20261108233036"></script>
+<script src="js/version.js?v=20261108233036"></script>
+<script src="js/config.js?v=20261108233036"></script>
+<script src="js/data.js?v=20261108233036"></script>
+<script src="js/utils.js?v=20261108233036"></script>
+<script src="js/students.js?v=20261108233036"></script>
+<script src="js/classes.js?v=20261108233036"></script>
+<script src="js/attendance.js?v=20261108233036"></script>
+<script src="js/syllabus.js?v=20261108233036"></script>
+<script src="js/payments.js?v=20261108233036"></script>
+<script src="js/scores.js?v=20261108233036"></script>
+<script src="js/profile.js?v=20261108233036"></script>
+<script src="js/settings.js?v=20261108233036"></script>
+<script src="js/users.js?v=20261108233036"></script>
+<script src="js/help.js?v=20261108233036"></script>
+<script src="js/storage.js?v=20261108233036"></script>
+<script src="js/import.js?v=20261108233036"></script>
+<script src="js/hourly.js?v=20261108233036"></script>
+<script src="js/app.js?v=20261108233036"></script>
 
 </body>
 </html>

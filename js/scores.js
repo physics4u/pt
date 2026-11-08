@@ -98,25 +98,25 @@ var Scores = (function () {
         "</span><span class='section-meta'>&middot; " + tests.length + " test" + (tests.length === 1 ? "" : "s") +
         "</span><span class='show-pill' aria-hidden='true'></span></summary><div class='section-body' style='padding:0'>" +
         "<div style='overflow-x:auto'><table class='tests-table'><thead><tr>" + head + "</tr></thead><tbody>" +
-        (tests.length ? tests.map(row).join("") : "<tr><td colspan='9' class='muted'>No tests yet. Use <b>+ Add test</b>.</td></tr>") +
+        (tests.length ? tests.map(function (t, i) { return row(t, i); }).join("") : "<tr><td colspan='10' class='muted'>No tests yet. Use <b>+ Add test</b>.</td></tr>") +
         "</tbody></table></div></div></details>";
     };
     var marksBtn = function (t) {
       return "<td class='c'><button class='btn btn-secondary btn-sm' onclick='Scores.open(\"" + t.id + "\")'>&#9998; Marks</button></td>";
     };
 
-    var classHead = "<th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Out of</th><th class='c'>Average</th>" +
+    var classHead = "<th class='num'>#</th><th>Test #</th><th>Date</th><th class='portions'>Portions</th><th class='c'>Out of</th><th class='c'>Average</th>" +
                     "<th class='c'>Top</th><th class='c'>Took</th><th></th>";
-    var classRow = function (t) {
+    var classRow = function (t, i) {
       var st = stats(t);
-      return "<tr><td><b>" + _esc(t.num) + "</b></td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
+      return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + _esc(t.num) + "</b></td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
         "<td class='c'>" + _esc(t.total) + "</td><td class='c'>" + pctTxt(st.avg) + "</td><td class='c'>" + mk(st.top) + "</td>" +
         "<td class='c muted'>" + st.taken + "</td>" + marksBtn(t) + "</tr>";
     };
-    var oneHead = "<th>Student</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>%</th><th></th>";
-    var oneRow = function (t) {
+    var oneHead = "<th class='num'>#</th><th>Student</th><th>Test #</th><th>Date</th><th class='portions'>Portions</th><th class='c'>Marks</th><th class='c'>%</th><th></th>";
+    var oneRow = function (t, i) {
       var r = marksOf(t.id)[0], total = Number(t.total) || 0;
-      return "<tr><td><b>" + Utils.studentLink(t.student) + "</b></td><td>" + _esc(t.num) + "</td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
+      return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + Utils.studentLink(t.student) + "</b></td><td>" + _esc(t.num) + "</td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
         "<td class='c'>" + (r ? mk(Number(r.score)) + " / " + _esc(t.total) : "\u2014") + "</td>" +
         "<td class='c'>" + (r && total ? Math.round(Number(r.score) / total * 100) + "%" : "\u2014") + "</td>" + marksBtn(t) + "</tr>";
     };
@@ -136,7 +136,10 @@ var Scores = (function () {
   }
 
   // ---------- mark sheet ----------
-  function open(id) { _view = id; render(); window.scrollTo(0, 0); }
+  function open(id) { _view = id; _detailsEdit = false; render(); window.scrollTo(0, 0); }
+  // Test details are locked until ✏ is pressed; Delete appears only then.
+  var _detailsEdit = false;
+  function editDetails(on) { _detailsEdit = !!on; render(); if (on && Utils.el("te-num")) Utils.el("te-num").focus(); }
 
   // Everyone in the class (active or not), plus anyone already marked.
   function _students(t) {
@@ -181,8 +184,11 @@ var Scores = (function () {
     Utils.el("page-title").textContent = Utils.grade(t.cls) + " · " + (t.num || "Test");
     var byName = {}; marksOf(t.id).forEach(function (r) { byName[r.student] = r; });
     var total = Number(t.total) || 0;
+    // Once a test has marks, every row is locked: a blank row means the student
+    // didn't take it. Edit (on hover) opens a row. A new test starts open for typing.
+    var started = marksOf(t.id).length > 0;
     var rows = _students(t).map(function (name, i) {
-      var r = byName[name], v = r ? r.score : "", lock = !!r || !_isActive(name);
+      var r = byName[name], v = r ? r.score : "", lock = !!r || !_isActive(name) || started;
       return "<tr" + (lock ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + Utils.studentLink(name) +
         (_isActive(name) ? "" : " <span class='muted small'>inactive</span>") + "</td>" +
         "<td class='c'><input class='mark-in' type='number' step='0.5' min='0' data-name='" + _esc(name) + "' value='" + _esc(v) +
@@ -190,6 +196,7 @@ var Scores = (function () {
         "<td class='c mark-pct'>" + (r && total ? Math.round(Number(v) / total * 100) + "%" : "---") + "</td>" +
         "<td class='c edit-cell'>" + (lock ? "<button type='button' class='row-edit' title='Change this mark' onclick='Scores.unlock(this)'>&#9998; Edit</button>" : "") + "</td></tr>";
     }).join("");
+    var dis = _detailsEdit ? "" : " disabled";
     var chapters = Settings.chapters(t.cls).slice(1).map(function (c) { return "<option value='" + _esc(c) + "'>"; }).join("");
     return "<div class='sheet-head panel'>" +
         "<div class='sheet-title'><button class='btn btn-secondary btn-sm' onclick='Scores.back()'>&#8592; All tests</button>" +
@@ -198,15 +205,17 @@ var Scores = (function () {
         "<div class='sheet-stats' id='sheet-stats'>" + _headerHtml(t) + "</div></div>" +
       "<div class='sheet-body'>" +
         "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><label class='check inactive-toggle'><input type='checkbox' onchange='Scores.showInactive(this.checked)'" + (_showInactive ? " checked" : "") + "> Show inactive students" + (_showInactive ? "" : _hiddenNote(t)) + "</label></div>" +
-          "<div class='sheet-hint muted'>Marks save automatically. Hover a row and press <b>Edit</b> to change a saved mark.</div>" +
+          "<div class='sheet-hint muted'>Marks save automatically. Hover a row and press <b>Edit</b> to change a mark or add one later.</div>" +
           "<table class='tests-table mark-table'><thead><tr><th class='num'>#</th><th>Name of student</th><th class='c'>Marks obtained</th><th class='c'>Marks (%)</th><th></th></tr></thead>" +
           "<tbody>" + (rows || "<tr><td colspan='5' class='muted'>No students in this class.</td></tr>") + "</tbody></table></div>" +
-        "<div class='panel sheet-edit'><div class='panel-header'><span class='panel-title'>Test details</span></div><div style='padding:12px 16px'>" +
-          "<div class='form-row'><label>Test #</label><input id='te-num' value='" + _esc(t.num) + "'></div>" +
-          "<div class='form-row'><label>Date</label><input id='te-date' type='date' value='" + _esc(t.date) + "'></div>" +
-          "<div class='form-row'><label>Portions</label><input id='te-title' list='te-chapters' value='" + _esc(t.title) + "'><datalist id='te-chapters'>" + chapters + "</datalist></div>" +
-          "<div class='form-row'><label>Marks out of</label><input id='te-total' type='number' min='1' value='" + _esc(t.total) + "'></div>" +
-          "<button type='button' class='link-btn danger-link' onclick='Scores.delTest(\"" + t.id + "\")'>Delete this test</button>" +
+        "<div class='panel sheet-edit" + (_detailsEdit ? " editing" : " locked") + "'><div class='panel-header'><span class='panel-title'>Test details" +
+          (_detailsEdit ? "" : " <button type='button' class='row-edit' title='Edit test details' onclick='Scores.editDetails(true)'>&#9998;</button>") + "</span>" +
+          (_detailsEdit ? "<button type='button' class='btn btn-secondary btn-sm' onclick='Scores.editDetails(false)'>Done</button>" : "") + "</div><div style='padding:12px 16px'>" +
+          "<div class='form-row'><label>Test #</label><input id='te-num' value='" + _esc(t.num) + "'" + dis + "></div>" +
+          "<div class='form-row'><label>Date</label><input id='te-date' type='date' value='" + _esc(t.date) + "'" + dis + "></div>" +
+          "<div class='form-row'><label>Portions</label><input id='te-title' list='te-chapters' value='" + _esc(t.title) + "'" + dis + "><datalist id='te-chapters'>" + chapters + "</datalist></div>" +
+          "<div class='form-row'><label>Marks out of</label><input id='te-total' type='number' min='1' value='" + _esc(t.total) + "'" + dis + "></div>" +
+          (_detailsEdit ? "<div class='danger-zone'><button type='button' class='btn btn-danger btn-sm' onclick='Scores.delTest(\"" + t.id + "\")'>Delete this test</button></div>" : "") +
         "</div></div>" +
       "</div>";
   }
@@ -338,6 +347,6 @@ var Scores = (function () {
     open(t.id);
   }
 
-  return { render: render, show: show, back: back, showInactive: showInactive, open: open, toggle: toggle, unlock: unlock, openModal: openModal, saveTest: saveTest,
+  return { render: render, show: show, back: back, showInactive: showInactive, open: open, editDetails: editDetails, toggle: toggle, unlock: unlock, openModal: openModal, saveTest: saveTest,
            modalClass: modalClass, modalWho: modalWho, delTest: delTest, ensure: ensure };
 })();

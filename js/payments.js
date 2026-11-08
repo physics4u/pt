@@ -1,201 +1,135 @@
 // ================================================================
-//  JS_Payments — Read-only full-year payment matrix
-//  Rows = students, Columns = all 14 months (Mar 2026 – Apr 2027)
-//  Each cell shows a coloured status pill.
-//  Editing is done exclusively on the Student Profile page.
+//  payments.js — Payments page (view only)
+//  Four collapsible sections: Plus 1, Plus 2, Hourly (Plus 1),
+//  Hourly (Plus 2). Group sections show the full-year month grid;
+//  hourly sections show hours, billed, paid and balance.
+//  Fees are recorded on the student's profile (click the name).
 // ================================================================
 
 var Payments = (function () {
-  var _cls = "Grade XII";
-
-  // Short month labels for column headers
   var MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var PILL = { "Paid": "pp-paid", "Pending": "pp-pending", "Overdue": "pp-overdue" };
 
-  // Colour map for status
-  var STATUS_COL = {
-    "Paid":    { bg:"rgba(91,248,184,0.15)", border:"var(--accent3)", text:"var(--accent3)" },
-    "Pending": { bg:"rgba(248,160,91,0.15)", border:"var(--accent2)", text:"var(--accent2)" },
-    "Overdue": { bg:"rgba(248,91,110,0.15)", border:"var(--danger)",  text:"var(--danger)"  },
-    "":        { bg:"transparent",           border:"var(--border)",  text:"var(--text3)"   }
-  };
+  var _open = {};          // which sections are open; all collapsed when the page is opened from the menu
+  var _duesOnly = false;   // "Only students with dues"
 
-  // ----------------------------------------------------------------
-  function init() {
-    var D = Data.get();
-    var hasXII = D.students.some(function (s) { return s.cls === "Grade XII"; });
-    var hasXI  = D.students.some(function (s) { return s.cls === "Grade XI";  });
-    if (hasXII) _cls = "Grade XII";
-    else if (hasXI) _cls = "Grade XI";
-    setClass(_cls);
-  }
+  // Opening Payments from the menu: every section collapsed
+  function init() { _open = {}; render(); }
+  // Open one class's section (used by links into Payments)
+  function setClass(cls) { _open[cls] = true; render(); }
+  function toggle(key, el) { _open[key] = el.open; }
+  function duesOnly(on) { _duesOnly = !!on; render(); }
 
-  function setClass(cls) {
-    _cls = cls;
-    var sel = Utils.el("pay-grade");
-    if (sel) sel.value = cls;
-    render();
-  }
-
-  // ----------------------------------------------------------------
-  //  render — builds the full-year matrix (read-only)
-  // ----------------------------------------------------------------
-  function render() {
-    var D       = Data.get();
-    var sf       = (Utils.el("pay-status") || {}).value || "";
-    var students = Data.allStudents().filter(function (s) {
-      return s.cls === _cls && Hourly.inGroup(s) && (!sf || s.status === sf);
+  function _esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
     });
-    var wrap    = Utils.el("payments-wrap");
+  }
+  function _status() { return (Utils.el("pay-status") || {}).value || ""; }
 
-    if (students.length === 0) {
-      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No group-class students in " + Utils.grade(_cls) + ".</div></div>" +
-                       Hourly.renderPaymentsTable(_cls);
-      return;
-    }
-
-    // Pre-load all paygrid data for this class
+  function _rec(cls, ym, s) {
+    var D = Data.get(), name = Utils.fullName(s), sk = "paygrid|" + cls + "|" + ym;
     if (!D.paygrid) D.paygrid = {};
-
-    // ---- Build table ----
-    var tbl = document.createElement("table");
-    tbl.className = "pay-table";
-    tbl.style.cssText = "min-width:100%;border-collapse:collapse;font-size:12px";
-
-    // ---- Header row ----
-    var thead = tbl.createTHead();
-    var hr    = thead.insertRow();
-
-    // Fixed columns: #, Name, View
-    function th(txt, css) {
-      var t = document.createElement("th");
-      t.textContent = txt;
-      if (css) t.style.cssText = css;
-      return t;
-    }
-    hr.appendChild(th("#",       "width:36px;text-align:center;position:sticky;left:0;z-index:4;background:var(--surface2)"));
-    hr.appendChild(th("Student", "min-width:140px;position:sticky;left:36px;z-index:4;background:var(--surface2)"));
-
-    // One column per month
-    ACYR.forEach(function (ym) {
-      var parts = ym.split("-");
-      var mo    = MONTH_SHORT[Number(parts[1]) - 1];
-      var yr    = parts[0].slice(2);
-      var t = document.createElement("th");
-      t.style.cssText  = "min-width:72px;text-align:center;white-space:nowrap";
-      t.innerHTML = mo + "<br><span style='font-size:9px;color:var(--text3);font-weight:400'>'" + yr + "</span>";
-      hr.appendChild(t);
-    });
-
-    // Summary + View columns
-    hr.appendChild(th("Paid",    "width:48px;text-align:center;color:var(--accent3)"));
-    hr.appendChild(th("Due",     "width:48px;text-align:center;color:var(--danger)"));
-
-    // ---- Body rows ----
-    var tbody = tbl.createTBody();
-    var totals = {}; // totals per month: {ym: {paid,pending,overdue}}
-    ACYR.forEach(function (ym) { totals[ym] = {paid:0, pending:0, overdue:0}; });
-
-    students.forEach(function (s, si) {
-      var name = Utils.fullName(s);
-      var idx  = Data.get().students.indexOf(s);
-      var row  = tbody.insertRow();
-
-      // # cell
-      var nc = row.insertCell();
-      nc.style.cssText = "text-align:center;color:var(--text3);font-size:11px;position:sticky;left:0;background:var(--surface);z-index:1";
-      nc.textContent = si + 1;
-
-      // Name cell
-      var nmc = row.insertCell();
-      nmc.style.cssText = "font-weight:500;color:var(--text);position:sticky;left:36px;background:var(--surface);z-index:1;white-space:nowrap";
-      nmc.innerHTML = Utils.studentLink(name);
-
-      var paidCount = 0, dueCount = 0;
-
-      // Month cells
-      ACYR.forEach(function (ym) {
-        var sk  = "paygrid|" + _cls + "|" + ym;
-        if (!D.paygrid[sk])         D.paygrid[sk]         = {};
-        if (!D.paygrid[sk][name])   D.paygrid[sk][name]   = {status:"", amount:s.monthlyFee||"", notes:"", paydate:""};
-        var rec    = D.paygrid[sk][name];
-        var status = rec.status || "";
-        var col    = STATUS_COL[status] || STATUS_COL[""];
-
-        // Count
-        if (status === "Paid")                      { paidCount++; totals[ym].paid++; }
-        if (status === "Pending")                   { dueCount++;  totals[ym].pending++; }
-        if (status === "Overdue")                   { dueCount++;  totals[ym].overdue++; }
-
-        var mc = row.insertCell();
-        mc.style.cssText = "text-align:center;padding:6px 4px";
-
-        // Pill
-        var pill = document.createElement("div");
-        pill.style.cssText =
-          "display:inline-block;padding:3px 0;border-radius:20px;border:1px solid " + col.border + ";" +
-          "background:" + col.bg + ";color:" + col.text + ";" +
-          "font-size:10px;font-family:inherit;font-weight:600;" +
-          "min-width:60px;text-align:center;line-height:1.6";
-
-        if (status === "") {
-          pill.textContent = "\u2014";
-          pill.style.color = "var(--text3)";
-        } else {
-          pill.textContent = status;
-          // Show amount below status if paid
-          if (status === "Paid" && rec.amount) {
-            pill.innerHTML = status + "<br><span style='font-size:9px;font-weight:400'>\u20b9" + Number(rec.amount).toLocaleString("en-IN") + "</span>";
-          }
-        }
-        mc.appendChild(pill);
-
-        // Tooltip: paydate and notes on hover
-        var title = [];
-        if (rec.paydate) title.push("Paid on: " + rec.paydate);
-        if (rec.notes)   title.push(rec.notes);
-        if (title.length) mc.title = title.join(" | ");
-      });
-
-      // Paid count cell
-      var pc = row.insertCell();
-      pc.style.cssText = "text-align:center;font-weight:600;color:var(--accent3);font-family:inherit;font-size:12px";
-      pc.textContent = paidCount + "/" + ACYR.length;
-
-      // Due count cell
-      var dc = row.insertCell();
-      dc.style.cssText = "text-align:center;font-weight:600;font-family:inherit;font-size:12px";
-      dc.style.color   = dueCount > 0 ? "var(--danger)" : "var(--text3)";
-      dc.textContent   = dueCount;
-
-    });
-
-    // ---- Summary footer row ----
-    var sfr = tbody.insertRow();
-    sfr.className = "pay-summary-row";
-
-    var s1 = sfr.insertCell(); s1.colSpan = 2;
-    s1.style.cssText = "position:sticky;left:0;background:var(--surface2);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-family:inherit";
-    s1.textContent = "Monthly Total";
-
-    ACYR.forEach(function (ym) {
-      var t  = totals[ym];
-      var sc = sfr.insertCell();
-      sc.style.cssText = "text-align:center;padding:6px 4px;font-size:10px;font-family:inherit;line-height:1.7";
-      var lines = [];
-      if (t.paid)    lines.push("<span style='color:var(--accent3)'>" + t.paid + "&#10003;</span>");
-      if (t.pending) lines.push("<span style='color:var(--accent2)'>" + t.pending + "~</span>");
-      if (t.overdue) lines.push("<span style='color:var(--danger)'>"  + t.overdue + "!</span>");
-      if (!lines.length) lines.push("<span style='color:var(--text3)'>—</span>");
-      sc.innerHTML = lines.join(" ");
-    });
-
-    // Empty cells for Paid/Due columns in footer
-    sfr.insertCell(); sfr.insertCell();
-
-    wrap.innerHTML = "";
-    wrap.appendChild(tbl);
-    wrap.insertAdjacentHTML("beforeend", Hourly.renderPaymentsTable(_cls));
+    var g = D.paygrid[sk] || {};
+    return g[name] || { status: "", amount: s.monthlyFee || "", notes: "", paydate: "" };
+  }
+  function _dueMonths(s) {
+    return ACYR.filter(function (ym) { var st = _rec(s.cls, ym, s).status; return st === "Pending" || st === "Overdue"; }).length;
   }
 
-  return { init: init, setClass: setClass, render: render };
+  function _section(key, title, meta, body) {
+    return "<details class='section tests-section pay-section'" + (_open[key] ? " open" : "") +
+      " ontoggle='Payments.toggle(\"" + key + "\", this)'><summary><span class='section-title'>" + title +
+      "</span><span class='section-meta'>&middot; " + meta + "</span><span class='show-pill' aria-hidden='true'></span></summary>" +
+      "<div class='section-body' style='padding:0'><div style='overflow-x:auto'>" + body + "</div></div></details>";
+  }
+  function _count(n, all, dues) {
+    if (_duesOnly) return "<span style='color:" + (n ? "var(--danger)" : "var(--text3)") + "'>" + n + " with dues</span> <span class='muted'>(of " + all + ")</span>";
+    return n + " student" + (n === 1 ? "" : "s") + (dues ? " &middot; <span style='color:var(--danger)'>" + dues + " with dues</span>" : "") +
+      (n !== all ? " <span class='muted'>(of " + all + ")</span>" : "");
+  }
+
+  // ---------- group classes: month grid ----------
+  function _groupSection(cls) {
+    var sf = _status();
+    var all = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && (!sf || s.status === sf); });
+    var withDues = all.filter(function (s) { return _dueMonths(s) > 0; });
+    var list = _duesOnly ? withDues : all;
+    var key = cls, title = Utils.grade(cls);
+    if (!list.length) {
+      return _section(key, title, _count(0, all.length, 0),
+        "<div class='empty' style='padding:20px'><div class='empty-text'>" +
+        (_duesOnly && all.length ? "No dues in " + title + "." : "No group-class students in " + title + ".") + "</div></div>");
+    }
+    var totals = {}; ACYR.forEach(function (ym) { totals[ym] = { paid: 0, pending: 0, overdue: 0 }; });
+    var head = "<tr><th class='num sticky0'>#</th><th class='sticky1'>Student</th>" +
+      ACYR.map(function (ym) {
+        var p = ym.split("-");
+        return "<th class='c'>" + MONTH_SHORT[Number(p[1]) - 1] + " <span class='yr'>'" + p[0].slice(2) + "</span></th>";
+      }).join("") +
+      "<th class='c' style='color:var(--accent3)'>Paid</th><th class='c' style='color:var(--danger)'>Due</th></tr>";
+    var body = list.map(function (s, i) {
+      var paid = 0, due = 0;
+      var cells = ACYR.map(function (ym) {
+        var rec = _rec(cls, ym, s), st = rec.status || "";
+        if (st === "Paid") { paid++; totals[ym].paid++; }
+        if (st === "Pending") { due++; totals[ym].pending++; }
+        if (st === "Overdue") { due++; totals[ym].overdue++; }
+        var tip = [];
+        if (st === "Paid" && rec.amount) tip.push("Paid ₹" + Number(rec.amount).toLocaleString("en-IN"));
+        if (rec.paydate) tip.push("on " + rec.paydate);
+        if (rec.notes) tip.push(rec.notes);
+        var txt = st === "Paid" ? (rec.amount ? "₹" + Number(rec.amount).toLocaleString("en-IN") : "Paid") : (st || "—");
+        return "<td class='c'" + (tip.length ? " title='" + _esc(tip.join(" · ")) + "'" : "") + "><span class='pay-pill " +
+          (PILL[st] || "pp-none") + "'>" + txt + "</span></td>";
+      }).join("");
+      return "<tr><td class='num sticky0'>" + (i + 1) + "</td><td class='sticky1 nm'>" + Utils.studentLink(Utils.fullName(s)) + "</td>" + cells +
+        "<td class='c' style='font-weight:600;color:var(--accent3)'>" + paid + "/" + ACYR.length + "</td>" +
+        "<td class='c' style='font-weight:600;color:" + (due ? "var(--danger)" : "var(--text3)") + "'>" + due + "</td></tr>";
+    }).join("");
+    var foot = "<tr class='pay-summary-row'><td colspan='2' class='sticky0'>Monthly total</td>" +
+      ACYR.map(function (ym) {
+        var t = totals[ym], l = [];
+        if (t.paid) l.push("<span style='color:var(--accent3)'>" + t.paid + "&#10003;</span>");
+        if (t.pending) l.push("<span style='color:var(--accent2)'>" + t.pending + "~</span>");
+        if (t.overdue) l.push("<span style='color:var(--danger)'>" + t.overdue + "!</span>");
+        return "<td class='c'>" + (l.join(" ") || "<span class='muted'>—</span>") + "</td>";
+      }).join("") + "<td></td><td></td></tr>";
+    return _section(key, title, _count(list.length, all.length, withDues.length),
+      "<table class='pay-table pay-grid'><thead>" + head + "</thead><tbody>" + body + foot + "</tbody></table>");
+  }
+
+  // ---------- hourly students ----------
+  function _hourlySection(cls) {
+    var sf = _status();
+    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && s.cls === cls && (!sf || s.status === sf); });
+    var acc = all.map(function (s) { return { s: s, a: Hourly.account(Utils.fullName(s)) }; });
+    var withDues = acc.filter(function (x) { return x.a.balance > 0.5; });
+    var list = _duesOnly ? withDues : acc;
+    var key = "one|" + cls, title = "Hourly (" + Utils.grade(cls) + ")";
+    var money = function (v) { return "₹" + Math.round(v || 0).toLocaleString("en-IN"); };
+    var body = list.length ?
+      "<table class='hourly-table'><thead><tr><th class='num'>#</th><th>Student</th><th>Rate</th><th>Hours</th><th>Billed</th><th>Paid</th><th>Balance</th></tr></thead><tbody>" +
+        list.map(function (x, i) {
+          var s = x.s, a = x.a;
+          return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + Utils.studentLink(Utils.fullName(s)) + "</b></td>" +
+            "<td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
+            "<td>" + Hourly.hm(a.hours) + "</td><td>" + money(a.billed) + "</td><td>" + money(a.paid) + "</td>" +
+            "<td>" + (a.balance > 0.5 ? "<span class='chip chip-red'>" + money(a.balance) + " due</span>" : "<span class='chip chip-green'>Settled</span>") + "</td></tr>";
+        }).join("") + "</tbody></table>" +
+        "<div class='sheet-hint muted'>Billed by the hour; payments are applied to the oldest months first.</div>"
+      : "<div class='empty' style='padding:20px'><div class='empty-text'>" +
+        (_duesOnly && all.length ? "No dues in " + title + "." : "No hourly students in " + Utils.grade(cls) + ".") + "</div></div>";
+    return _section(key, title, _count(list.length, all.length, withDues.length), body);
+  }
+
+  function render() {
+    var wrap = Utils.el("payments-wrap");
+    if (!wrap) return;
+    var chk = Utils.el("pay-dues"); if (chk) chk.checked = _duesOnly;
+    wrap.innerHTML = _groupSection("Grade XI") + _groupSection("Grade XII") +
+                     _hourlySection("Grade XI") + _hourlySection("Grade XII");
+  }
+
+  return { init: init, setClass: setClass, toggle: toggle, duesOnly: duesOnly, render: render };
 })();
