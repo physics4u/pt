@@ -85,6 +85,7 @@ var Dashboard = (function () {
         var monthData = D.syllabus[sk];
         Object.keys(monthData).forEach(function (day) {
           var entry = monthData[day];
+          if (!entry.chapter) return;          // a class day needs a chapter (as in the charts)
           var start = _parseTime(entry.start);
           var end   = _parseTime(entry.end);
           if (start === null || end === null) return;
@@ -258,8 +259,8 @@ var Dashboard = (function () {
     var SHORT_LABELS = {};
     var labelNum = 1;
     CHAPTER_KEYS.forEach(function (ch) {
-      if (ch === "Revision / Practice") {
-        SHORT_LABELS[ch] = "00 Revision / Practice";
+      if (/^Revision/.test(ch)) {
+        SHORT_LABELS[ch] = "00 " + ch;
       } else {
         SHORT_LABELS[ch] = String(labelNum < 10 ? "0" + labelNum : labelNum) + " " + ch;
         labelNum++;
@@ -314,6 +315,12 @@ var Dashboard = (function () {
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
 
+    // Make room for the longest chapter label (up to 45% of the width).
+    ctx.font = "13px Arial, sans-serif";
+    var widest = 0;
+    activeKeys.forEach(function (k) { widest = Math.max(widest, ctx.measureText(SHORT_LABELS[k] || k).width); });
+    PAD_L = Math.min(Math.ceil(widest) + 18, Math.floor(W * 0.55));
+
     var COL_GRID  = _css("--border");
     var COL_TEXT  = _css("--text3");
     var COL_LABEL = _css("--text2");
@@ -325,7 +332,8 @@ var Dashboard = (function () {
 
     var chartW = W - PAD_L - PAD_R;
     var maxHrs = Math.max.apply(null, activeKeys.map(function (k) { return hoursMap[k]; })) || 1;
-    var niceMax = Math.ceil(maxHrs / 0.5) * 0.5;
+    // Round the axis up to whole hours that split evenly into 4 steps.
+    var niceMax = maxHrs <= 2 ? Math.ceil(maxHrs / 0.5) * 0.5 : Math.ceil(maxHrs / 4) * 4;
     if (niceMax === 0) niceMax = 1;
 
     // X-axis grid + labels
@@ -354,7 +362,7 @@ var Dashboard = (function () {
       var barH = ROW_H * 0.55;
       var y    = PAD_T + idx * ROW_H + (ROW_H - barH) / 2;
       var barW = (hrs / niceMax) * chartW;
-      var isRev = chapter === "Revision / Practice";
+      var isRev = /^Revision/.test(chapter);
       ctx.fillStyle = isRev ? COL_REV : GRADE_COL;
 
       var r = Math.min(4, barH / 2, barW || 0);
@@ -376,6 +384,12 @@ var Dashboard = (function () {
       ctx.fillStyle = isRev ? COL_REV : COL_LABEL;
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
       ctx.font = "13px Arial, sans-serif";
+      // Shorten with "…" if the label still doesn't fit
+      var room = PAD_L - 14;
+      if (ctx.measureText(shortLabel).width > room) {
+        while (shortLabel.length > 4 && ctx.measureText(shortLabel + "\u2026").width > room) shortLabel = shortLabel.slice(0, -1);
+        shortLabel = shortLabel.trim() + "\u2026";
+      }
       ctx.fillText(shortLabel, PAD_L - 10, y + barH / 2);
 
       // Hours value

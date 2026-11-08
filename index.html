@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108210715">
+<link rel="stylesheet" href="css/styles.css?v=20261108213201">
 </head>
 <body>
 
@@ -422,7 +422,9 @@
           <option value="2022-23">2022&ndash;23</option><option value="2021-22">2021&ndash;22</option>
         </select>
         <button type="button" class="btn btn-secondary btn-sm" onclick="ImportPage.check(this)">Check</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="ImportPage.apply(this)">Import</button>
       </div>
+      <p class="section-note" style="margin:10px 0 0">Save the year's workbook as Excel (<b>Physics Tuition - 2026-27.xlsx</b>, for example) into the Physics Tuition folder. <b>Check</b> shows what it contains without changing anything; <b>Import</b> replaces PT's records with it (users are kept, and a backup is made first).</p>
       <div id="import-result" class="section-note" style="margin:10px 0 0"></div>
     </div>
   </details>
@@ -641,6 +643,7 @@
         <li><b>Chapter lists</b> (admins): the chapters offered in the Monthly Planner. Press <b>Edit</b>, put one chapter per line, then <b>Save</b>. "Use the standard NCERT list" fills the box with the built-in list; nothing changes until you save.</li>
         <li><b>Academic year</b> (admins): PT shows 14 months, March to the following April. Choose the year and press <b>Save year</b>.</li>
         <li><b>Storage</b> (admins): how much of PT's space is used, with a breakdown by area. <b>Free up space</b> releases empty space.</li>
+        <li><b>Import data</b> (admins): bring in an earlier year's records from its Excel workbook. <b>Check</b> shows the totals to compare with the workbook; <b>Import</b> loads them after making a backup.</li>
         <li><b>Backups</b> (admins): <b>Back up now</b> saves a complete copy of PT's data. The newest 30 backups are kept.</li>
         <li><b>Appearance</b>: Dark or Light. This is remembered on each device separately.</li>
       </ul>
@@ -851,25 +854,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108210715"></script>
-<script src="js/version.js?v=20261108210715"></script>
-<script src="js/config.js?v=20261108210715"></script>
-<script src="js/data.js?v=20261108210715"></script>
-<script src="js/utils.js?v=20261108210715"></script>
-<script src="js/students.js?v=20261108210715"></script>
-<script src="js/classes.js?v=20261108210715"></script>
-<script src="js/attendance.js?v=20261108210715"></script>
-<script src="js/syllabus.js?v=20261108210715"></script>
-<script src="js/payments.js?v=20261108210715"></script>
-<script src="js/scores.js?v=20261108210715"></script>
-<script src="js/profile.js?v=20261108210715"></script>
-<script src="js/settings.js?v=20261108210715"></script>
-<script src="js/users.js?v=20261108210715"></script>
-<script src="js/help.js?v=20261108210715"></script>
-<script src="js/storage.js?v=20261108210715"></script>
-<script src="js/import.js?v=20261108210715"></script>
-<script src="js/hourly.js?v=20261108210715"></script>
-<script src="js/app.js?v=20261108210715"></script>
+<script src="js/site-config.js?v=20261108213201"></script>
+<script src="js/version.js?v=20261108213201"></script>
+<script src="js/config.js?v=20261108213201"></script>
+<script src="js/data.js?v=20261108213201"></script>
+<script src="js/utils.js?v=20261108213201"></script>
+<script src="js/students.js?v=20261108213201"></script>
+<script src="js/classes.js?v=20261108213201"></script>
+<script src="js/attendance.js?v=20261108213201"></script>
+<script src="js/syllabus.js?v=20261108213201"></script>
+<script src="js/payments.js?v=20261108213201"></script>
+<script src="js/scores.js?v=20261108213201"></script>
+<script src="js/profile.js?v=20261108213201"></script>
+<script src="js/settings.js?v=20261108213201"></script>
+<script src="js/users.js?v=20261108213201"></script>
+<script src="js/help.js?v=20261108213201"></script>
+<script src="js/storage.js?v=20261108213201"></script>
+<script src="js/import.js?v=20261108213201"></script>
+<script src="js/hourly.js?v=20261108213201"></script>
+<script src="js/app.js?v=20261108213201"></script>
 
 </body>
 </html>
