@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108110422">
+<link rel="stylesheet" href="css/styles.css?v=20261108110815">
 </head>
 <body>
 
@@ -324,57 +324,46 @@
 
   <!-- Chapter lists (admins only) -->
   <details class="section admin-only">
-    <summary><span class="section-title">&#128214; Chapter lists</span><span class="section-hint">Chapters shown in the Monthly Planner</span></summary>
+    <summary><span class="section-title">&#128214; Chapter lists</span><span class="section-hint">Chapters offered in the Monthly Planner</span></summary>
     <div class="section-body">
-  <div class="grid2">
-
-    <!-- Grade XI -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">&#128214; Grade XI &mdash; Chapter List</span>
-        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px"
-          onclick="SettingsPage.reset('Grade XI')">Reset to Default</button>
-      </div>
-      <div style="padding:16px">
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">
-          One chapter per line. The order here is the order shown in the Monthly Planner dropdown.
-          <b style="color:var(--text2)">"-- None --"</b> is always added automatically as the first option.
-        </p>
-        <textarea id="settings-xi" rows="20"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-                 padding:10px 12px;color:var(--text);font-family:var(--font-ui);font-size:12px;
-                 line-height:1.7;outline:none;resize:vertical"
-          placeholder="One chapter per line..."></textarea>
-        <div style="margin-top:10px;display:flex;justify-content:flex-end">
-          <button class="btn btn-primary" onclick="SettingsPage.save('Grade XI')">Save Grade XI Chapters</button>
+      <div class="chap-grid">
+        <div class="chap-card">
+          <div class="chap-head">
+            <span class="chap-name">Plus 1 &middot; Grade XI</span>
+            <span class="chap-count" id="chap-count-xi"></span>
+            <button class="btn btn-secondary btn-sm" id="chap-edit-xi" onclick="SettingsPage.edit('Grade XI')">Edit</button>
+          </div>
+          <ol class="chap-list" id="chap-list-xi"></ol>
+          <div class="chap-editor" id="chap-editor-xi" style="display:none">
+            <div class="chap-help">One chapter per line, in the order you want them in the Monthly Planner.</div>
+            <textarea id="settings-xi" rows="14" spellcheck="false"></textarea>
+            <div class="chap-actions">
+              <button type="button" class="link-btn" onclick="SettingsPage.useStandard('Grade XI')">Use the standard NCERT list</button>
+              <span style="flex:1"></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="SettingsPage.cancel('Grade XI')">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="SettingsPage.save('Grade XI')">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="chap-card">
+          <div class="chap-head">
+            <span class="chap-name">Plus 2 &middot; Grade XII</span>
+            <span class="chap-count" id="chap-count-xii"></span>
+            <button class="btn btn-secondary btn-sm" id="chap-edit-xii" onclick="SettingsPage.edit('Grade XII')">Edit</button>
+          </div>
+          <ol class="chap-list" id="chap-list-xii"></ol>
+          <div class="chap-editor" id="chap-editor-xii" style="display:none">
+            <div class="chap-help">One chapter per line, in the order you want them in the Monthly Planner.</div>
+            <textarea id="settings-xii" rows="14" spellcheck="false"></textarea>
+            <div class="chap-actions">
+              <button type="button" class="link-btn" onclick="SettingsPage.useStandard('Grade XII')">Use the standard NCERT list</button>
+              <span style="flex:1"></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="SettingsPage.cancel('Grade XII')">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="SettingsPage.save('Grade XII')">Save</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Grade XII -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">&#128214; Grade XII &mdash; Chapter List</span>
-        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px"
-          onclick="SettingsPage.reset('Grade XII')">Reset to Default</button>
-      </div>
-      <div style="padding:16px">
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">
-          One chapter per line. The order here is the order shown in the Monthly Planner dropdown.
-          <b style="color:var(--text2)">"-- None --"</b> is always added automatically as the first option.
-        </p>
-        <textarea id="settings-xii" rows="20"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-                 padding:10px 12px;color:var(--text);font-family:var(--font-ui);font-size:12px;
-                 line-height:1.7;outline:none;resize:vertical"
-          placeholder="One chapter per line..."></textarea>
-        <div style="margin-top:10px;display:flex;justify-content:flex-end">
-          <button class="btn btn-primary" onclick="SettingsPage.save('Grade XII')">Save Grade XII Chapters</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
     </div>
   </details>
 
@@ -541,21 +530,21 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108110422"></script>
-<script src="js/version.js?v=20261108110422"></script>
-<script src="js/config.js?v=20261108110422"></script>
-<script src="js/data.js?v=20261108110422"></script>
-<script src="js/utils.js?v=20261108110422"></script>
-<script src="js/students.js?v=20261108110422"></script>
-<script src="js/classes.js?v=20261108110422"></script>
-<script src="js/attendance.js?v=20261108110422"></script>
-<script src="js/syllabus.js?v=20261108110422"></script>
-<script src="js/payments.js?v=20261108110422"></script>
-<script src="js/scores.js?v=20261108110422"></script>
-<script src="js/profile.js?v=20261108110422"></script>
-<script src="js/settings.js?v=20261108110422"></script>
-<script src="js/users.js?v=20261108110422"></script>
-<script src="js/app.js?v=20261108110422"></script>
+<script src="js/site-config.js?v=20261108110815"></script>
+<script src="js/version.js?v=20261108110815"></script>
+<script src="js/config.js?v=20261108110815"></script>
+<script src="js/data.js?v=20261108110815"></script>
+<script src="js/utils.js?v=20261108110815"></script>
+<script src="js/students.js?v=20261108110815"></script>
+<script src="js/classes.js?v=20261108110815"></script>
+<script src="js/attendance.js?v=20261108110815"></script>
+<script src="js/syllabus.js?v=20261108110815"></script>
+<script src="js/payments.js?v=20261108110815"></script>
+<script src="js/scores.js?v=20261108110815"></script>
+<script src="js/profile.js?v=20261108110815"></script>
+<script src="js/settings.js?v=20261108110815"></script>
+<script src="js/users.js?v=20261108110815"></script>
+<script src="js/app.js?v=20261108110815"></script>
 
 </body>
 </html>
