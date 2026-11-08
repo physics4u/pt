@@ -111,7 +111,7 @@ var Dashboard = (function () {
 
     var hEl = Utils.el(hoursId);
     var dEl = Utils.el(daysId);
-    if (hEl) hEl.textContent = totalHrs % 1 === 0 ? totalHrs : totalHrs.toFixed(1);
+    if (hEl) hEl.textContent = _hm(totalHrs);
     if (dEl) dEl.textContent = totalDays;
   }
 
@@ -121,6 +121,12 @@ var Dashboard = (function () {
   // Read a colour from the current theme (so charts follow light/dark).
   function _css(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  // 17.5 hours → "17:30" (same style as the tuition sheet)
+  function _hm(h) {
+    var m = Math.round(h * 60);
+    return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
   }
 
   // 2500 → "2.5", 12000 → "12"
@@ -163,7 +169,7 @@ var Dashboard = (function () {
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
 
-    var COL_BAR = _css("--accent"), COL_HOV = _css("--accent3"), COL_GRID = _css("--border");
+    var COL_BAR = _css("--income"), COL_HOV = _css("--income"), COL_GRID = _css("--border");
     var COL_TEXT = _css("--text3"), COL_LABEL = _css("--text2"), COL_VALUE = _css("--text");
     // Taller bottom padding: two-line X labels (month + year separator)
     var PAD_L = 72, PAD_R = 16, PAD_T = 16, PAD_B = 56;
@@ -182,7 +188,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + chartW, yPx); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'JetBrains Mono', monospace";
+      ctx.font = "11px 'Courier New', monospace";
       var lbl = yVal >= 100000 ? "\u20b9" + (yVal/100000).toFixed(1) + "L"
               : yVal >= 1000   ? "\u20b9" + _k(yVal) + "k" : "\u20b9" + yVal;
       ctx.fillText(lbl, PAD_L - 8, yPx);
@@ -211,26 +217,25 @@ var Dashboard = (function () {
         ctx.fillStyle = COL_GRID; ctx.fillRect(x, PAD_T + chartH - 2, barW, 2);
       }
       if (val > 0) {
-        ctx.fillStyle = isMax ? COL_HOV : COL_VALUE;
+        ctx.fillStyle = COL_VALUE;
         ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "10px 'JetBrains Mono', monospace";
-        var vlbl = val >= 100000 ? (val/100000).toFixed(1) + "L"
-                 : val >= 1000   ? _k(val) + "k" : val.toString();
+        ctx.font = "bold 11px 'Courier New', monospace";
+        var vlbl = "\u20b9" + val.toLocaleString("en-IN");
         ctx.fillText(vlbl, x + barW / 2, y - 3);
       }
       // X-axis: month abbreviation on first row, year on second row at Jan boundaries
       var p = ym.split("-");
-      var mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][Number(p[1]) - 1];
+      var mo = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][Number(p[1]) - 1];
       var yr = p[0].slice(2);
       var cx = x + barW / 2;
       var yBase = PAD_T + chartH + 6;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.font = "10px 'Courier New', monospace";
       ctx.fillText(mo, cx, yBase);
       // Draw year label below the month row at Jan of each year and at first bar
       if (p[1] === "01" || idx === 0) {
         ctx.fillStyle = COL_TEXT;
-        ctx.font = "bold 10px 'JetBrains Mono', monospace";
+        ctx.font = "bold 10px 'Courier New', monospace";
         ctx.fillText("'" + yr, cx, yBase + 14);
       }
     });
@@ -300,7 +305,7 @@ var Dashboard = (function () {
       canvas.style.display = "none"; empty.style.display = ""; totalEl.textContent = ""; return;
     }
     canvas.style.display = ""; empty.style.display = "none";
-    totalEl.textContent = "Total: " + totalHrs.toFixed(1) + " hrs";
+    totalEl.textContent = "Total: " + _hm(totalHrs);
 
     // ---- Drawing ----
     var dpr    = window.devicePixelRatio || 1;
@@ -322,9 +327,9 @@ var Dashboard = (function () {
     var COL_TEXT  = _css("--text3");
     var COL_LABEL = _css("--text2");
     var COL_VALUE = _css("--text");
-    var COL_REV   = _css("--text3");   // revision bars stay neutral grey
-    // One calm colour per grade: Grade XI green, Grade XII amber.
-    var GRADE_COL = (grade === "Grade XI") ? _css("--accent") : _css("--accent2");
+    // Same colours as the tuition sheet: Plus 1 red, Plus 2 orange.
+    var GRADE_COL = (grade === "Grade XI") ? _css("--plus1") : _css("--plus2");
+    var COL_REV   = GRADE_COL;
 
 
     var chartW = W - PAD_L - PAD_R;
@@ -341,8 +346,8 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xPx, PAD_T); ctx.lineTo(xPx, PAD_T + n * ROW_H); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.fillText(xVal.toFixed(1) + "h", xPx, PAD_T + n * ROW_H + 6);
+      ctx.font = "10px 'Courier New', monospace";
+      ctx.fillText(_hm(xVal), xPx, PAD_T + n * ROW_H + 6);
     }
 
     // Baseline
@@ -379,13 +384,14 @@ var Dashboard = (function () {
       var shortLabel = SHORT_LABELS[chapter] || chapter;
       ctx.fillStyle = isRev ? COL_REV : COL_LABEL;
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'Inter', sans-serif";
+      ctx.font = "11px Arial, sans-serif";
       ctx.fillText(shortLabel, PAD_L - 10, y + barH / 2);
 
       // Hours value
       ctx.fillStyle = COL_VALUE; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'JetBrains Mono', monospace";
-      ctx.fillText(hrs.toFixed(1) + "h", PAD_L + barW + 6, y + barH / 2);
+      ctx.font = "11px 'Courier New', monospace";
+      ctx.font = "bold 12px Arial, sans-serif";
+      ctx.fillText(_hm(hrs), PAD_L + barW + 6, y + barH / 2);
     });
   }
 
