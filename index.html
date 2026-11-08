@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/styles.css?v=20261108102042">
+<link rel="stylesheet" href="css/styles.css?v=20261108102715">
 </head>
 <body>
 
 <!-- ===== SIDEBAR ===== -->
 <aside class="sidebar">
   <div class="logo">
-    <div class="logo-title">&#9883; PT</div>
-    <div class="logo-sub">Physics Tuition Manager</div>
+    <div class="logo-title"><span class="logo-mark">&#9883;</span>PT</div>
+    <div class="logo-sub">PHYSICS TUITION</div>
   </div>
   <nav class="nav">
     <div class="nav-section">Overview</div>
@@ -39,7 +39,6 @@
   </div>
   <div class="sidebar-footer">
     <div id="sync-status" style="margin-bottom:6px;display:none"></div>
-    PT v4.0<br>
     <span id="today-date"></span>
   </div>
 </aside>
@@ -48,6 +47,7 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-sub" id="page-sub"></div>
     <button class="topbar-btn" id="topbar-action" onclick="topbarAction()" style="display:none">Action</button>
   </div>
   <div class="content">
@@ -55,7 +55,7 @@
     <!-- Each page is in its own HTML file, included here -->
     <div id="page-dashboard" class="page active">
   <div class="stat-grid">
-    <div class="stat-card blue"><div class="stat-label">Active Students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub">enrolled</div></div>
+    <div class="stat-card blue hero"><div class="stat-label">Active students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub">enrolled</div></div>
     <div class="stat-card orange"><div class="stat-label">Classes</div><div class="stat-value" id="stat-classes">0</div><div class="stat-sub">this year</div></div>
     <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-sub">fees paid</div></div>
     <div class="stat-card red"><div class="stat-label">Pending</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub">payments due</div></div>
@@ -484,19 +484,19 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108102042"></script>
-<script src="js/config.js?v=20261108102042"></script>
-<script src="js/data.js?v=20261108102042"></script>
-<script src="js/utils.js?v=20261108102042"></script>
-<script src="js/students.js?v=20261108102042"></script>
-<script src="js/classes.js?v=20261108102042"></script>
-<script src="js/attendance.js?v=20261108102042"></script>
-<script src="js/syllabus.js?v=20261108102042"></script>
-<script src="js/payments.js?v=20261108102042"></script>
-<script src="js/scores.js?v=20261108102042"></script>
-<script src="js/profile.js?v=20261108102042"></script>
-<script src="js/settings.js?v=20261108102042"></script>
-<script src="js/app.js?v=20261108102042"></script>
+<script src="js/site-config.js?v=20261108102715"></script>
+<script src="js/config.js?v=20261108102715"></script>
+<script src="js/data.js?v=20261108102715"></script>
+<script src="js/utils.js?v=20261108102715"></script>
+<script src="js/students.js?v=20261108102715"></script>
+<script src="js/classes.js?v=20261108102715"></script>
+<script src="js/attendance.js?v=20261108102715"></script>
+<script src="js/syllabus.js?v=20261108102715"></script>
+<script src="js/payments.js?v=20261108102715"></script>
+<script src="js/scores.js?v=20261108102715"></script>
+<script src="js/profile.js?v=20261108102715"></script>
+<script src="js/settings.js?v=20261108102715"></script>
+<script src="js/app.js?v=20261108102715"></script>
 
 </body>
 </html>

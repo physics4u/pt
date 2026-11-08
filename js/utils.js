@@ -64,15 +64,15 @@ var Utils = (function () {
 var currentPage = "dashboard";
 
 var PAGE_CFG = {
-  dashboard: {title:"Dashboard",        btn:null},
-  students:  {title:"Students",         btn:"+ Add Student", action:function(){ Students.openModal(); }},
-  classes:   {title:"Class Schedule",   btn:"+ Add Class",   action:function(){ Classes.openModal(); }},
-  attsheet:  {title:"Attendance Sheet", btn:null},
-  syllabus:  {title:"Monthly Planner",  btn:null},
-  payments:  {title:"Payments",         btn:null},
-  scores:    {title:"Scores & Grades",  btn:"+ Add Score",   action:function(){ Scores.openModal(); }},
-  profile:   {title:"Student Profile",  btn:null},
-  settings:  {title:"Settings", btn:null}
+  dashboard: {title:"Dashboard",        sub:"Students, income and teaching hours for the academic year", btn:null},
+  students:  {title:"Students",         sub:"Everyone enrolled, with contact details and status", btn:"+ Add student", action:function(){ Students.openModal(); }},
+  classes:   {title:"Class schedule",   sub:"Weekly classes by grade", btn:"+ Add class",   action:function(){ Classes.openModal(); }},
+  attsheet:  {title:"Attendance sheet", sub:"Mark present or absent for each class day", btn:null},
+  syllabus:  {title:"Monthly planner",  sub:"Chapter and timing for each day of the month", btn:null},
+  payments:  {title:"Payments",         sub:"Monthly fees by student", btn:null},
+  scores:    {title:"Scores & grades",  sub:"Tests, quizzes and exams", btn:"+ Add score",   action:function(){ Scores.openModal(); }},
+  profile:   {title:"Student profile",  sub:"", btn:null},
+  settings:  {title:"Settings",         sub:"Chapter lists, academic year and backups", btn:null}
 };
 
 function showPage(id) {
@@ -89,6 +89,7 @@ function showPage(id) {
   currentPage = id;
   var cfg = PAGE_CFG[id] || {title:id, btn:null};
   Utils.el("page-title").textContent = cfg.title;
+  Utils.el("page-sub").textContent   = cfg.sub || "";
 
   var btn = Utils.el("topbar-action");
   if (cfg.btn) { btn.textContent = cfg.btn; btn.style.display = ""; }

@@ -2,32 +2,31 @@
    DARK THEME (default)
 ================================================================ */
 :root{
-  /* Navy "sheet" theme — matches the Physics Tuition 2026-27 Home screen. */
-  --bg:#0e2a47;--surface:#0e2a47;--surface2:#163a5e;--border:#2d4d70;
-  --frame:#ffffff;                                 /* white box outlines */
-  --accent:#f5b81c;  --accent-rgb:245 184 28;      /* gold headings      */
-  --accent2:#ff7a00; --accent2-rgb:255 122 0;      /* orange (Plus 2)    */
-  --accent3:#2ecc5a; --accent3-rgb:46 204 90;      /* green (paid/ok)    */
-  --danger:#e8403a;  --danger-rgb:232 64 58;       /* red (Plus 1)       */
-  --plus1:#e8403a;--plus2:#ff7a00;--income:#34a853;
-  --on-accent:#0e2a47;
-  --text:#ffffff;--text2:#d3deeb;--text3:#8fa7c2;
-  --card-shadow:none;
-  --font-ui:"Courier New",Courier,monospace;
-  --font-body:Arial,Helvetica,sans-serif;
+  /* Navy blue theme, modern app styling. "-rgb" twins are for tints. */
+  --bg:#0a1a2f;--surface:#0f2440;--surface2:#14304f;--border:#1f3d61;
+  --accent:#4ade80;  --accent-rgb:74 222 128;     /* green highlight   */
+  --accent2:#f5b81c; --accent2-rgb:245 184 28;    /* gold              */
+  --accent3:#4ade80; --accent3-rgb:74 222 128;    /* success           */
+  --danger:#f87171;  --danger-rgb:248 113 113;
+  --plus1:#ef5350;--plus2:#ff8a1f;--income:#34a853;
+  --on-accent:#06210f;
+  --text:#f1f5fb;--text2:#b4c3d6;--text3:#7d92ad;
+  --card-shadow:0 8px 30px rgba(0,0,0,0.35);
+  --radius:10px;
+  --font-ui:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-body:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 
-/* Light variant: same layout, navy ink on white paper. */
 [data-theme="light"]{
-  --bg:#f3f5f9;--surface:#ffffff;--surface2:#e7edf5;--border:#c9d4e2;
-  --frame:#0e2a47;
-  --accent:#b07d00;  --accent-rgb:176 125 0;
-  --accent2:#d96500; --accent2-rgb:217 101 0;
-  --accent3:#16873e; --accent3-rgb:22 135 62;
-  --danger:#cc2f29;  --danger-rgb:204 47 41;
+  --bg:#f3f6fb;--surface:#ffffff;--surface2:#eaf0f7;--border:#d5dfeb;
+  --accent:#15803d;  --accent-rgb:21 128 61;
+  --accent2:#b07d00; --accent2-rgb:176 125 0;
+  --accent3:#15803d; --accent3-rgb:21 128 61;
+  --danger:#dc2626;  --danger-rgb:220 38 38;
   --plus1:#e0433c;--plus2:#f07800;--income:#2e9a4b;
   --on-accent:#ffffff;
-  --text:#0e2a47;--text2:#34506f;--text3:#7287a0;
+  --text:#0b1f36;--text2:#3d5470;--text3:#7a8ca3;
+  --card-shadow:0 8px 24px rgba(15,36,64,0.12);
 }
 
 /* ================================================================
@@ -277,37 +276,62 @@ select.filter{width:auto;flex-shrink:0;}
 
 
 /* ================================================================
-   SHEET LOOK — square boxes, white outlines, gold Courier titles,
-   big white numbers (like the Home screen of the tuition sheet).
+   APP LOOK — top menu bar, rounded cards, outlined buttons.
 ================================================================ */
-.sidebar{border-right:2px solid var(--frame);}
-.logo,.sidebar-footer,.theme-toggle{border-color:var(--frame);border-width:2px;}
-.logo{border-bottom-style:solid;}
-.logo-title{font-family:var(--font-ui);font-weight:700;color:var(--accent);font-size:26px;letter-spacing:0;}
-.nav-section{color:var(--text3);}
-.nav-item{font-family:var(--font-ui);font-weight:700;font-size:15px;color:var(--text);border-radius:0;border:2px solid transparent;border-left-width:4px;}
-.nav-item:hover{background:var(--surface2);}
-.nav-item.active,[data-theme="light"] .nav-item.active{background:var(--surface2);color:var(--accent);border-color:var(--frame);border-left-color:var(--accent3);}
-.topbar{border-bottom:2px solid var(--frame);}
-.topbar-title{font-family:var(--font-ui);font-weight:700;font-size:22px;}
-.topbar-btn,.btn{border-radius:0;font-weight:700;}
-.btn-secondary{border:2px solid var(--frame);}
+body{font-size:14px;}
 
-.stat-card,.panel,.modal{border:2px solid var(--frame);border-radius:0;box-shadow:none;}
-.stat-card{text-align:center;padding:0 0 12px;}
+/* Side menu: logo · grouped links · theme switch · date */
+.sidebar{background:var(--bg);border-right:1px solid var(--border);}
+.logo{padding:20px 20px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;}
+.logo-title{font-family:var(--font-ui);font-weight:800;font-size:20px;color:var(--text);letter-spacing:0.5px;display:flex;align-items:center;}
+.logo-title .logo-mark{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+  border:2px solid var(--accent);color:var(--accent);font-size:18px;margin-right:10px;}
+.logo-sub{font-family:var(--font-ui);font-weight:700;font-size:10px;letter-spacing:1.5px;color:var(--text2);margin:2px 0 0 44px;}
+.nav{padding:14px 12px;}
+.nav-section{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:1px;color:var(--text3);padding:14px 12px 6px;}
+.nav-item{padding:9px 12px;margin-bottom:2px;border:1px solid transparent;border-radius:8px;
+  font-family:var(--font-ui);font-weight:500;font-size:14px;color:var(--text2);}
+.nav-item:hover{background:var(--surface);color:var(--text);}
+.nav-item.active,[data-theme="light"] .nav-item.active{background:rgb(var(--accent-rgb) / 0.10);color:var(--accent);
+  border-color:rgb(var(--accent-rgb) / 0.35);font-weight:600;}
+.nav-icon{font-size:15px;}
+.theme-toggle{border-top:1px solid var(--border);}
+.theme-toggle-label{font-family:var(--font-ui);letter-spacing:0.5px;}
+.sidebar-footer{border-top:1px solid var(--border);font-family:var(--font-ui);}
+
+/* Page header: big title + subtitle, action on the right */
+.topbar{position:static;height:auto;background:none;border:none;padding:28px 32px 0;flex-wrap:wrap;}
+.topbar-title{font-family:var(--font-ui);font-weight:700;font-size:24px;}
+.topbar-sub{flex-basis:100%;order:3;color:var(--text2);font-size:13px;margin-top:2px;}
+.content{padding:20px 32px 40px;}
+
+/* Cards */
+.stat-card,.panel,.modal{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);}
+.modal{box-shadow:var(--card-shadow);}
+.stat-card{padding:16px 18px;}
 .stat-card::before{display:none;}
-.stat-label{font-family:var(--font-ui);font-weight:700;font-size:13px;letter-spacing:0;text-transform:none;
-  color:var(--accent);padding:6px 8px;border-bottom:2px solid var(--frame);margin-bottom:6px;}
+.stat-label{font-family:var(--font-ui);font-size:13px;letter-spacing:0;text-transform:none;color:var(--text2);}
 .stat-value,.stat-card.blue .stat-value,.stat-card.orange .stat-value,
-.stat-card.green .stat-value,.stat-card.red .stat-value{
-  font-family:var(--font-ui);font-weight:700;font-size:38px;color:var(--text);margin:6px 0 0;}
-.stat-sub{color:var(--text3);}
+.stat-card.green .stat-value,.stat-card.red .stat-value{font-family:var(--font-ui);font-weight:700;font-size:28px;color:var(--text);margin:8px 0 4px;}
+.stat-sub{font-size:12px;color:var(--text2);}
+/* First card is highlighted, like a "headline" figure */
+.stat-card.hero{background:linear-gradient(180deg,rgb(var(--accent-rgb) / 0.16),rgb(var(--accent-rgb) / 0.06));border-color:rgb(var(--accent-rgb) / 0.55);}
+.stat-card.hero .stat-value{color:var(--accent);}
 
-.panel-header{border-bottom:2px solid var(--frame);}
-.panel-title{font-family:var(--font-ui);font-weight:700;font-size:16px;color:var(--accent);}
-thead th{color:var(--accent);font-weight:700;letter-spacing:0.5px;}
-.modal-header,.modal-footer{border-color:var(--frame);border-width:2px;}
-.modal-title{font-family:var(--font-ui);font-weight:700;color:var(--accent);}
-input,select,textarea{border-radius:0;}
-.badge{border-radius:0;font-weight:700;}
-.toggle-track,.toggle-thumb{border-radius:2px;}
+.panel-header{border-bottom:1px solid var(--border);padding:18px 20px;}
+.panel-title{font-family:var(--font-ui);font-weight:700;font-size:16px;color:var(--text);}
+thead th{background:var(--surface2);color:var(--text2);font-family:var(--font-ui);font-weight:600;letter-spacing:0.5px;}
+.modal-title{font-family:var(--font-ui);font-weight:700;}
+label{font-family:var(--font-ui);letter-spacing:0.3px;text-transform:none;font-size:12px;color:var(--text2);}
+
+/* Controls */
+input,select,textarea{border-radius:8px;background:var(--bg);}
+.btn,.topbar-btn{border-radius:8px;font-family:var(--font-ui);font-weight:600;}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-secondary:hover{border-color:var(--text3);opacity:1;}
+.badge{border-radius:6px;font-family:var(--font-ui);font-weight:600;}
+
+@media (max-width:900px){
+  .topbar,.content{padding-left:16px;padding-right:16px;}
+  .stat-grid,.grid2{grid-template-columns:1fr 1fr;}
+}
