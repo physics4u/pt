@@ -73,7 +73,7 @@ var PAGE_CFG = {
   scores:    {title:"Scores & grades",  sub:"Tests, quizzes and exams", btn:"+ Add score",   action:function(){ Scores.openModal(); }},
   profile:   {title:"Student profile",  sub:"", btn:null},
   help:      {title:"Help",             sub:"About PT and the user guide", btn:null},
-  settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, backups and appearance", btn:null}
+  settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, storage, backups and appearance", btn:null}
 };
 
 function showPage(id) {
@@ -104,7 +104,7 @@ function showPage(id) {
   else if (id === "syllabus")  Syllabus.init();
   else if (id === "payments")  Payments.init();
   else if (id === "scores")    Scores.render();
-  else if (id === "settings")  { SettingsPage.init(); Users.load(); }
+  else if (id === "settings")  { SettingsPage.init(); Users.load(); StoragePage.load(); }
   else if (id === "help")      Help.init();
 }
 
