@@ -111,7 +111,7 @@ var Scores = (function () {
     var oneHead = "<th>Student</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>%</th><th></th>";
     var oneRow = function (t) {
       var r = marksOf(t.id)[0], total = Number(t.total) || 0;
-      return "<tr><td><b>" + _esc(t.student) + "</b></td><td>" + _esc(t.num) + "</td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
+      return "<tr><td><b>" + Utils.studentLink(t.student) + "</b></td><td>" + _esc(t.num) + "</td><td>" + fmtDate(t.date) + "</td><td>" + _esc(t.title) + "</td>" +
         "<td class='c'>" + (r ? mk(Number(r.score)) + " / " + _esc(t.total) : "\u2014") + "</td>" +
         "<td class='c'>" + (r && total ? Math.round(Number(r.score) / total * 100) + "%" : "\u2014") + "</td>" + marksBtn(t) + "</tr>";
     };
@@ -167,7 +167,7 @@ var Scores = (function () {
     var total = Number(t.total) || 0;
     var rows = _students(t).map(function (name, i) {
       var r = byName[name], v = r ? r.score : "";
-      return "<tr" + (r ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + _esc(name) +
+      return "<tr" + (r ? " class='locked'" : "") + "><td class='num'>" + (i + 1) + "</td><td>" + Utils.studentLink(name) +
         (_isActive(name) ? "" : " <span class='muted small'>inactive</span>") + "</td>" +
         "<td class='c'><input class='mark-in' type='number' step='0.5' min='0' data-name='" + _esc(name) + "' value='" + _esc(v) +
           "' placeholder='---'" + (r ? " readonly tabindex='-1'" : "") + "></td>" +

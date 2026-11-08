@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108225210">
+<link rel="stylesheet" href="css/styles.css?v=20261108225737">
 </head>
 <body>
 
@@ -163,7 +163,7 @@
     <div id="page-classes" class="page">
   <div class="panel">
     <table>
-      <thead><tr><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th>Action</th></tr></thead>
+      <thead><tr><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th></th></tr></thead>
       <tbody id="classes-tbody"></tbody>
     </table>
     <div id="classes-empty" class="empty" style="display:none">
@@ -481,7 +481,7 @@
         <li><b>Add students</b> on the <b>Students</b> page with <b>+ Add student</b>. Set each student's class (Plus 1 or Plus 2) and monthly fee.</li>
         <li><b>Plan the month</b> in <b>Monthly Planner</b>: pick the chapter and times for each class day.</li>
         <li><b>Take attendance</b> in <b>Attendance</b>. Everything saves automatically.</li>
-        <li><b>Record fees</b> from a student's profile (<b>Students &rarr; View</b>).</li>
+        <li><b>Record fees</b> from a student's profile (<b>Students &rarr; click their name</b>).</li>
         <li>The <b>Dashboard</b> adds everything up for you.</li>
       </ol>
     </div>
@@ -502,7 +502,7 @@
       <h4>Change your password</h4>
       <p><b>Settings &rarr; Users &rarr; Change my password.</b> Enter your current password and a new one (at least 6 characters).</p>
       <h4>Forgot your password?</h4>
-      <p>Ask an admin. They open <b>Settings &rarr; Users</b>, click <b>Edit</b> next to your name, type a new password and press <b>Save changes</b>.</p>
+      <p>Ask an admin. They open <b>Settings &rarr; Users</b>, hover over your row and click <b>&#9998;</b>, type a new password and press <b>Save changes</b>.</p>
       <h4>Sign out</h4>
       <p><b>Settings &rarr; Users &rarr; Sign out.</b> Do this on shared or borrowed computers.</p>
     </div>
@@ -530,7 +530,7 @@
     <summary><span class="section-title">Students</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <h4>Add or edit a student</h4>
-      <p>Press <b>+ Add student</b> (or <b>Edit</b> on a row). First name is required; everything else is optional but useful:</p>
+      <p>Press <b>+ Add student</b> (or hover over a row and click <b>&#9998;</b>). First name is required; everything else is optional but useful:</p>
       <ul>
         <li><b>Class</b>: Plus 1 or Plus 2. Attendance, the planner and payments use this.</li>
         <li><b>Batch</b>: Regular, or Hourly for one-to-one students billed by the hour (see <b>Hourly students</b>).</li>
@@ -541,7 +541,7 @@
       <h4>Find students</h4>
       <p>Use the search box (name) and the filters for class, batch and status.</p>
       <h4>Student profile</h4>
-      <p>Press <b>View</b> to see everything about one student: details, attendance month by month, payments and scores. This is also where you <b>record fees</b> (see Payments).</p>
+      <p>Click a student's <b>name</b> anywhere in PT (Students, Attendance, Payments, Scores) to see everything about them: details, attendance month by month, payments and scores. This is also where you <b>record fees</b> (see Payments).</p>
       <h4>Delete a student</h4>
       <p>Press <b>Del</b> and confirm. Their earlier attendance and payment records are kept.</p>
       <p class="tip">Tip: if you change a student's name, their earlier attendance and payments stay under the old name. Correct spelling mistakes early.</p>
@@ -555,7 +555,7 @@
       <h4>Set up</h4>
       <p>Add or edit the student and choose <b>Batch: Hourly</b>. Enter their <b>rate per hour</b>. If they also come to the regular group classes, tick <b>Also attends group classes</b>; they then appear in group attendance and monthly fees as well.</p>
       <h4>Record a session</h4>
-      <p>Open the student (<b>Students &rarr; View</b>), press <b>+ Add session</b>, and enter the date, start and end time, chapter and notes. The hours are worked out for you, and the day counts as present in their attendance.</p>
+      <p>Open the student (<b>Students &rarr; click their name</b>), press <b>+ Add session</b>, and enter the date, start and end time, chapter and notes. The hours are worked out for you, and the day counts as present in their attendance.</p>
       <p>Each session is billed at the rate in force when it was added, so changing the rate later doesn't alter earlier bills.</p>
       <h4>Record a payment</h4>
       <p>Press <b>+ Add payment</b> and enter the date and amount received. Payments don't have to match a month: PT applies them to the oldest unpaid months first and shows each month as <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>, with the balance at the top.</p>
@@ -571,7 +571,7 @@
   <details class="section help">
     <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>The weekly timetable. Press <b>+ Add class</b> and enter a name, day, level (Plus 1 or Plus 2), start and end time, and optionally tutor, room and fee. Use <b>Edit</b> and <b>Delete</b> on each class.</p>
+      <p>The weekly timetable. Press <b>+ Add class</b> and enter a name, day, level (Plus 1 or Plus 2), start and end time, and optionally tutor, room and fee. Hover over a class and click <b>&#9998;</b> to change it; <b>Delete this class</b> is at the bottom of that form.</p>
     </div>
   </details>
 
@@ -606,10 +606,10 @@
     <summary><span class="section-title">Payments</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <h4>See who has paid</h4>
-      <p>The <b>Payments</b> page shows every student against every month of the academic year: <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. Filter by grade or status. Press <b>View</b> on a row to open that student.</p>
+      <p>The <b>Payments</b> page shows every student against every month of the academic year: <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. Filter by grade or status. Click a name to open that student.</p>
       <h4>Record a payment</h4>
       <ol>
-        <li>Open the student (<b>Students &rarr; View</b>, or <b>View</b> on the Payments page).</li>
+        <li>Open the student (<b>Students &rarr; click their name</b>, or their name on the Payments page).</li>
         <li>In the payments table, click the month's status to change it: <b>blank &rarr; Pending &rarr; Paid &rarr; Overdue &rarr; blank</b>.</li>
         <li>Check the <b>amount</b>, and add the <b>payment date</b> and any <b>notes</b>. These save automatically.</li>
       </ol>
@@ -639,7 +639,7 @@
     <summary><span class="section-title">Settings</span><span class="section-meta">&middot; admins see every section</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <ul>
-        <li><b>Users</b>: everyone who can sign in, with their role and last sign-in. Admins use <b>+ Add user</b>, and <b>Edit</b> to rename, change role, reset a password, stop someone signing in (untick <b>Can sign in</b>) or delete them.</li>
+        <li><b>Users</b>: everyone who can sign in, with their role and last sign-in. Admins use <b>+ Add user</b>, and hover over a user and click <b>&#9998;</b> to rename, change role, reset a password, stop someone signing in (untick <b>Can sign in</b>) or delete them.</li>
         <li><b>Chapter lists</b> (admins): the chapters offered in the Monthly Planner. Press <b>Edit</b>, put one chapter per line, then <b>Save</b>. "Use the standard NCERT list" fills the box with the built-in list; nothing changes until you save.</li>
         <li><b>Academic year</b> (admins): PT shows 14 months, March to the following April. Choose the year and press <b>Save year</b>.</li>
         <li><b>Storage</b> (admins): how much of PT's space is used, with a breakdown by area. <b>Free up space</b> releases empty space.</li>
@@ -852,25 +852,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108225210"></script>
-<script src="js/version.js?v=20261108225210"></script>
-<script src="js/config.js?v=20261108225210"></script>
-<script src="js/data.js?v=20261108225210"></script>
-<script src="js/utils.js?v=20261108225210"></script>
-<script src="js/students.js?v=20261108225210"></script>
-<script src="js/classes.js?v=20261108225210"></script>
-<script src="js/attendance.js?v=20261108225210"></script>
-<script src="js/syllabus.js?v=20261108225210"></script>
-<script src="js/payments.js?v=20261108225210"></script>
-<script src="js/scores.js?v=20261108225210"></script>
-<script src="js/profile.js?v=20261108225210"></script>
-<script src="js/settings.js?v=20261108225210"></script>
-<script src="js/users.js?v=20261108225210"></script>
-<script src="js/help.js?v=20261108225210"></script>
-<script src="js/storage.js?v=20261108225210"></script>
-<script src="js/import.js?v=20261108225210"></script>
-<script src="js/hourly.js?v=20261108225210"></script>
-<script src="js/app.js?v=20261108225210"></script>
+<script src="js/site-config.js?v=20261108225737"></script>
+<script src="js/version.js?v=20261108225737"></script>
+<script src="js/config.js?v=20261108225737"></script>
+<script src="js/data.js?v=20261108225737"></script>
+<script src="js/utils.js?v=20261108225737"></script>
+<script src="js/students.js?v=20261108225737"></script>
+<script src="js/classes.js?v=20261108225737"></script>
+<script src="js/attendance.js?v=20261108225737"></script>
+<script src="js/syllabus.js?v=20261108225737"></script>
+<script src="js/payments.js?v=20261108225737"></script>
+<script src="js/scores.js?v=20261108225737"></script>
+<script src="js/profile.js?v=20261108225737"></script>
+<script src="js/settings.js?v=20261108225737"></script>
+<script src="js/users.js?v=20261108225737"></script>
+<script src="js/help.js?v=20261108225737"></script>
+<script src="js/storage.js?v=20261108225737"></script>
+<script src="js/import.js?v=20261108225737"></script>
+<script src="js/hourly.js?v=20261108225737"></script>
+<script src="js/app.js?v=20261108225737"></script>
 
 </body>
 </html>

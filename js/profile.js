@@ -234,5 +234,10 @@ var Profile = (function () {
     "</div>";
   }
 
-  return { view: view, setFee: setFee };
+  function byName(name) {
+    var i = Data.get().students.findIndex(function (s) { return Utils.fullName(s) === name; });
+    if (i >= 0) view(i); else Dialog.alert("There is no student called \u201c" + name + "\u201d any more.");
+  }
+
+  return { view: view, byName: byName, setFee: setFee };
 })();

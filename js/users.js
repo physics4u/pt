@@ -71,7 +71,7 @@ var Users = (function () {
         "<td>" + (u.active ? "Yes" : "<span style='color:var(--danger)'>No</span>") + "</td>" +
         "<td>" + (u.self ? "now" : _when(u.lastLogin)) + "</td>" +
         "<td style='white-space:nowrap;text-align:right'>" +
-          (canEdit ? "<button class='btn btn-secondary btn-sm' onclick=\"Users.edit('" + _esc(u.username) + "')\">&#9998; Edit</button>" : "") +
+          (canEdit ? Utils.hoverEdit("Users.edit('" + u.username + "')", "Edit user") : "") +
         "</td></tr>";
     }).join("");
   }

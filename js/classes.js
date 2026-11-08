@@ -32,9 +32,7 @@ var Classes = (function () {
         "<td>" + (c.tutor || "\u2014") + "</td>" +
         "<td><span class='badge badge-green'>" + (cnt[c.name] || 0) + " students</span></td>" +
         "<td>" + (c.room || "\u2014") + "</td>" +
-        "<td style='white-space:nowrap'>" +
-          "<button class='btn btn-secondary' style='padding:4px 10px;font-size:11px' onclick='Classes.openModal(" + i + ")'>Edit</button>" +
-        "</td></tr>";
+        "<td class='edit-cell'>" + Utils.hoverEdit("Classes.openModal(" + i + ")", "Edit class") + "</td></tr>";
     }).join("");
   }
 

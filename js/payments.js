@@ -89,7 +89,6 @@ var Payments = (function () {
     // Summary + View columns
     hr.appendChild(th("Paid",    "width:48px;text-align:center;color:var(--accent3)"));
     hr.appendChild(th("Due",     "width:48px;text-align:center;color:var(--danger)"));
-    hr.appendChild(th("View",    "width:56px;text-align:center"));
 
     // ---- Body rows ----
     var tbody = tbl.createTBody();
@@ -109,7 +108,7 @@ var Payments = (function () {
       // Name cell
       var nmc = row.insertCell();
       nmc.style.cssText = "font-weight:500;color:var(--text);position:sticky;left:36px;background:var(--surface);z-index:1;white-space:nowrap";
-      nmc.textContent = name;
+      nmc.innerHTML = Utils.studentLink(name);
 
       var paidCount = 0, dueCount = 0;
 
@@ -168,15 +167,6 @@ var Payments = (function () {
       dc.style.color   = dueCount > 0 ? "var(--danger)" : "var(--text3)";
       dc.textContent   = dueCount;
 
-      // View button — goes to student profile
-      var vc  = row.insertCell();
-      vc.style.cssText = "text-align:center";
-      var vbtn = document.createElement("button");
-      vbtn.className   = "btn btn-secondary";
-      vbtn.style.cssText = "padding:3px 10px;font-size:11px";
-      vbtn.textContent = "View";
-      vbtn.onclick     = (function(i){ return function(){ Profile.view(i); }; })(idx);
-      vc.appendChild(vbtn);
     });
 
     // ---- Summary footer row ----
@@ -199,8 +189,8 @@ var Payments = (function () {
       sc.innerHTML = lines.join(" ");
     });
 
-    // Empty cells for Paid/Due/View columns in footer
-    sfr.insertCell(); sfr.insertCell(); sfr.insertCell();
+    // Empty cells for Paid/Due columns in footer
+    sfr.insertCell(); sfr.insertCell();
 
     wrap.innerHTML = "";
     wrap.appendChild(tbl);
