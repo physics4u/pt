@@ -21,7 +21,7 @@ var Profile = (function () {
       "<div class='profile-avatar'>" + initials + "</div>" +
       "<div>" +
         "<div class='profile-name'>" + name + "</div>" +
-        "<div style='font-size:13px;color:var(--text3)'>" + (s.cls || "") + " &bull; " + (s.school || "") + "</div>" +
+        "<div style='font-size:13px;color:var(--text3)'>" + Utils.grade(s.cls) + " &bull; " + (s.school || "") + "</div>" +
         "<div class='profile-meta'>" +
           "<span>&#128222; " + (s.phone || "\u2014") + "</span>" +
           "<span>&#9993; " + (s.email || "\u2014") + "</span>" +
@@ -201,7 +201,7 @@ var Profile = (function () {
     document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
     Utils.el("page-profile").classList.add("active");
     Utils.el("page-title").textContent = name + " \u2014 Profile";
-    Utils.el("page-sub").textContent = (s.cls || "") + (Hourly.isHourly(s) ? " \u00b7 hourly student" : "");
+    Utils.el("page-sub").textContent = Utils.grade(s.cls) + (Hourly.isHourly(s) ? " \u00b7 hourly student" : "");
     Utils.el("topbar-action").style.display = "none";
     currentPage = "profile";
   }

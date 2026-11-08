@@ -49,11 +49,14 @@ var Utils = (function () {
     return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0");
   }
 
+  // ---- Grade label: data says "Grade XI", people see "Plus 1" ----
+  function grade(cls) { return cls === "Grade XI" ? "Plus 1" : cls === "Grade XII" ? "Plus 2" : (cls || ""); }
+
   // ---- Full name helper ----
   function fullName(s) { return [s.fname, s.lname].filter(function (x) { return x; }).join(" "); }
 
   return { el: el, closeModal: closeModal, openModal: openModal,
-           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName };
+           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName, grade: grade };
 })();
 
 

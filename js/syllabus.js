@@ -24,7 +24,7 @@ var Syllabus = (function () {
     var ym  = Utils.el("syllabus-month").value; if (!ym) return;
     var sk  = _cls + "|" + ym;
     var lbl = Utils.el("syl-class-label");
-    if (lbl) lbl.textContent = _cls + " \u2014 " + (ACYR_LBL[ym] || ym);
+    if (lbl) lbl.textContent = Utils.grade(_cls) + " \u2014 " + (ACYR_LBL[ym] || ym);
     _buildTable(sk, ym, Utils.el("syllabus-table-wrap"));
   }
 
@@ -149,7 +149,7 @@ var Syllabus = (function () {
 
   function save() {
     Data.save();
-    Data.log("Saved Monthly Planner for " + _cls + " \u2014 " + (ACYR_LBL[Utils.el("syllabus-month").value] || ""));
+    Data.log("Saved Monthly Planner for " + Utils.grade(_cls) + " \u2014 " + (ACYR_LBL[Utils.el("syllabus-month").value] || ""));
   }
 
   return { init: init, setClass: setClass, render: render, save: save };

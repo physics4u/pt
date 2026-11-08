@@ -48,7 +48,7 @@ var Payments = (function () {
     var wrap    = Utils.el("payments-wrap");
 
     if (students.length === 0) {
-      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No group-class students in " + _cls + ".</div></div>" +
+      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No group-class students in " + Utils.grade(_cls) + ".</div></div>" +
                        Hourly.renderPaymentsTable(_cls);
       return;
     }

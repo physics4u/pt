@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108222428">
+<link rel="stylesheet" href="css/styles.css?v=20261108222858">
 </head>
 <body>
 
@@ -71,10 +71,10 @@
   <div class="stat-grid six">
     <div class="stat-card red"><div class="stat-label">Outstanding</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub" id="stat-pending-sub">fees not yet paid</div></div>
     <div class="stat-card blue"><div class="stat-label">Hourly hours</div><div class="stat-value" id="stat-hourly">0:00</div><div class="stat-sub" id="stat-hourly-sub">one-to-one sessions</div></div>
-    <div class="stat-card blue"><div class="stat-label">+1 Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
-    <div class="stat-card blue"><div class="stat-label">+1 Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
-    <div class="stat-card orange"><div class="stat-label">+2 Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
-    <div class="stat-card orange"><div class="stat-label">+2 Days</div><div class="stat-value" id="stat-xii-days">0</div><div class="stat-sub">class days</div></div>
+    <div class="stat-card blue"><div class="stat-label">Plus 1 Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
+    <div class="stat-card blue"><div class="stat-label">Plus 1 Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
+    <div class="stat-card orange"><div class="stat-label">Plus 2 Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
+    <div class="stat-card orange"><div class="stat-label">Plus 2 Days</div><div class="stat-value" id="stat-xii-days">0</div><div class="stat-sub">class days</div></div>
   </div>
 
   <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
@@ -89,7 +89,7 @@
       <div style="padding:10px 20px 8px;overflow-x:auto">
         <canvas id="syllabus-chart-xi" style="width:100%;display:block"></canvas>
         <div id="syllabus-empty-xi" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
-          No Grade XI syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+          No Plus 1 planner data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
         </div>
       </div>
     </div>
@@ -103,7 +103,7 @@
       <div style="padding:10px 20px 8px;overflow-x:auto">
         <canvas id="syllabus-chart-xii" style="width:100%;display:block"></canvas>
         <div id="syllabus-empty-xii" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
-          No Grade XII syllabus data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+          No Plus 2 planner data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
         </div>
       </div>
     </div>
@@ -134,8 +134,8 @@
     <span class="list-count" id="students-count"></span>
     <select class="filter" id="student-filter" onchange="Students.render()">
       <option value="">All Classes</option>
-      <option value="Grade XI">Grade XI</option>
-      <option value="Grade XII">Grade XII</option>
+      <option value="Grade XI">Plus 1</option>
+      <option value="Grade XII">Plus 2</option>
     </select>
     <select class="filter" id="student-batch-filter" onchange="Students.render()">
       <option value="">All Batches</option>
@@ -177,8 +177,8 @@
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
 <select class="filter" id="as-grade" onchange="Attendance.setClass(this.value)">
-        <option value="Grade XI">Grade XI</option>
-        <option value="Grade XII">Grade XII</option>
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
       </select>
       <select class="filter" id="as-status" onchange="Attendance.render()">
         <option value="">All Status</option>
@@ -208,8 +208,8 @@
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
 <select class="filter" id="syl-grade" onchange="Syllabus.setClass(this.value)">
-        <option value="Grade XI">Grade XI</option>
-        <option value="Grade XII">Grade XII</option>
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
       </select>
       <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto">
         <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
@@ -231,8 +231,8 @@
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
       <select class="filter" id="pay-grade" onchange="Payments.setClass(this.value)">
-        <option value="Grade XI">Grade XI</option>
-        <option value="Grade XII">Grade XII</option>
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
       </select>
       <select class="filter" id="pay-status" onchange="Payments.render()">
         <option value="">All Status</option>
@@ -263,8 +263,8 @@
     </div>
     <select class="filter" id="score-class-filter" onchange="Scores.render()">
       <option value="">All Classes</option>
-      <option value="Grade XI">Grade XI</option>
-      <option value="Grade XII">Grade XII</option>
+      <option value="Grade XI">Plus 1</option>
+      <option value="Grade XII">Plus 2</option>
     </select>
     <select class="filter" id="score-type-filter" onchange="Scores.render()">
       <option value="">All Types</option>
@@ -340,7 +340,7 @@
       <div class="chap-grid">
         <div class="chap-card">
           <div class="chap-head">
-            <span class="chap-name">Plus 1 &middot; Grade XI</span>
+            <span class="chap-name">Plus 1</span>
             <span class="chap-count" id="chap-count-xi"></span>
             <button class="btn btn-secondary btn-sm" id="chap-edit-xi" onclick="SettingsPage.edit('Grade XI')">Edit</button>
           </div>
@@ -358,7 +358,7 @@
         </div>
         <div class="chap-card">
           <div class="chap-head">
-            <span class="chap-name">Plus 2 &middot; Grade XII</span>
+            <span class="chap-name">Plus 2</span>
             <span class="chap-count" id="chap-count-xii"></span>
             <button class="btn btn-secondary btn-sm" id="chap-edit-xii" onclick="SettingsPage.edit('Grade XII')">Edit</button>
           </div>
@@ -493,7 +493,7 @@
       <ol>
         <li><b>Sign in</b> with the username and password your admin gave you. The very first time, the owner signs in as <code>admin</code> with the owner passcode.</li>
         <li><b>Check the year.</b> The gold chip at the top right shows the academic year (for example <b>2026&ndash;27</b>). Admins can change it in <b>Settings &rarr; Academic year</b>.</li>
-        <li><b>Add students</b> on the <b>Students</b> page with <b>+ Add student</b>. Set each student's class (Grade XI or XII) and monthly fee.</li>
+        <li><b>Add students</b> on the <b>Students</b> page with <b>+ Add student</b>. Set each student's class (Plus 1 or Plus 2) and monthly fee.</li>
         <li><b>Plan the month</b> in <b>Monthly Planner</b>: pick the chapter and times for each class day.</li>
         <li><b>Take attendance</b> in <b>Attendance</b>. Everything saves automatically.</li>
         <li><b>Record fees</b> from a student's profile (<b>Students &rarr; View</b>).</li>
@@ -533,7 +533,7 @@
         <li><b>Classes</b>: how many weekly classes are on the Classes page.</li>
         <li><b>Revenue</b>: group fees marked <b>Paid</b> plus hourly payments received this academic year. <b>Outstanding</b>: group fees marked Pending or Overdue plus unpaid hourly balances.</li>
         <li><b>Hourly hours</b>: total one-to-one session time this academic year.</li>
-        <li><b>+1 / +2 Hours and Days</b>: teaching time and class days from the Monthly Planner, for Plus 1 (Grade XI) and Plus 2 (Grade XII). Hours are shown as <b>hours:minutes</b>, so 134:45 is 134 hours 45 minutes.</li>
+        <li><b>Plus 1 / Plus 2 Hours and Days</b>: teaching time and class days from the Monthly Planner. Hours are shown as <b>hours:minutes</b>, so 134:45 is 134 hours 45 minutes.</li>
         <li><b>Teaching Hours charts</b>: time spent on each chapter (Plus 1 in red, Plus 2 in orange).</li>
         <li><b>Income &mdash; Monthly</b>: paid fees for each month of the academic year.</li>
       </ul>
@@ -547,7 +547,7 @@
       <h4>Add or edit a student</h4>
       <p>Press <b>+ Add student</b> (or <b>Edit</b> on a row). First name is required; everything else is optional but useful:</p>
       <ul>
-        <li><b>Class</b>: Grade XI (Plus 1) or Grade XII (Plus 2). Attendance, the planner and payments use this.</li>
+        <li><b>Class</b>: Plus 1 or Plus 2. Attendance, the planner and payments use this.</li>
         <li><b>Batch</b>: Regular, or Hourly for one-to-one students billed by the hour (see <b>Hourly students</b>).</li>
         <li><b>Monthly fee</b>: filled in automatically when you create that month's payment.</li>
         <li><b>Status</b>: Active, Trial or Inactive.</li>
@@ -586,7 +586,7 @@
   <details class="section help">
     <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>The weekly timetable. Press <b>+ Add class</b> and enter a name, day, level (Grade XI or XII), start and end time, and optionally tutor, room and fee. Use <b>Edit</b> and <b>Delete</b> on each class.</p>
+      <p>The weekly timetable. Press <b>+ Add class</b> and enter a name, day, level (Plus 1 or Plus 2), start and end time, and optionally tutor, room and fee. Use <b>Edit</b> and <b>Delete</b> on each class.</p>
     </div>
   </details>
 
@@ -682,7 +682,7 @@
       <h4>I don't see an update that was announced</h4>
       <p>Reload the page. If it still looks old, press <b>Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;R</b> (Mac: <b>Cmd&nbsp;+&nbsp;Shift&nbsp;+&nbsp;R</b>). The version in <b>About PT</b> tells you which release you have.</p>
       <h4>A student is missing from attendance or payments</h4>
-      <p>Check their <b>class</b> is set (Grade XI or XII) and the status filter at the top of the page.</p>
+      <p>Check their <b>class</b> is set (Plus 1 or Plus 2) and the status filter at the top of the page.</p>
       <h4>The Teaching Hours chart leaves out some days</h4>
       <p>The chart only counts days whose chapter appears in the current chapter list, with both a start and an end time.</p>
       <h4>Something looks wrong in the data</h4>
@@ -695,8 +695,8 @@
     <summary><span class="section-title">Words used in PT</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <table class="guide-table">
-        <tr><td><b>Plus 1 / +1</b></td><td>Grade XI</td></tr>
-        <tr><td><b>Plus 2 / +2</b></td><td>Grade XII</td></tr>
+        <tr><td><b>Plus 1</b></td><td>Grade XI (first year of higher secondary)</td></tr>
+        <tr><td><b>Plus 2</b></td><td>Grade XII (second year of higher secondary)</td></tr>
         <tr><td><b>Academic year</b></td><td>The 14 months PT shows, March to the following April</td></tr>
         <tr><td><b>Regular / Hourly</b></td><td>The student's batch type</td></tr>
         <tr><td><b>Trial</b></td><td>A student trying out classes before enrolling</td></tr>
@@ -744,8 +744,8 @@
         <div class="form-row"><label>Assign Class</label>
           <select id="s-class">
             <option value="">None</option>
-            <option value="Grade XI">Grade XI</option>
-            <option value="Grade XII">Grade XII</option>
+            <option value="Grade XI">Plus 1</option>
+            <option value="Grade XII">Plus 2</option>
           </select>
         </div>
         <div class="form-row"><label>Batch Type</label>
@@ -798,7 +798,7 @@
       <button class="modal-close" onclick="Utils.closeModal('modal-class')">&#215;</button>
     </div>
     <div class="modal-body">
-      <div class="form-row"><label>Class Name *</label><input id="c-name" placeholder="e.g. Grade XI Physics A"></div>
+      <div class="form-row"><label>Class Name *</label><input id="c-name" placeholder="e.g. Plus 1 evening batch"></div>
       <div class="form-grid2">
         <div class="form-row"><label>Day</label>
           <select id="c-day">
@@ -808,8 +808,8 @@
         </div>
         <div class="form-row"><label>Level</label>
           <select id="c-level">
-            <option>Grade XI</option>
-            <option>Grade XII</option>
+            <option value="Grade XI">Plus 1</option>
+            <option value="Grade XII">Plus 2</option>
           </select>
         </div>
       </div>
@@ -863,25 +863,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108222428"></script>
-<script src="js/version.js?v=20261108222428"></script>
-<script src="js/config.js?v=20261108222428"></script>
-<script src="js/data.js?v=20261108222428"></script>
-<script src="js/utils.js?v=20261108222428"></script>
-<script src="js/students.js?v=20261108222428"></script>
-<script src="js/classes.js?v=20261108222428"></script>
-<script src="js/attendance.js?v=20261108222428"></script>
-<script src="js/syllabus.js?v=20261108222428"></script>
-<script src="js/payments.js?v=20261108222428"></script>
-<script src="js/scores.js?v=20261108222428"></script>
-<script src="js/profile.js?v=20261108222428"></script>
-<script src="js/settings.js?v=20261108222428"></script>
-<script src="js/users.js?v=20261108222428"></script>
-<script src="js/help.js?v=20261108222428"></script>
-<script src="js/storage.js?v=20261108222428"></script>
-<script src="js/import.js?v=20261108222428"></script>
-<script src="js/hourly.js?v=20261108222428"></script>
-<script src="js/app.js?v=20261108222428"></script>
+<script src="js/site-config.js?v=20261108222858"></script>
+<script src="js/version.js?v=20261108222858"></script>
+<script src="js/config.js?v=20261108222858"></script>
+<script src="js/data.js?v=20261108222858"></script>
+<script src="js/utils.js?v=20261108222858"></script>
+<script src="js/students.js?v=20261108222858"></script>
+<script src="js/classes.js?v=20261108222858"></script>
+<script src="js/attendance.js?v=20261108222858"></script>
+<script src="js/syllabus.js?v=20261108222858"></script>
+<script src="js/payments.js?v=20261108222858"></script>
+<script src="js/scores.js?v=20261108222858"></script>
+<script src="js/profile.js?v=20261108222858"></script>
+<script src="js/settings.js?v=20261108222858"></script>
+<script src="js/users.js?v=20261108222858"></script>
+<script src="js/help.js?v=20261108222858"></script>
+<script src="js/storage.js?v=20261108222858"></script>
+<script src="js/import.js?v=20261108222858"></script>
+<script src="js/hourly.js?v=20261108222858"></script>
+<script src="js/app.js?v=20261108222858"></script>
 
 </body>
 </html>

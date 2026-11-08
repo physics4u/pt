@@ -41,7 +41,7 @@ var Students = (function () {
         "<td class='num'>" + (n + 1) + "</td>" +
         "<td>" + Utils.fullName(s) + "</td>" +
         "<td>" + (s.school || "\u2014") + "</td>" +
-        "<td>" + (s.cls    || "\u2014") + "</td>" +
+        "<td>" + (Utils.grade(s.cls) || "\u2014") + "</td>" +
         "<td><span class='badge badge-" + bc + "'>" + (s.batch || "Regular") + "</span></td>" +
         "<td>" + (s.phone  || "\u2014") + "</td>" +
         "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +

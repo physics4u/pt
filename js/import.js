@@ -30,8 +30,8 @@ var ImportPage = (function () {
       " records are ready to import. Compare with the workbook's Home screen:</div>" +
       "<table class='guide-table'>" +
         row("Students", S.students + " (" + S.hourlyStudents + " hourly)") +
-        row("+1 Hours / Days", S.plus1.hours + " / " + S.plus1.days) +
-        row("+2 Hours / Days", S.plus2.hours + " / " + S.plus2.days) +
+        row("Plus 1 Hours / Days", S.plus1.hours + " / " + S.plus1.days) +
+        row("Plus 2 Hours / Days", S.plus2.hours + " / " + S.plus2.days) +
         row("Hourly hours", S.hourlyHours) +
         row("Fees paid", S.totalPaid + " <span class='muted'>(regular " + S.regularPaid + " + hourly " + S.hourlyPaid + ")</span>") +
         row("Unpaid regular months", S.pendingMonths) +

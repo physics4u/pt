@@ -28,7 +28,7 @@ var Classes = (function () {
         "<td>" + c.name + "</td>" +
         "<td>" + c.day  + "</td>" +
         "<td>" + c.start + " \u2013 " + c.end + "</td>" +
-        "<td><span class='badge badge-blue'>" + c.level + "</span></td>" +
+        "<td><span class='badge badge-blue'>" + Utils.grade(c.level) + "</span></td>" +
         "<td>" + (c.tutor || "\u2014") + "</td>" +
         "<td><span class='badge badge-green'>" + (cnt[c.name] || 0) + " students</span></td>" +
         "<td>" + (c.room || "\u2014") + "</td>" +
