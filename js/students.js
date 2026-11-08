@@ -21,6 +21,10 @@ var Students = (function () {
 
     var tbody = Utils.el("students-tbody");
     var empty = Utils.el("students-empty");
+    var total = D.students.length;
+    Utils.el("students-count").innerHTML = list.length === total
+      ? "<b>" + total + "</b> students"
+      : "Showing <b>" + list.length + "</b> of " + total + " students";
 
     if (list.length === 0) {
       tbody.innerHTML = "";

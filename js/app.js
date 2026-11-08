@@ -13,15 +13,25 @@ var Dashboard = (function () {
 
     // ---- Stat cards ----
     var nowDate = new Date(); nowDate.setHours(0,0,0,0);
-    Utils.el("stat-students").textContent = D.students.filter(function (s) {
+    var active = D.students.filter(function (s) {
       if (s.status !== "Active") return false;
       if (s.endDate) {
         var end = new Date(s.endDate); end.setHours(0,0,0,0);
         if (end < nowDate) return false;
       }
       return true;
-    }).length;
-    Utils.el("stat-classes").textContent  = D.classes.length;
+    });
+    var cnt = function (f) { return active.filter(f).length; };
+    var hr = Hourly.isHourly, p1 = function (s) { return s.cls === "Grade XI"; }, p2 = function (s) { return s.cls === "Grade XII"; };
+    var split = function (f) { return cnt(function (s) { return f(s) && !hr(s); }) + " regular \u00b7 " + cnt(function (s) { return f(s) && hr(s); }) + " hourly"; };
+    Utils.el("stat-students").textContent = active.length;
+    Utils.el("stat-students-sub").textContent = split(function () { return true; });
+    Utils.el("stat-p1").textContent = cnt(p1);
+    Utils.el("stat-p1-sub").textContent = split(p1);
+    Utils.el("stat-p2").textContent = cnt(p2);
+    Utils.el("stat-p2-sub").textContent = split(p2);
+    Utils.el("stat-hr").textContent = cnt(hr);
+    Utils.el("stat-hr-sub").textContent = "+1: " + cnt(function (s) { return hr(s) && p1(s); }) + " \u00b7 +2: " + cnt(function (s) { return hr(s) && p2(s); });
 
     // Group fees (this academic year) + hourly payments
     var rev = 0, owed = 0, owedCount = 0;
@@ -43,7 +53,7 @@ var Dashboard = (function () {
     Utils.el("stat-pending").textContent = "\u20b9" + Math.round(owed).toLocaleString("en-IN");
     Utils.el("stat-pending-sub").textContent = owed > 0 ? "fees not yet paid" : "all fees paid";
     Utils.el("stat-hourly").textContent = Hourly.hm(H.hours);
-    Utils.el("stat-hourly-sub").textContent = D.students.filter(Hourly.isHourly).length + " hourly students";
+    Utils.el("stat-hourly-sub").textContent = "one-to-one sessions";
 
     // ---- Grade hours & days tiles ----
     _renderGradeStats(D, "Grade XI",  "stat-xi-hours",  "stat-xi-days");
@@ -107,6 +117,10 @@ var Dashboard = (function () {
   // ----------------------------------------------------------------
   //  Revenue bar chart (vertical)
   // ----------------------------------------------------------------
+  function _chartFont() {
+    return document.documentElement.classList.contains("font-courier") ? "'Courier New', Courier, monospace" : "'Segoe UI', Roboto, Arial, sans-serif";
+  }
+
   // Read a colour from the current theme (so charts follow light/dark).
   function _css(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -180,7 +194,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + chartW, yPx); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "13px 'Segoe UI', Roboto, Arial, sans-serif";
+      ctx.font = "13px "+_chartFont()+"";
       var lbl = yVal >= 100000 ? "\u20b9" + (yVal/100000).toFixed(1) + "L"
               : yVal >= 1000   ? "\u20b9" + _k(yVal) + "k" : "\u20b9" + yVal;
       ctx.fillText(lbl, PAD_L - 8, yPx);
@@ -211,7 +225,7 @@ var Dashboard = (function () {
       if (val > 0) {
         ctx.fillStyle = COL_VALUE;
         ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "bold 12.5px 'Segoe UI', Roboto, Arial, sans-serif";
+        ctx.font = "bold 12.5px "+_chartFont()+"";
         var vlbl = "\u20b9" + val.toLocaleString("en-IN");
         ctx.fillText(vlbl, x + barW / 2, y - 3);
       }
@@ -222,12 +236,12 @@ var Dashboard = (function () {
       var cx = x + barW / 2;
       var yBase = PAD_T + chartH + 6;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "12px 'Segoe UI', Roboto, Arial, sans-serif";
+      ctx.font = "12px "+_chartFont()+"";
       ctx.fillText(mo, cx, yBase);
       // Draw year label below the month row at Jan of each year and at first bar
       if (p[1] === "01" || idx === 0) {
         ctx.fillStyle = COL_TEXT;
-        ctx.font = "bold 12px 'Segoe UI', Roboto, Arial, sans-serif";
+        ctx.font = "bold 12px "+_chartFont()+"";
         ctx.fillText("'" + yr, cx, yBase + 14);
       }
     });
@@ -316,7 +330,7 @@ var Dashboard = (function () {
     ctx.clearRect(0, 0, W, H);
 
     // Make room for the longest chapter label (up to 45% of the width).
-    ctx.font = "13px Arial, sans-serif";
+    ctx.font = "13px " + _chartFont();
     var widest = 0;
     activeKeys.forEach(function (k) { widest = Math.max(widest, ctx.measureText(SHORT_LABELS[k] || k).width); });
     PAD_L = Math.min(Math.ceil(widest) + 18, Math.floor(W * 0.55));
@@ -337,7 +351,7 @@ var Dashboard = (function () {
     if (niceMax === 0) niceMax = 1;
 
     // X-axis grid + labels
-    var xTicks = 4;
+    var xTicks = chartW < 260 ? 2 : 4;          // fewer labels on a narrow chart
     var xStep  = niceMax / xTicks;
     for (var t = 0; t <= xTicks; t++) {
       var xVal = xStep * t;
@@ -345,7 +359,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xPx, PAD_T); ctx.lineTo(xPx, PAD_T + n * ROW_H); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "12px 'Segoe UI', Roboto, Arial, sans-serif";
+      ctx.font = "12px "+_chartFont()+"";
       ctx.fillText(_hm(xVal), xPx, PAD_T + n * ROW_H + 6);
     }
 
@@ -383,7 +397,7 @@ var Dashboard = (function () {
       var shortLabel = SHORT_LABELS[chapter] || chapter;
       ctx.fillStyle = isRev ? COL_REV : COL_LABEL;
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "13px Arial, sans-serif";
+      ctx.font = "13px " + _chartFont();
       // Shorten with "…" if the label still doesn't fit
       var room = PAD_L - 14;
       if (ctx.measureText(shortLabel).width > room) {
@@ -394,8 +408,8 @@ var Dashboard = (function () {
 
       // Hours value
       ctx.fillStyle = COL_VALUE; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = "13px 'Segoe UI', Roboto, Arial, sans-serif";
-      ctx.font = "600 13px 'Segoe UI', Roboto, Arial, sans-serif";
+      ctx.font = "13px "+_chartFont()+"";
+      ctx.font = "600 13px "+_chartFont()+"";
       ctx.fillText(_hm(hrs), PAD_L + barW + 6, y + barH / 2);
     });
   }
@@ -432,7 +446,7 @@ var Theme = (function () {
     var d = Utils.el("theme-dark"), l = Utils.el("theme-light"), m = Utils.el("theme-meta");
     if (d) { d.classList.toggle("on", theme !== "light"); d.setAttribute("aria-checked", theme !== "light"); }
     if (l) { l.classList.toggle("on", theme === "light"); l.setAttribute("aria-checked", theme === "light"); }
-    if (m) m.textContent = "\u00b7 " + (theme === "light" ? "Light" : "Dark");
+    _meta();
     if (save) {
       try { localStorage.setItem("physicshub_theme", theme); } catch (e) {}
       if (currentPage === "dashboard") Dashboard.render();   // redraw charts in new colours
@@ -441,7 +455,30 @@ var Theme = (function () {
 
   function set(theme) { _apply(theme === "light" ? "light" : "dark", true); }
 
-  return { init: init, toggle: toggle, set: set };
+  // "· Dark · Modern" in the Appearance header
+  function _meta() {
+    var el = Utils.el("theme-meta"); if (!el) return;
+    var light = document.documentElement.getAttribute("data-theme") === "light";
+    var courier = document.documentElement.classList.contains("font-courier");
+    el.textContent = "\u00b7 " + (light ? "Light" : "Dark") + " \u00b7 " + (courier ? "Courier New" : "Modern");
+  }
+
+  // Font: Modern (default) or Courier New, remembered on this device.
+  function _font() { try { return localStorage.getItem("pt_font") || "modern"; } catch (e) { return "modern"; } }
+  function setFont(f, quiet) {
+    f = f === "courier" ? "courier" : "modern";
+    document.documentElement.classList.toggle("font-courier", f === "courier");
+    var m = Utils.el("font-modern"), c = Utils.el("font-courier");
+    if (m) m.classList.toggle("on", f === "modern");
+    if (c) c.classList.toggle("on", f === "courier");
+    _meta();
+    if (!quiet) {
+      try { localStorage.setItem("pt_font", f); } catch (e) {}
+      if (currentPage === "dashboard") Dashboard.render();
+    }
+  }
+
+  return { init: init, toggle: toggle, set: set, setFont: setFont, font: _font };
 })();
 
 // ================================================================
@@ -466,5 +503,6 @@ var Theme = (function () {
 
   Utils.el("app-version").textContent = "Version " + PT_VERSION;
   Theme.init();
+  Theme.setFont(Theme.font(), true);
   Data.init();
 })();

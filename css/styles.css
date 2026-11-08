@@ -599,3 +599,14 @@ th.num,td.num{width:44px;color:var(--text3);text-align:right;padding-right:6px;}
 .syllabus-table tbody tr:focus-within td:first-child{box-shadow:inset 4px 0 0 var(--accent);}
 .syllabus-table tbody tr:focus-within .day-label,.syllabus-table tbody tr:focus-within .day-name{color:var(--accent) !important;}
 #students-tbody td:nth-child(4),#students-tbody td:nth-child(5){white-space:nowrap;}
+
+.stat-grid.six{grid-template-columns:repeat(6,1fr);}
+@media (max-width:1100px){ .stat-grid.six{grid-template-columns:repeat(3,1fr);} }
+.autosave-note{font-size:13px;color:var(--text3);white-space:nowrap;}
+.list-count{font-size:14px;color:var(--text2);white-space:nowrap;margin-left:auto;order:10;}
+
+/* Optional font: Courier New everywhere (Settings → Appearance) */
+html.font-courier{--font-ui:"Courier New",Courier,monospace;--font-body:"Courier New",Courier,monospace;}
+html.font-courier body,html.font-courier input,html.font-courier select,html.font-courier textarea,html.font-courier button{font-family:"Courier New",Courier,monospace;}
+html.font-courier .stat-value,html.font-courier .topbar-title,html.font-courier .section-title{font-weight:700;}
+.seg-btn.courier{font-family:"Courier New",Courier,monospace;}
