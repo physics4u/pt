@@ -188,7 +188,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + chartW, yPx); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'Courier New', monospace";
+      ctx.font = "11px 'Segoe UI', Roboto, Arial, sans-serif";
       var lbl = yVal >= 100000 ? "\u20b9" + (yVal/100000).toFixed(1) + "L"
               : yVal >= 1000   ? "\u20b9" + _k(yVal) + "k" : "\u20b9" + yVal;
       ctx.fillText(lbl, PAD_L - 8, yPx);
@@ -219,7 +219,7 @@ var Dashboard = (function () {
       if (val > 0) {
         ctx.fillStyle = COL_VALUE;
         ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "bold 11px 'Courier New', monospace";
+        ctx.font = "bold 11px 'Segoe UI', Roboto, Arial, sans-serif";
         var vlbl = "\u20b9" + val.toLocaleString("en-IN");
         ctx.fillText(vlbl, x + barW / 2, y - 3);
       }
@@ -230,12 +230,12 @@ var Dashboard = (function () {
       var cx = x + barW / 2;
       var yBase = PAD_T + chartH + 6;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'Courier New', monospace";
+      ctx.font = "10px 'Segoe UI', Roboto, Arial, sans-serif";
       ctx.fillText(mo, cx, yBase);
       // Draw year label below the month row at Jan of each year and at first bar
       if (p[1] === "01" || idx === 0) {
         ctx.fillStyle = COL_TEXT;
-        ctx.font = "bold 10px 'Courier New', monospace";
+        ctx.font = "bold 10px 'Segoe UI', Roboto, Arial, sans-serif";
         ctx.fillText("'" + yr, cx, yBase + 14);
       }
     });
@@ -346,7 +346,7 @@ var Dashboard = (function () {
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xPx, PAD_T); ctx.lineTo(xPx, PAD_T + n * ROW_H); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "10px 'Courier New', monospace";
+      ctx.font = "10px 'Segoe UI', Roboto, Arial, sans-serif";
       ctx.fillText(_hm(xVal), xPx, PAD_T + n * ROW_H + 6);
     }
 
@@ -389,8 +389,8 @@ var Dashboard = (function () {
 
       // Hours value
       ctx.fillStyle = COL_VALUE; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = "11px 'Courier New', monospace";
-      ctx.font = "bold 12px Arial, sans-serif";
+      ctx.font = "11px 'Segoe UI', Roboto, Arial, sans-serif";
+      ctx.font = "600 12px 'Segoe UI', Roboto, Arial, sans-serif";
       ctx.fillText(_hm(hrs), PAD_L + barW + 6, y + barH / 2);
     });
   }
