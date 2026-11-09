@@ -156,7 +156,7 @@ var Data = (function () {
         _lsSet(CACHE_KEY, JSON.stringify(D));
         Login.hide();
         Utils.setSyncStatus("loaded");
-        _afterApply();
+        _afterApply(true);
       } else if (resp.error === "unauthorized") {
         _lsDel(TOKEN_KEY);
         Login.show("Your session has ended \u2014 please sign in again.");
@@ -210,12 +210,15 @@ var Data = (function () {
     });
   }
 
-  function _afterApply() {
+  // fresh: newer data arrived while a page is on screen — redraw that page as
+  // the user left it (open sections, chosen month) instead of starting it over
+  function _afterApply(fresh) {
     setTimeZone(D.settings && D.settings.tz);
     applyAcademicYear(viewYear());
     var td = document.getElementById("today-date");
     if (td) td.textContent = Utils.fmtDate(ptToday().date);
-    if (typeof currentPage !== "undefined" && typeof showPage === "function") showPage(currentPage);
+    if (fresh && typeof refreshPage === "function") refreshPage();
+    else if (typeof currentPage !== "undefined" && typeof showPage === "function") showPage(currentPage);
     else Dashboard.render();
   }
 

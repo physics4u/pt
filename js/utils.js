@@ -251,10 +251,27 @@ function applyAcademicYear(start) {
   document.querySelectorAll(".acad-label").forEach(function (e) { e.textContent = "Academic year " + acadLabel(); });
   ["attsheet-month", "syllabus-month"].forEach(function (id) {
     var sel = Utils.el(id); if (!sel) return;
+    var keep = sel.value;                              // keep the chosen month if it's in this year
     sel.innerHTML = ACYR.map(function (ym) { return "<option value='" + ym + "'>" + ACYR_LBL[ym] + "</option>"; }).join("");
+    if (keep && ACYR.indexOf(keep) >= 0) sel.value = keep;
   });
 }
 function viewYear() { return _viewYear || defaultAcadStart(); }
+
+// Redraw the page on screen without resetting it (open sections, month, search stay)
+function refreshPage() {
+  var p = currentPage;
+  if (p === "dashboard") Dashboard.render();
+  else if (p === "students") Students.render();
+  else if (p === "classes") Classes.render();
+  else if (p === "attsheet") Attendance.render();
+  else if (p === "syllabus") Syllabus.render();
+  else if (p === "payments") Payments.render();
+  else if (p === "scores") Scores.render();
+  else if (p === "profile") { if (typeof Profile.refresh === "function") Profile.refresh(); }
+  else if (p === "settings") SettingsPage.init();
+  else if (p === "help") Help.init();
+}
 
 function topbarAction() {
   var cfg = PAGE_CFG[currentPage];
