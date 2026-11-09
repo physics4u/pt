@@ -151,6 +151,7 @@ var Students = (function () {
     // Open the section the student is in, so the change is visible
     _open[(student.batch === "Hourly" ? "one|" : "") + (student.cls === "Grade XI" || student.cls === "Grade XII" ? student.cls : "none")] = true;
     render();
+    if (currentPage === "profile" && _editIdx >= 0) Profile.refresh();
   }
 
   function del(i, done) {
@@ -168,7 +169,7 @@ var Students = (function () {
 
   function delCurrent() {
     if (_editIdx < 0) return;
-    del(_editIdx, function () { Utils.closeModal("modal-student"); });
+    del(_editIdx, function () { Utils.closeModal("modal-student"); if (currentPage === "profile") showPage("students"); });
   }
 
   return { show: show, toggle: toggle, render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };

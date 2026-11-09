@@ -1,244 +1,255 @@
 // ================================================================
-//  JS_Profile — Student profile page
-//  Includes: info panel, fee history table, scores, att summary
+//  profile.js — Student profile page
+//
+//  Every part of the profile is a collapsible section (Student details
+//  starts open, the rest closed; a summary is shown on each heading).
+//  Saved entries are locked: hover a row (or the fee / rate) and press
+//  ✏ to change it. Delete / Clear is offered only while editing.
 // ================================================================
 
 var Profile = (function () {
-  var _STATUS_CYCLE = {"":"Pending","Pending":"Paid","Paid":"Overdue","Overdue":""};
+  var _idx = -1;          // student shown
+  var _open = {};         // which sections are open
+  var _edit = null;       // what is being edited: {kind, id}
+  var DEFAULT_OPEN = { details: true };
 
-  function view(idx) {
+  function _esc(t) {
+    return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function money(n) { return "₹" + Math.round(Number(n) || 0).toLocaleString("en-IN"); }
+  function yearLabel() {
+    var y = Number(ACYR_LBL[ACYR[0]].split(" ")[1]);
+    return y + "–" + String(y + 1).slice(2);
+  }
+
+  // ---------- section helper (also used by hourly.js) ----------
+  // actions: HTML shown on the heading (buttons stop the heading from toggling)
+  function sec(key, title, meta, body, actions, cls) {
+    var open = key in _open ? _open[key] : !!DEFAULT_OPEN[key];
+    return "<details class='section pf-sec" + (cls ? " " + cls : "") + "' data-key='" + key + "'" + (open ? " open" : "") +
+      " ontoggle='Profile.toggle(\"" + key + "\", this)'><summary><span class='section-title'>" + title + "</span>" +
+      (meta ? "<span class='section-meta'>&middot; " + meta + "</span>" : "") +
+      (actions ? "<span class='pf-actions' onclick='event.preventDefault()'>" + actions + "</span>" : "") +
+      "<span class='show-pill' aria-hidden='true'></span></summary><div class='pf-body'>" + body + "</div></details>";
+  }
+  function toggle(key, el) { _open[key] = el.open; }
+  function openSec(key) { _open[key] = true; }
+  function editing(kind, id) { return !!_edit && _edit.kind === kind && (id === undefined || _edit.id === id); }
+  function edit(kind, id, secKey) { _edit = { kind: kind, id: id }; if (secKey) _open[secKey] = true; refresh(); }
+  function editId() { return _edit ? _edit.id : null; }
+  function cancel() { _edit = null; refresh(); }
+  function done() { _edit = null; }
+  function refresh() { view(_idx, true); }
+
+  // A locked value with a ✏ that shows on hover (rate per hour, monthly fee)
+  function lockedValue(label, valueHtml, kind, inputHtml, saveCall) {
+    if (editing(kind)) {
+      return "<span class='pf-lock editing'><label>" + label + "</label>" + inputHtml +
+        "<button class='btn btn-primary btn-sm' onclick='" + saveCall + "'>Save</button>" +
+        "<button class='btn btn-secondary btn-sm' onclick='Profile.cancel()'>Cancel</button></span>";
+    }
+    return "<span class='pf-lock'><span class='muted'>" + label + "</span> <b>" + valueHtml + "</b>" +
+      "<button type='button' class='row-edit' title='Change' onclick='Profile.edit(\"" + kind + "\")'>&#9998;</button></span>";
+  }
+
+  // ---------- page ----------
+  function view(idx, keep) {
     var D = Data.get();
     var s = D.students[idx]; if (!s) return;
+    if (!keep || idx !== _idx) { _open = {}; _edit = null; }
+    _idx = idx;
     var name = Utils.fullName(s);
-
     var div = Utils.el("profile-content");
-    div.innerHTML = "";
+    var scrollY = window.scrollY;
 
     // ---- Header ----
-    var hdr = document.createElement("div"); hdr.className = "profile-header";
-    var initials = (s.fname[0] || "") + (s.lname[0] || "");
-    hdr.innerHTML =
-      "<div class='profile-avatar'>" + initials + "</div>" +
-      "<div>" +
-        "<div class='profile-name'>" + name + "</div>" +
-        "<div style='font-size:13px;color:var(--text3)'>" + Utils.grade(s.cls) + " &bull; " + (s.school || "") + "</div>" +
-        "<div class='profile-meta'>" +
-          "<span>&#128222; " + (s.phone || "\u2014") + "</span>" +
-          "<span>&#9993; " + (s.email || "\u2014") + "</span>" +
-          "<span>Batch: " + (s.batch || "Regular") + "</span>" +
-          "<span>Status: <b>" + s.status + "</b></span>" +
+    var initials = ((s.fname || "")[0] || "") + ((s.lname || "")[0] || "");
+    var html =
+      "<div class='profile-header'>" +
+        "<div class='profile-avatar'>" + _esc(initials) + "</div>" +
+        "<div>" +
+          "<div class='profile-name'>" + _esc(name) + "</div>" +
+          "<div style='font-size:13px;color:var(--text3)'>" + Utils.grade(s.cls) + (s.school ? " &bull; " + _esc(s.school) : "") + "</div>" +
+          "<div class='profile-meta'>" +
+            "<span>&#128222; " + _esc(s.phone || "—") + "</span>" +
+            "<span>&#9993; " + _esc(s.email || "—") + "</span>" +
+            "<span>Batch: " + _esc(s.batch || "Regular") + "</span>" +
+            "<span>Status: <b>" + _esc(s.status) + "</b></span>" +
+          "</div>" +
         "</div>" +
-      "</div>" +
-      "<div style='margin-left:auto'>" +
-        "<button class='btn btn-secondary' onclick='showPage(\"students\")' style='font-size:12px'>&#8592; Back</button>" +
+        "<div style='margin-left:auto'><button class='btn btn-secondary' onclick='showPage(\"students\")' style='font-size:12px'>&#8592; Back</button></div>" +
       "</div>";
-    div.appendChild(hdr);
 
-    // ---- Info + Att grid ----
-    var grid = document.createElement("div"); grid.className = "profile-grid";
-
-    // Left: details
-    var detSec = document.createElement("div"); detSec.className = "profile-section";
-    detSec.innerHTML = "<div class='profile-section-title'>Student Details</div>" +
-      _detailRow("Parent", s.parent) +
-      _detailRow("Parent Phone", s.phone) +
-      _detailRow("Student Phone", s.studentPhone) +
-      _detailRow("Email", s.email) +
-      _detailRow("Address", s.address) +
-      _detailRow("Country", s.country) +
-      (Hourly.isHourly(s) ? _detailRow("Rate per hour", s.hourlyRate ? "\u20b9" + s.hourlyRate : "\u2014") +
+    // ---- Details + attendance ----
+    var details =
+      _detailRow("Parent", s.parent) + _detailRow("Parent Phone", s.phone) + _detailRow("Student Phone", s.studentPhone) +
+      _detailRow("Email", s.email) + _detailRow("Address", s.address) + _detailRow("Country", s.country) +
+      (Hourly.isHourly(s) ? _detailRow("Rate per hour", s.hourlyRate ? money(s.hourlyRate) : "") +
                             _detailRow("Group classes", s.groupToo === "yes" ? "Also attends" : "No") : "") +
-      (Hourly.inGroup(s) ? _detailRow("Monthly Fee", s.monthlyFee ? "\u20b9" + s.monthlyFee : "\u2014") : "") +
-      _detailRow("Start Date",  s.startDate  || "\u2014") +
-      _detailRow("End Date",    s.endDate    || "\u2014") +
-      _detailRow("Notes", s.notes);
+      (Hourly.inGroup(s) ? _detailRow("Monthly Fee", s.monthlyFee ? money(s.monthlyFee) : "") : "") +
+      _detailRow("Start Date", s.startDate) + _detailRow("End Date", s.endDate) + _detailRow("Notes", s.notes);
+    var att = _attendance(s, name);
+    html += "<div class='profile-grid'>" +
+      sec("details", "Student details", "", details,
+          "<button type='button' class='row-edit' title='Edit student' onclick='Students.openModal(" + idx + ")'>&#9998;</button>", "pf-hover") +
+      sec("att", "Attendance", att.meta, att.html) +
+    "</div>";
+    div.innerHTML = html;
 
-    // Right: attendance summary
-    var attSec = document.createElement("div"); attSec.className = "profile-section";
-    attSec.innerHTML = "<div class='profile-section-title'>Attendance Summary</div>";
-    var attBody = document.createElement("div"); attBody.style.padding = "12px 20px";
-    var D2 = Data.get();
-    ACYR.forEach(function (ym) {
-      var sk    = "attsheet|" + s.cls + "|" + ym;
-      var sheet = (D2.attsheets || {})[sk] || {};
-      var rec   = Object.assign({}, sheet[name] || {});
-      // One-to-one sessions count as present days
-      if (Hourly.isHourly(s)) Hourly.sessionDays(name, ym).forEach(function (d) { rec[d] = "P"; });
-      var vals  = Object.values(rec);
-      var P     = vals.filter(function (v) { return v === "P"; }).length;
-      var A     = vals.filter(function (v) { return v === "A"; }).length;
-      if (P + A === 0) return;
-      var block = document.createElement("div"); block.className = "att-month-block";
-      block.innerHTML = "<div class='att-month-title'>" + (ACYR_LBL[ym] || ym) + " &mdash; P: " + P + " A: " + A + "</div>";
-      var dots = document.createElement("div"); dots.className = "att-dots";
-      Object.keys(rec).sort(function(a,b){return Number(a)-Number(b);}).forEach(function (d) {
-        var dot = document.createElement("div"); dot.className = "att-dot " + (rec[d] === "P" ? "p" : "a");
-        dot.textContent = d; dots.appendChild(dot);
-      });
-      block.appendChild(dots); attBody.appendChild(block);
-    });
-    if (!attBody.hasChildNodes()) attBody.innerHTML = "<div style='color:var(--text3);font-size:13px'>No attendance recorded yet.</div>";
-    attSec.appendChild(attBody);
+    // ---- Hourly: fees, sessions, payments ----
+    if (Hourly.isHourly(s)) div.insertAdjacentHTML("beforeend", Hourly.profileHtml(idx));
 
-    grid.appendChild(detSec); grid.appendChild(attSec); div.appendChild(grid);
+    // ---- Group class fees ----
+    if (Hourly.inGroup(s)) div.insertAdjacentHTML("beforeend", _feesHtml(s, idx, name));
 
-    // ---- Hourly students: fees, sessions and payments ----
-    if (Hourly.isHourly(s)) Hourly.renderProfile(div, idx);
-
-    // ---- Fee history table (group classes) ----
-    var feeSec = document.createElement("div"); feeSec.className = "profile-full";
-    feeSec.style.marginBottom = "24px";
-    var feeHeader = document.createElement("div"); feeHeader.className = "profile-section-title";
-    feeHeader.style.cssText = "padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between";
-    feeHeader.innerHTML = "<span>" + (Hourly.isHourly(s) ? "Group class fees" : "Fee history") + " (" + ACYR_LBL[ACYR[0]].split(" ")[1] + "\u2013" + String(Number(ACYR_LBL[ACYR[0]].split(" ")[1]) + 1).slice(2) + ")</span>" +
-      "<div style='display:flex;align-items:center;gap:8px'>" +
-        "<label style='font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0'>Monthly Fee</label>" +
-        "<input id='prof-fee-input' type='number' value='" + (s.monthlyFee || "") + "' placeholder='0'" +
-          "style='width:90px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;outline:none'>" +
-        "<button class='btn btn-primary' style='padding:5px 12px;font-size:12px' onclick='Profile.setFee(" + idx + ")'>Set Fee</button>" +
-      "</div>";
-    feeSec.appendChild(feeHeader);
-
-    var feeWrap = document.createElement("div"); feeWrap.style.overflowX = "auto";
-    var feeTable = document.createElement("table"); feeTable.className = "pay-table";
-    feeTable.style.cssText = "margin:0";
-    var ft = feeTable.createTHead(); var fhr = ft.insertRow();
-    ["#","Month","Amount (\u20b9)","Status","Payment Date","Notes"].forEach(function(h){
-      var th = document.createElement("th"); th.textContent = h; if (h === "#") th.className = "num"; fhr.appendChild(th);
-    });
-    var ftb = feeTable.createTBody();
-    var paidCount = 0, pendingCount = 0, overdueCount = 0;
-    ACYR.forEach(function (ym, mi) {
-      var sk  = "paygrid|" + s.cls + "|" + ym;
-      var D3  = Data.get();
-      if (!D3.paygrid)      D3.paygrid      = {};
-      if (!D3.paygrid[sk])  D3.paygrid[sk]  = {};
-      if (!D3.paygrid[sk][name]) D3.paygrid[sk][name] = {status:"", amount:"", notes:"", paydate:""};
-      var rec = D3.paygrid[sk][name];
-      if (rec.status === "Paid")    paidCount++;
-      if (rec.status === "Pending") pendingCount++;
-      if (rec.status === "Overdue") overdueCount++;
-
-      var row = ftb.insertRow();
-      var nc0 = row.insertCell(); nc0.className = "num"; nc0.textContent = mi + 1;
-      // Month
-      var mc = row.insertCell(); mc.style.cssText = "font-weight:500;color:var(--text)"; mc.textContent = ACYR_LBL[ym] || ym;
-      // Amount
-      var ac = row.insertCell();
-      var ai = document.createElement("input"); ai.type = "number"; ai.className = "pay-amount-input";
-      ai.value = rec.amount || s.monthlyFee || ""; ai.placeholder = "0";
-      ai.dataset.sk = sk; ai.dataset.name = name; ai.dataset.field = "amount";
-      ai.addEventListener("input", _feeChange); ac.appendChild(ai);
-      // Status
-      var sc2 = row.insertCell();
-      var sbtn = document.createElement("button");
-      var STATUS_CLASS = {"":"status-none","Pending":"status-pending","Paid":"status-paid","Overdue":"status-overdue"};
-      sbtn.className = "pay-btn " + (STATUS_CLASS[rec.status] || "status-none");
-      sbtn.textContent = rec.status || "\u2014 Unset \u2014";
-      sbtn.dataset.sk = sk; sbtn.dataset.name = name;
-      sbtn.onclick = function () { _cycleStatus(this); };
-      sc2.appendChild(sbtn);
-      // Paydate
-      var dc = row.insertCell();
-      var di = document.createElement("input"); di.type = "date"; di.className = "pay-amount-input"; di.style.width = "140px";
-      di.value = rec.paydate || "";
-      di.dataset.sk = sk; di.dataset.name = name; di.dataset.field = "paydate";
-      di.addEventListener("change", _feeChange); dc.appendChild(di);
-      // Notes
-      var nc = row.insertCell();
-      var ni = document.createElement("input"); ni.type = "text";
-      ni.style.cssText = "background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;width:100%;outline:none";
-      ni.value = rec.notes || ""; ni.placeholder = "Notes...";
-      ni.dataset.sk = sk; ni.dataset.name = name; ni.dataset.field = "notes";
-      ni.addEventListener("input", _feeChange); nc.appendChild(ni);
-    });
-    // Summary row
-    var sr = ftb.insertRow();
-    sr.innerHTML = "<td colspan='3' style='font-weight:600;color:var(--text2)'>Summary</td>" +
-      "<td><span style='color:var(--accent3)'>Paid: " + paidCount + "</span> &nbsp; " +
-          "<span style='color:var(--accent2)'>Pending: " + pendingCount + "</span> &nbsp; " +
-          "<span style='color:var(--danger)'>Overdue: " + overdueCount + "</span></td>" +
-      "<td></td><td></td>";
-
-    feeWrap.appendChild(feeTable); feeSec.appendChild(feeWrap);
-    if (Hourly.inGroup(s)) div.appendChild(feeSec);
-
-    // ---- Report card (test marks) ----
-    Scores.ensure();
-    var scores = (Data.get().scores || []).filter(function (sc) { return sc.student === name; })
-                   .sort(function (a, b) { return String(a.date).localeCompare(b.date); });
-    var scSec = document.createElement("div"); scSec.className = "profile-full";
-    var pcts = scores.filter(function (r) { return Number(r.total) > 0; }).map(function (r) { return Number(r.score) / Number(r.total) * 100; });
-    var avg = pcts.length ? Math.round(pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length) : null;
-    var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); };
-    scSec.innerHTML = "<div class='profile-section-title hourly-head'><span>Report card</span>" +
-      (avg === null ? "" : "<span>Average <b style='color:var(--accent);font-size:18px'>" + avg + "%</b></span>") + "</div>" +
-      (scores.length ? "<table class='tests-table'><thead><tr><th class='num'>#</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>Out of</th><th class='c'>%</th></tr></thead><tbody>" +
-        scores.map(function (r, i) {
-          var p = Number(r.total) > 0 ? Math.round(Number(r.score) / Number(r.total) * 100) : null;
-          var col = p === null ? "" : p >= 75 ? "var(--accent3)" : p >= 50 ? "var(--accent2)" : "var(--danger)";
-          var d = r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-GB", {day: "2-digit", month: "short"}) : "\u2014";
-          return "<tr><td class='num'>" + (i + 1) + "</td><td>" + esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
-            "</td><td>" + esc(r.title) + "</td><td class='c'><b>" + esc(r.score) + "</b></td><td class='c'>" + esc(r.total) +
-            "</td><td class='c' style='color:" + col + ";font-weight:700'>" + (p === null ? "\u2014" : p + "%") + "</td></tr>";
-        }).join("") + "</tbody></table>"
-      : "<div class='empty' style='padding:24px'><div class='empty-text'>No test marks yet.</div></div>");
-    div.appendChild(scSec);
+    // ---- Report card ----
+    div.insertAdjacentHTML("beforeend", _reportHtml(name));
 
     // Switch to profile page
-    document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
-    document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
-    Utils.el("page-profile").classList.add("active");
-    Utils.el("page-title").textContent = name + " \u2014 Profile";
-    Utils.el("page-sub").textContent = Utils.grade(s.cls) + (Hourly.isHourly(s) ? " \u00b7 hourly student" : "");
-    Utils.el("topbar-action").style.display = "none";
-    currentPage = "profile";
+    if (!keep || currentPage !== "profile") {
+      document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
+      document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
+      Utils.el("page-profile").classList.add("active");
+      Utils.el("page-title").textContent = name + " — Profile";
+      Utils.el("page-sub").textContent = Utils.grade(s.cls) + (Hourly.isHourly(s) ? " · hourly student" : "");
+      Utils.el("topbar-action").style.display = "none";
+      currentPage = "profile";
+      window.scrollTo(0, 0);
+    } else {
+      window.scrollTo(0, scrollY);
+    }
+    var f = div.querySelector(".pf-focus"); if (f) f.focus();
+  }
+
+  // ---------- attendance: one compact line per month ----------
+  function _attendance(s, name) {
+    var D = Data.get(), tp = 0, ta = 0;
+    var rows = ACYR.map(function (ym) {
+      var sheet = (D.attsheets || {})["attsheet|" + s.cls + "|" + ym] || {};
+      var rec = Object.assign({}, sheet[name] || {});
+      if (Hourly.isHourly(s)) Hourly.sessionDays(name, ym).forEach(function (d) { rec[d] = "P"; });
+      var days = Object.keys(rec).filter(function (d) { return rec[d] === "P" || rec[d] === "A"; })
+                   .sort(function (a, b) { return Number(a) - Number(b); });
+      if (!days.length) return "";
+      var P = days.filter(function (d) { return rec[d] === "P"; }).length, A = days.length - P;
+      tp += P; ta += A;
+      return "<div class='att-row'><div class='att-row-label'><b>" + (ACYR_LBL[ym] || ym).replace(/^(\w{3})\w* \d{2}(\d{2})$/, "$1 '$2") + "</b>" +
+        "<span><span class='p'>P " + P + "</span> <span class='a'>A " + A + "</span></span></div><div class='att-dots'>" +
+        days.map(function (d) { return "<span class='att-dot " + (rec[d] === "P" ? "p" : "a") + "'>" + d + "</span>"; }).join("") +
+        "</div></div>";
+    }).join("");
+    var pct = tp + ta ? Math.round(tp / (tp + ta) * 100) : null;
+    return {
+      meta: tp + ta ? "P " + tp + " &middot; A " + ta + " &middot; " + pct + "%" : "",
+      html: rows || "<div class='muted' style='padding:12px 16px'>No attendance recorded yet.</div>"
+    };
+  }
+
+  // ---------- group class fees: rows locked, ✏ to change ----------
+  var STATUS_CHIP = { "Paid": "chip-green", "Pending": "chip-gold", "Overdue": "chip-red" };
+  function _rec(s, ym, name) {
+    var g = ((Data.get().paygrid || {})["paygrid|" + s.cls + "|" + ym] || {})[name];
+    return g || { status: "", amount: "", notes: "", paydate: "" };
+  }
+  function _feesHtml(s, idx, name) {
+    var paid = 0, pending = 0, overdue = 0;
+    var rows = ACYR.map(function (ym, i) {
+      var rec = _rec(s, ym, name), st = rec.status || "";
+      if (st === "Paid") paid++; if (st === "Pending") pending++; if (st === "Overdue") overdue++;
+      var amt = rec.amount || s.monthlyFee || "";
+      if (editing("fee", ym)) {
+        var opt = function (v, l) { return "<option value='" + v + "'" + (st === v ? " selected" : "") + ">" + l + "</option>"; };
+        return "<tr class='editing'><td class='num'>" + (i + 1) + "</td><td>" + ACYR_LBL[ym] + "</td>" +
+          "<td><input id='pf-amt' class='pf-focus' type='number' min='0' value='" + _esc(amt) + "' style='width:100px'></td>" +
+          "<td><select id='pf-st'>" + opt("", "— Unset —") + opt("Pending", "Pending") + opt("Paid", "Paid") + opt("Overdue", "Overdue") + "</select></td>" +
+          "<td><input id='pf-date' type='date' value='" + _esc(rec.paydate || "") + "'></td>" +
+          "<td><input id='pf-notes' value='" + _esc(rec.notes || "") + "' placeholder='Notes'></td>" +
+          "<td class='pf-row-actions'><button class='btn btn-primary btn-sm' onclick='Profile.saveFee(\"" + ym + "\")'>Save</button>" +
+            "<button class='btn btn-secondary btn-sm' onclick='Profile.cancel()'>Cancel</button>" +
+            (st || rec.paydate || rec.notes ? "<button class='btn btn-danger btn-sm' onclick='Profile.clearFee(\"" + ym + "\")'>Clear month</button>" : "") +
+          "</td></tr>";
+      }
+      return "<tr><td class='num'>" + (i + 1) + "</td><td>" + ACYR_LBL[ym] + "</td>" +
+        "<td>" + (amt ? money(amt) : "—") + "</td>" +
+        "<td>" + (st ? "<span class='chip " + STATUS_CHIP[st] + "'>" + st + "</span>" : "<span class='muted'>—</span>") + "</td>" +
+        "<td>" + _esc(rec.paydate || "") + "</td><td>" + _esc(rec.notes || "") + "</td>" +
+        "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"fee\",\"" + ym + "\",\"fees\")", "Change this month") + "</td></tr>";
+    }).join("");
+    var feeLock = lockedValue("Monthly fee", s.monthlyFee ? money(s.monthlyFee) : "—", "mfee",
+      "<input id='pf-mfee' class='pf-focus' type='number' min='0' value='" + _esc(s.monthlyFee || "") + "' placeholder='0'>",
+      "Profile.setFee(" + idx + ")");
+    var meta = "<span style='color:var(--accent3)'>" + paid + " paid</span>" +
+      (pending ? " &middot; <span style='color:var(--accent2)'>" + pending + " pending</span>" : "") +
+      (overdue ? " &middot; <span style='color:var(--danger)'>" + overdue + " overdue</span>" : "");
+    return sec("fees", (Hourly.isHourly(s) ? "Group class fees " : "Fees ") + yearLabel(), meta,
+      "<div style='overflow-x:auto'><table class='tests-table pf-table'><thead><tr><th class='num'>#</th><th>Month</th><th>Amount</th><th>Status</th>" +
+      "<th>Payment date</th><th>Notes</th><th></th></tr></thead><tbody>" + rows + "</tbody></table></div>",
+      feeLock, "pf-full pf-hover");
   }
 
   function setFee(idx) {
-    var D = Data.get();
-    var fee = Utils.el("prof-fee-input").value.trim();
+    var D = Data.get(), fee = Utils.el("pf-mfee").value.trim();
     D.students[idx].monthlyFee = fee;
-    Data.log("Updated monthly fee for <b>" + Utils.fullName(D.students[idx]) + "</b> to \u20b9" + fee);
-    Data.save();
+    Data.log("Updated monthly fee for <b>" + _esc(Utils.fullName(D.students[idx])) + "</b> to ₹" + fee);
+    Data.save(); done(); refresh();
+  }
+  function _grid(ym) {
+    var D = Data.get(), s = D.students[_idx], name = Utils.fullName(s), sk = "paygrid|" + s.cls + "|" + ym;
+    if (!D.paygrid) D.paygrid = {};
+    if (!D.paygrid[sk]) D.paygrid[sk] = {};
+    if (!D.paygrid[sk][name]) D.paygrid[sk][name] = { status: "", amount: "", notes: "", paydate: "" };
+    return D.paygrid[sk][name];
+  }
+  function saveFee(ym) {
+    var r = _grid(ym);
+    r.amount = Utils.el("pf-amt").value.trim(); r.status = Utils.el("pf-st").value;
+    r.paydate = Utils.el("pf-date").value; r.notes = Utils.el("pf-notes").value.trim();
+    if (r.status === "Paid" && !r.paydate) r.paydate = new Date().toISOString().slice(0, 10);
+    Data.save(); done(); refresh();
+  }
+  function clearFee(ym) {
+    Dialog.confirm("Clear " + ACYR_LBL[ym] + "? Its status, payment date and notes will be removed.", { okText: "Clear", danger: true }).then(function (ok) {
+      if (!ok) return;
+      var r = _grid(ym); r.status = ""; r.paydate = ""; r.notes = "";
+      Data.save(); done(); refresh();
+    });
   }
 
-  function _feeChange() {
-    var D = Data.get();
-    var sk = this.dataset.sk; var name = this.dataset.name; var field = this.dataset.field;
-    if (!D.paygrid)       D.paygrid       = {};
-    if (!D.paygrid[sk])   D.paygrid[sk]   = {};
-    if (!D.paygrid[sk][name]) D.paygrid[sk][name] = {status:"", amount:"", notes:"", paydate:""};
-    D.paygrid[sk][name][field] = this.value;
-    Data.save();
-  }
-
-  function _cycleStatus(btn) {
-    var D = Data.get();
-    var sk = btn.dataset.sk; var name = btn.dataset.name;
-    if (!D.paygrid)       D.paygrid       = {};
-    if (!D.paygrid[sk])   D.paygrid[sk]   = {};
-    if (!D.paygrid[sk][name]) D.paygrid[sk][name] = {status:"", amount:"", notes:"", paydate:""};
-    var cur  = D.paygrid[sk][name].status || "";
-    var next = _STATUS_CYCLE[cur] !== undefined ? _STATUS_CYCLE[cur] : "";
-    D.paygrid[sk][name].status = next;
-    Data.save();
-    var STATUS_CLASS = {"":"status-none","Pending":"status-pending","Paid":"status-paid","Overdue":"status-overdue"};
-    btn.className   = "pay-btn " + (STATUS_CLASS[next] || "status-none");
-    btn.textContent = next || "\u2014 Unset \u2014";
+  // ---------- report card ----------
+  function _reportHtml(name) {
+    Scores.ensure();
+    var scores = (Data.get().scores || []).filter(function (sc) { return sc.student === name; })
+                   .sort(function (a, b) { return String(a.date).localeCompare(b.date); });
+    var pcts = scores.filter(function (r) { return Number(r.total) > 0; }).map(function (r) { return Number(r.score) / Number(r.total) * 100; });
+    var avg = pcts.length ? Math.round(pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length) : null;
+    var body = scores.length ?
+      "<table class='tests-table'><thead><tr><th class='num'>#</th><th>Test #</th><th>Date</th><th>Portions</th><th class='c'>Marks</th><th class='c'>Out of</th><th class='c'>%</th></tr></thead><tbody>" +
+      scores.map(function (r, i) {
+        var p = Number(r.total) > 0 ? Math.round(Number(r.score) / Number(r.total) * 100) : null;
+        var col = p === null ? "" : p >= 75 ? "var(--accent3)" : p >= 50 ? "var(--accent2)" : "var(--danger)";
+        var d = r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-GB", {day: "2-digit", month: "short"}) : "—";
+        return "<tr><td class='num'>" + (i + 1) + "</td><td>" + _esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
+          "</td><td>" + _esc(r.title) + "</td><td class='c'><b>" + _esc(r.score) + "</b></td><td class='c'>" + _esc(r.total) +
+          "</td><td class='c' style='color:" + col + ";font-weight:700'>" + (p === null ? "—" : p + "%") + "</td></tr>";
+      }).join("") + "</tbody></table>"
+      : "<div class='muted' style='padding:16px'>No test marks yet.</div>";
+    return sec("report", "Report card", scores.length ? scores.length + " test" + (scores.length === 1 ? "" : "s") +
+      (avg === null ? "" : " &middot; average <b style='color:var(--accent)'>" + avg + "%</b>") : "", body, "", "pf-full");
   }
 
   function _detailRow(label, value) {
-    return "<div class='profile-detail-row'>" +
-      "<div class='profile-detail-label'>" + label + "</div>" +
-      "<div class='profile-detail-value'>" + (value || "\u2014") + "</div>" +
-    "</div>";
+    return "<div class='profile-detail-row'><div class='profile-detail-label'>" + label + "</div>" +
+      "<div class='profile-detail-value'>" + (value ? _esc(value).replace(/^&#8377;|^₹/, "₹") : "—") + "</div></div>";
   }
 
   function byName(name) {
     var i = Data.get().students.findIndex(function (s) { return Utils.fullName(s) === name; });
-    if (i >= 0) view(i); else Dialog.alert("There is no student called \u201c" + name + "\u201d any more.");
+    if (i >= 0) view(i); else Dialog.alert("There is no student called “" + name + "” any more.");
   }
 
-  return { view: view, byName: byName, setFee: setFee };
+  return { view: view, byName: byName, setFee: setFee, saveFee: saveFee, clearFee: clearFee,
+           sec: sec, toggle: toggle, openSec: openSec, edit: edit, editing: editing, editId: editId, cancel: cancel, done: done,
+           refresh: refresh, lockedValue: lockedValue, money: money, yearLabel: yearLabel };
 })();
