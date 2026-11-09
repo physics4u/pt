@@ -139,7 +139,7 @@ var Utils = (function () {
 var currentPage = "dashboard";
 
 var PAGE_CFG = {
-  dashboard: {title:"Dashboard",        sub:"Students, income and teaching hours for the academic year", btn:null},
+  dashboard: {title:"Dashboard",        sub:"", btn:null},
   students:  {title:"Students",         sub:"Everyone enrolled, with contact details and status", btn:"+ Add student", action:function(){ Students.openModal(); }},
   classes:   {title:"Class schedule",   sub:"Weekly classes by grade", btn:"+ Add class",   action:function(){ Classes.openModal(); }},
   attsheet:  {title:"Attendance",       sub:"Mark present or absent for each class day", btn:null},

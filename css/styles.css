@@ -759,3 +759,16 @@ table.as-week thead th:hover .row-edit{visibility:visible;}
 .guide-dl dt{font-weight:700;color:var(--text);}
 .guide-dl dd{margin:0;color:var(--text2);}
 @media (max-width:640px){ .guide-dl{grid-template-columns:1fr;} .guide-dl dd{margin-bottom:6px;} }
+
+/* ---- Dashboard: compact, fits on one screen ---- */
+#page-dashboard .stat-grid{gap:8px;margin-bottom:8px;}
+#page-dashboard .stat-card{padding:7px 12px 8px;}
+#page-dashboard .stat-label{font-size:12px;}
+#page-dashboard .stat-value,#page-dashboard .stat-card .stat-value{font-size:21px;margin:0;line-height:1.25;}
+#page-dashboard .stat-sub{font-size:11px;line-height:1.2;}
+#page-dashboard .panel-header{padding:7px 14px;}
+#page-dashboard .panel-title{font-size:14px;}
+#page-dashboard .grid2{gap:10px;}
+#page-dashboard .panel{margin-bottom:0;}
+#page-sub:empty{display:none;}
+.content:has(#page-dashboard.active){padding-bottom:12px;}

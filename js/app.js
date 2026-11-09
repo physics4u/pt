@@ -162,83 +162,100 @@ var Dashboard = (function () {
     totalEl.textContent = "Total: \u20b9" + total.toLocaleString("en-IN");
 
     var dpr = window.devicePixelRatio || 1;
-    var W = canvas.parentElement.clientWidth - 48, H = 190;
+    var W = canvas.parentElement.clientWidth - 32, H = 160;
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
 
-    var COL_BAR = _css("--income"), COL_HOV = _css("--income"), COL_GRID = _css("--border");
+    var BASE = _rgb(_css("--income")), COL_GRID = _css("--border");
     var COL_TEXT = _css("--text3"), COL_LABEL = _css("--text2"), COL_VALUE = _css("--text");
-    // Taller bottom padding: two-line X labels (month + year separator)
-    var PAD_L = 64, PAD_R = 16, PAD_T = 18, PAD_B = 40;
+    var PAD_L = 56, PAD_R = 22, PAD_T = 20, PAD_B = 32;
     var chartW = W - PAD_L - PAD_R, chartH = H - PAD_T - PAD_B;
+    var n = labels.length, slot = chartW / n;
+    var barGap = Math.max(6, Math.floor(slot * 0.26));
+    var barW   = Math.max(6, Math.floor(slot - barGap));
+    // 3D: each bar has a top and a right side, drawn up and to the right
+    var DX = Math.max(4, Math.min(10, Math.round(barW * 0.22))), DY = Math.round(DX * 0.7);
 
     var maxVal = Math.max.apply(null, values) || 1;
     var magnitude = Math.pow(10, Math.floor(Math.log10(maxVal)));
     var niceMax = Math.ceil(maxVal / magnitude) * magnitude;
-    var yTicks = 5, yStep = niceMax / yTicks;
+    var yTicks = 4, yStep = niceMax / yTicks;
 
     ctx.clearRect(0, 0, W, H);
+    var floorY = PAD_T + chartH;
 
+    // Back wall grid (shifted by the depth) and the floor
     for (var t = 0; t <= yTicks; t++) {
       var yVal = yStep * t;
-      var yPx  = PAD_T + chartH - (yVal / niceMax) * chartH;
+      var yPx  = floorY - (yVal / niceMax) * chartH;
       ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + chartW, yPx); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + DX, yPx - DY); ctx.lineTo(PAD_L + chartW + DX, yPx - DY); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "13px "+_chartFont()+"";
-      var lbl = yVal >= 100000 ? "\u20b9" + (yVal/100000).toFixed(1) + "L"
-              : yVal >= 1000   ? "\u20b9" + _k(yVal) + "k" : "\u20b9" + yVal;
-      ctx.fillText(lbl, PAD_L - 8, yPx);
+      ctx.font = "12px " + _chartFont();
+      var lbl = yVal >= 100000 ? "₹" + (yVal / 100000).toFixed(1) + "L"
+              : yVal >= 1000   ? "₹" + _k(yVal) + "k" : "₹" + yVal;
+      ctx.fillText(lbl, PAD_L - 6, yPx);
     }
+    ctx.fillStyle = "rgba(" + BASE.join(",") + ",0.08)";
+    ctx.beginPath(); ctx.moveTo(PAD_L, floorY); ctx.lineTo(PAD_L + DX, floorY - DY);
+    ctx.lineTo(PAD_L + chartW + DX, floorY - DY); ctx.lineTo(PAD_L + chartW, floorY); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = COL_GRID; ctx.beginPath(); ctx.moveTo(PAD_L, floorY); ctx.lineTo(PAD_L + chartW, floorY); ctx.stroke();
 
-    var n = labels.length;
-    var barGap = Math.max(4, Math.floor(chartW / n * 0.18));
-    var barW   = Math.floor((chartW / n) - barGap);
-    var maxIdx = values.indexOf(Math.max.apply(null, values));
-
+    var front = _shade(BASE, 0), top = _shade(BASE, 0.35), side = _shade(BASE, -0.35);
     labels.forEach(function (ym, idx) {
       var val = values[idx], barH = (val / niceMax) * chartH;
-      var x = PAD_L + idx * (chartW / n) + barGap / 2;
-      var y = PAD_T + chartH - barH;
-      var isMax = idx === maxIdx && val > 0;
-      ctx.fillStyle = isMax ? COL_HOV : COL_BAR;
-      var r = Math.min(4, barW / 2, barH || 0);
+      var x = PAD_L + idx * slot + barGap / 2 - DX / 2;
+      var y = floorY - barH;
       if (barH > 0) {
-        ctx.beginPath();
-        ctx.moveTo(x + r, y); ctx.lineTo(x + barW - r, y);
-        ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
-        ctx.lineTo(x + barW, y + barH); ctx.lineTo(x, y + barH);
-        ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath(); ctx.fill();
+        // front face with a soft vertical gradient
+        var g = ctx.createLinearGradient(0, y, 0, floorY);
+        g.addColorStop(0, _shade(BASE, 0.12)); g.addColorStop(1, _shade(BASE, -0.12));
+        ctx.fillStyle = g; ctx.fillRect(x, y, barW, barH);
+        // right side
+        ctx.fillStyle = side;
+        ctx.beginPath(); ctx.moveTo(x + barW, y); ctx.lineTo(x + barW + DX, y - DY);
+        ctx.lineTo(x + barW + DX, floorY - DY); ctx.lineTo(x + barW, floorY); ctx.closePath(); ctx.fill();
+        // top
+        ctx.fillStyle = top;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + DX, y - DY);
+        ctx.lineTo(x + barW + DX, y - DY); ctx.lineTo(x + barW, y); ctx.closePath(); ctx.fill();
       } else {
-        ctx.fillStyle = COL_GRID; ctx.fillRect(x, PAD_T + chartH - 2, barW, 2);
+        ctx.fillStyle = COL_GRID; ctx.fillRect(x, floorY - 2, barW, 2);
       }
       if (val > 0) {
-        ctx.fillStyle = COL_VALUE;
-        ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "bold 12.5px "+_chartFont()+"";
-        var vlbl = "\u20b9" + val.toLocaleString("en-IN");
-        ctx.fillText(vlbl, x + barW / 2, y - 3);
+        ctx.fillStyle = COL_VALUE; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+        var vlbl = val >= 100000 ? "₹" + (val / 100000).toFixed(2) + "L" : "₹" + val.toLocaleString("en-IN");
+        ctx.font = "bold 11.5px " + _chartFont();
+        if (ctx.measureText(vlbl).width > slot + 6) vlbl = val >= 1000 ? "₹" + _k(val) + "k" : vlbl;
+        ctx.fillText(vlbl, x + (barW + DX) / 2, y - DY - 2);
       }
-      // X-axis: month abbreviation on first row, year on second row at Jan boundaries
       var p = ym.split("-");
-      var mo = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][Number(p[1]) - 1];
-      var yr = p[0].slice(2);
+      var mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][Number(p[1]) - 1];
       var cx = x + barW / 2;
-      var yBase = PAD_T + chartH + 6;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.font = "12px "+_chartFont()+"";
-      ctx.fillText(mo, cx, yBase);
-      // Draw year label below the month row at Jan of each year and at first bar
+      ctx.font = "12px " + _chartFont();
+      ctx.fillText(mo, cx, floorY + 5);
       if (p[1] === "01" || idx === 0) {
-        ctx.fillStyle = COL_TEXT;
-        ctx.font = "bold 12px "+_chartFont()+"";
-        ctx.fillText("'" + yr, cx, yBase + 14);
+        ctx.fillStyle = COL_TEXT; ctx.font = "bold 11px " + _chartFont();
+        ctx.fillText("'" + p[0].slice(2), cx, floorY + 18);
       }
     });
-    ctx.strokeStyle = COL_GRID; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD_L, PAD_T + chartH); ctx.lineTo(PAD_L + chartW, PAD_T + chartH); ctx.stroke();
+  }
+
+  // "#34a853" or "rgb(52,168,83)" → [52,168,83]
+  function _rgb(c) {
+    c = String(c || "").trim();
+    var m = /^#([0-9a-f]{6})$/i.exec(c);
+    if (m) { var v = parseInt(m[1], 16); return [v >> 16 & 255, v >> 8 & 255, v & 255]; }
+    m = /(\d+)[ ,]+(\d+)[ ,]+(\d+)/.exec(c);
+    return m ? [+m[1], +m[2], +m[3]] : [52, 168, 83];
+  }
+  // Lighter (f > 0) or darker (f < 0) version of a colour
+  function _shade(rgb, f) {
+    return "rgb(" + rgb.map(function (v) {
+      return Math.round(f >= 0 ? v + (255 - v) * f : v * (1 + f));
+    }).join(",") + ")";
   }
 
   // ----------------------------------------------------------------
@@ -307,13 +324,13 @@ var Dashboard = (function () {
 
     // ---- Drawing ----
     var dpr    = window.devicePixelRatio || 1;
-    var ROW_H  = 26;
+    var ROW_H  = 19;
     var PAD_L  = 210;   // space for chapter labels
     var PAD_R  = 52;    // space for value labels
-    var PAD_T  = 12;
-    var PAD_B  = 32;
+    var PAD_T  = 6;
+    var PAD_B  = 24;
     var n      = activeKeys.length;
-    var W      = canvas.parentElement.clientWidth - 40;
+    var W      = canvas.parentElement.clientWidth - 24;
     var H      = PAD_T + n * ROW_H + PAD_B;
 
     canvas.width  = W * dpr; canvas.height = H * dpr;
@@ -365,7 +382,7 @@ var Dashboard = (function () {
     // Bars + labels
     activeKeys.forEach(function (chapter, idx) {
       var hrs  = hoursMap[chapter];
-      var barH = ROW_H * 0.55;
+      var barH = ROW_H * 0.62;
       var y    = PAD_T + idx * ROW_H + (ROW_H - barH) / 2;
       var barW = (hrs / niceMax) * chartW;
       var isRev = /^Revision/.test(chapter);
