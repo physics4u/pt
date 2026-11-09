@@ -60,10 +60,11 @@ var Payments = (function () {
         (_duesOnly && all.length ? "No dues in " + title + "." : "No group-class students in " + title + ".") + "</div></div>");
     }
     var totals = {}; ACYR.forEach(function (ym) { totals[ym] = { paid: 0, pending: 0, overdue: 0 }; });
-    var head = "<tr><th class='num sticky0'>#</th><th class='sticky1'>Student</th>" +
+    var head = "<tr><th class='num sticky0'>#</th><th class='sticky1'>Student <span class='yr' style='display:inline'>(₹ paid)</span></th>" +
       ACYR.map(function (ym) {
         var p = ym.split("-");
-        return "<th class='c'>" + MONTH_SHORT[Number(p[1]) - 1] + " <span class='yr'>'" + p[0].slice(2) + "</span></th>";
+        var first = ym === ACYR[0] || p[1] === "01";
+        return "<th class='c mo'>" + MONTH_SHORT[Number(p[1]) - 1] + (first ? "<span class='yr'>'" + p[0].slice(2) + "</span>" : "") + "</th>";
       }).join("") +
       "<th class='c' style='color:var(--accent3)'>Paid</th><th class='c' style='color:var(--danger)'>Due</th></tr>";
     var body = list.map(function (s, i) {
@@ -77,7 +78,7 @@ var Payments = (function () {
         if (st === "Paid" && rec.amount) tip.push("Paid ₹" + Number(rec.amount).toLocaleString("en-IN"));
         if (rec.paydate) tip.push("on " + rec.paydate);
         if (rec.notes) tip.push(rec.notes);
-        var txt = st === "Paid" ? (rec.amount ? "₹" + Number(rec.amount).toLocaleString("en-IN") : "Paid") : (st || "—");
+        var txt = st === "Paid" ? (rec.amount ? Number(rec.amount).toLocaleString("en-IN") : "Paid") : (st || "—");
         return "<td class='c'" + (tip.length ? " title='" + _esc(tip.join(" · ")) + "'" : "") + "><span class='pay-pill " +
           (PILL[st] || "pp-none") + "'>" + txt + "</span></td>";
       }).join("");
