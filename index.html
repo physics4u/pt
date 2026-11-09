@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109172143">
+<link rel="stylesheet" href="css/styles.css?v=20261109174024">
 </head>
 <body>
 
@@ -332,6 +332,14 @@
     </div>
   </details>
 
+  <!-- Progress over the years (admins only) -->
+  <details class="section admin-only" id="sec-progress" ontoggle="Progress.toggle(this)">
+    <summary>
+      <span class="section-title">Progress over the years</span><span class="section-meta" id="progress-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body" id="progress-body"></div>
+  </details>
+
   <!-- Google Calendar (admins only) -->
   <details class="section admin-only" id="sec-cal">
     <summary>
@@ -598,6 +606,7 @@
         <dt>Users</dt><dd>Who can sign in, their role and last sign-in. Admins add users and use &#9998; to rename, change role, reset a password, block or delete.</dd>
         <dt>Chapter lists</dt><dd>(Admins) The planner's chapters, one per line. <b>Use the standard NCERT list</b> refills it; nothing changes until <b>Save</b>.</dd>
         <dt>Academic year</dt><dd>(Everyone) Show an earlier or later year everywhere in PT. Only your view changes, and PT opens on the current year again next time. <b>Back to the current year</b> returns.</dd>
+        <dt>Progress over the years</dt><dd>(Admins) Every academic year side by side: fees received (group and hourly), students, teaching hours and fees per student, with growth on the year before, average yearly growth and the best year. The current year is shown lighter as &ldquo;so far&rdquo;.</dd>
         <dt>Google Calendar</dt><dd>(Admins) Turn on, enter the tutor's Google email, <b>Save</b>, then <b>Add all classes now</b>. The owner allows calendar access once the first time (PT shows a message if it hasn't been allowed). For phone reminders the tutor accepts the first invitation and sets Google Calendar's default event notification to 30 minutes.</dd>
         <dt>Time zone</dt><dd>(Admins) Used for "today": the current week, today's date, end dates, the current academic year and times shown. Default India (IST).</dd>
         <dt>Storage</dt><dd>(Admins) Space used, by area. <b>Free up space</b> releases empty space.</dd>
@@ -820,25 +829,26 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109172143"></script>
-<script src="js/version.js?v=20261109172143"></script>
-<script src="js/config.js?v=20261109172143"></script>
-<script src="js/data.js?v=20261109172143"></script>
-<script src="js/utils.js?v=20261109172143"></script>
-<script src="js/students.js?v=20261109172143"></script>
-<script src="js/classes.js?v=20261109172143"></script>
-<script src="js/attendance.js?v=20261109172143"></script>
-<script src="js/syllabus.js?v=20261109172143"></script>
-<script src="js/payments.js?v=20261109172143"></script>
-<script src="js/scores.js?v=20261109172143"></script>
-<script src="js/profile.js?v=20261109172143"></script>
-<script src="js/settings.js?v=20261109172143"></script>
-<script src="js/users.js?v=20261109172143"></script>
-<script src="js/help.js?v=20261109172143"></script>
-<script src="js/storage.js?v=20261109172143"></script>
-<script src="js/import.js?v=20261109172143"></script>
-<script src="js/hourly.js?v=20261109172143"></script>
-<script src="js/app.js?v=20261109172143"></script>
+<script src="js/site-config.js?v=20261109174024"></script>
+<script src="js/version.js?v=20261109174024"></script>
+<script src="js/config.js?v=20261109174024"></script>
+<script src="js/data.js?v=20261109174024"></script>
+<script src="js/utils.js?v=20261109174024"></script>
+<script src="js/students.js?v=20261109174024"></script>
+<script src="js/classes.js?v=20261109174024"></script>
+<script src="js/attendance.js?v=20261109174024"></script>
+<script src="js/syllabus.js?v=20261109174024"></script>
+<script src="js/payments.js?v=20261109174024"></script>
+<script src="js/scores.js?v=20261109174024"></script>
+<script src="js/profile.js?v=20261109174024"></script>
+<script src="js/settings.js?v=20261109174024"></script>
+<script src="js/users.js?v=20261109174024"></script>
+<script src="js/help.js?v=20261109174024"></script>
+<script src="js/storage.js?v=20261109174024"></script>
+<script src="js/import.js?v=20261109174024"></script>
+<script src="js/hourly.js?v=20261109174024"></script>
+<script src="js/progress.js?v=20261109174024"></script>
+<script src="js/app.js?v=20261109174024"></script>
 
 </body>
 </html>

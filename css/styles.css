@@ -9,7 +9,7 @@
   --accent2:#ff8a1f; --accent2-rgb:255 138 31;    /* orange            */
   --accent3:#4ade80; --accent3-rgb:74 222 128;    /* success           */
   --danger:#f87171;  --danger-rgb:248 113 113;
-  --plus1:#ef5350;--plus2:#ff8a1f;--income:#34a853;
+  --plus1:#ef5350;--plus2:#ff8a1f;--income:#34a853;--hourly:#a78bfa;
   --on-accent:#0b2540;
   --text:#f1f5fb;--text2:#b4c3d6;--text3:#7d92ad;
   --card-shadow:0 8px 30px rgba(0,0,0,0.35);
@@ -24,7 +24,7 @@
   --accent2:#d96500; --accent2-rgb:217 101 0;
   --accent3:#15803d; --accent3-rgb:21 128 61;
   --danger:#dc2626;  --danger-rgb:220 38 38;
-  --plus1:#e0433c;--plus2:#f07800;--income:#2e9a4b;
+  --plus1:#e0433c;--plus2:#f07800;--income:#2e9a4b;--hourly:#7c5cd6;
   --on-accent:#ffffff;
   --text:#0e2d4a;--text2:#3d5470;--text3:#7a8ca3;
   --card-shadow:0 8px 24px rgba(15,36,64,0.12);
@@ -888,3 +888,18 @@ details.section:not([open]):hover{opacity:1;}
 .pt-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--text3);cursor:pointer;
   padding:4px;line-height:0;border-radius:6px;}
 .pt-eye:hover{color:var(--accent);background:var(--surface2);}
+
+/* ---- Settings → Progress over the years ---- */
+.prog-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px;}
+.prog-kpis>div{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
+.prog-kpis span{font-size:12px;color:var(--text2);}
+.prog-kpis b{font-size:18px;color:var(--text);}
+.prog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px;}
+.prog-chart{border:1px solid var(--border);border-radius:10px;padding:10px 8px 6px;background:var(--surface);min-width:0;}
+.prog-chart canvas{display:block;margin:0 auto;}
+.prog-title{font-weight:600;font-size:13.5px;padding:0 4px 4px;color:var(--text);}
+.prog-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text2);padding:0 4px 4px;}
+.prog-legend span{display:inline-flex;align-items:center;gap:5px;}
+.prog-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.prog-table td,.prog-table th{white-space:nowrap;}
+@media (max-width:820px){.prog-grid{grid-template-columns:1fr;}}

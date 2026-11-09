@@ -28,34 +28,13 @@ var Dashboard = (function () {
     Utils.el("stat-p2-mini").textContent = cnt(p2);
     Utils.el("stat-hr-sub").textContent = "Plus 1: " + cnt(function (s) { return hr(s) && p1(s); }) + " \u00b7 Plus 2: " + cnt(function (s) { return hr(s) && p2(s); });
 
-    // Group fees (this academic year) + hourly payments
-    var rev = 0, owed = 0, owedCount = 0;
-    var byName = {};
-    D.students.forEach(function (s) { byName[Utils.fullName(s)] = s; });
-    // fees of this year's students only (March/April are shared with the next year)
-    var rc = Utils.rosterCls(), feeMonths = acadEntryMonths();
-    Object.keys(D.paygrid || {}).forEach(function (sk) {
-      if (feeMonths.indexOf(sk.split("|")[2]) < 0) return;
-      Object.keys(D.paygrid[sk]).forEach(function (nm) {
-        var mo = sk.split("|")[2].slice(5);           // March/April are shared by two years:
-        if ((mo === "03" || mo === "04") && rc[nm] !== sk.split("|")[1]) return;   // count this year's students only
-        var r = D.paygrid[sk][nm];
-        if (r.status === "Paid") rev += Number(r.amount) || 0;
-        if (r.status === "Pending" || r.status === "Overdue") {
-          owed += Number(r.amount) || Number((byName[nm] || {}).monthlyFee) || 0; owedCount++;
-        }
-      });
-    });
-    var H = Hourly.totals();
-    rev += H.paid; owed += H.balance;
-    Utils.el("stat-revenue").textContent = "\u20b9" + rev.toLocaleString("en-IN");
-    Utils.el("stat-pending").textContent = "\u20b9" + Math.round(owed).toLocaleString("en-IN");
-    Utils.el("stat-pending-sub").textContent = owed > 0 ? "" : "all paid";
-    Utils.el("stat-hourly").textContent = Hourly.hm(H.hours);
-
-    // ---- Grade hours & days tiles ----
-    _renderGradeStats(D, "Grade XI",  "stat-xi-hours",  "stat-xi-days");
-    _renderGradeStats(D, "Grade XII", "stat-xii-hours", "stat-xii-days");
+    var T = totals();
+    Utils.el("stat-revenue").textContent = "\u20b9" + T.fees.toLocaleString("en-IN");
+    Utils.el("stat-pending").textContent = "\u20b9" + Math.round(T.owed).toLocaleString("en-IN");
+    Utils.el("stat-pending-sub").textContent = T.owed > 0 ? "" : "all paid";
+    Utils.el("stat-hourly").textContent = Hourly.hm(T.hourlyHours);
+    Utils.el("stat-xi-hours").textContent = _hm(T.p1Hours);  Utils.el("stat-xi-days").textContent = T.p1Days;
+    Utils.el("stat-xii-hours").textContent = _hm(T.p2Hours); Utils.el("stat-xii-days").textContent = T.p2Days;
 
     // ---- Charts ----
     // Size the charts to fill the screen: teaching hours ~60%, income ~40%
@@ -101,6 +80,46 @@ var Dashboard = (function () {
     if (period === "PM" && h !== 12) h += 12;
     if (period === "AM" && h === 12) h = 0;
     return h + mn / 60;
+  }
+
+  // ----------------------------------------------------------------
+  //  The year's totals (the academic year on screen): fees received and
+  //  owed (group + hourly), teaching hours/days per class, hourly hours.
+  //  Used by the Dashboard and by Settings → Six-year progress.
+  // ----------------------------------------------------------------
+  function totals() {
+    var D = Data.get(), fees = 0, owed = 0, byName = {};
+    D.students.forEach(function (s) { byName[Utils.fullName(s)] = s; });
+    // fees of this year's students only (March/April are shared with the next year)
+    var rc = Utils.rosterCls(), feeMonths = acadEntryMonths();
+    Object.keys(D.paygrid || {}).forEach(function (sk) {
+      if (feeMonths.indexOf(sk.split("|")[2]) < 0) return;
+      Object.keys(D.paygrid[sk]).forEach(function (nm) {
+        var mo = sk.split("|")[2].slice(5);
+        if ((mo === "03" || mo === "04") && rc[nm] !== sk.split("|")[1]) return;
+        var r = D.paygrid[sk][nm];
+        if (r.status === "Paid") fees += Number(r.amount) || 0;
+        if (r.status === "Pending" || r.status === "Overdue") owed += Number(r.amount) || Number((byName[nm] || {}).monthlyFee) || 0;
+      });
+    });
+    var H = Hourly.totals();
+    var g1 = _gradeTotals(D, "Grade XI"), g2 = _gradeTotals(D, "Grade XII");
+    return { fees: fees + H.paid, groupFees: fees, hourlyFees: H.paid, owed: owed + H.balance, hourlyHours: H.hours,
+             p1Hours: g1.hours, p1Days: g1.days, p2Hours: g2.hours, p2Days: g2.days };
+  }
+  function _gradeTotals(D, grade) {
+    var hours = 0, days = 0;
+    Object.keys(D.syllabus || {}).forEach(function (sk) {
+      if (sk.split("|")[0] !== grade || !_plannerKeyInYear(sk)) return;
+      Object.keys(D.syllabus[sk]).forEach(function (day) {
+        var e = D.syllabus[sk][day];
+        if (!e.chapter) return;
+        var a = _parseTime(e.start), b = _parseTime(e.end);
+        if (a === null || b === null || b <= a) return;
+        hours += b - a; days++;
+      });
+    });
+    return { hours: hours, days: days };
   }
 
   // ----------------------------------------------------------------
@@ -459,7 +478,7 @@ var Dashboard = (function () {
     });
   }
 
-  return { render: render };
+  return { render: render, totals: totals };
 })();
 
 
@@ -543,6 +562,8 @@ var Theme = (function () {
     clearTimeout(_rz);
     _rz = setTimeout(function () {
       if (document.getElementById("page-dashboard").classList.contains("active")) Dashboard.render();
+      var pg = document.getElementById("sec-progress");
+      if (pg && pg.open && document.getElementById("page-settings").classList.contains("active")) Progress.render();
     }, 120);
   });
 

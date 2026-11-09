@@ -14,6 +14,7 @@ var SettingsPage = (function () {
     _renderYear();
     _renderTz();
     _renderCal();
+    if (window.Progress) { Progress.meta(); var pg = Utils.el("sec-progress"); if (pg && pg.open) Progress.render(); }
   }
 
   // ---- Academic year: which year PT shows (this visit only) ----
