@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109002932">
+<link rel="stylesheet" href="css/styles.css?v=20261109004220">
 </head>
 <body>
 
@@ -161,16 +161,7 @@
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
-<select class="filter" id="as-grade" onchange="Attendance.setClass(this.value)">
-        <option value="Grade XI">Plus 1</option>
-        <option value="Grade XII">Plus 2</option>
-      </select>
-      <select class="filter" id="as-status" onchange="Attendance.render()">
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-        <option value="Trial">Trial</option>
-      </select>
+      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
       <select id="attsheet-month" onchange="Attendance.render()" style="width:auto">
         <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
         <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
@@ -180,13 +171,17 @@
         <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
         <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
       </select>
+      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button>
+      <select class="filter" id="as-status" onchange="Attendance.render()">
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Trial">Trial</option>
+      </select>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
-  <div id="as-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
-  <div style="overflow-x:auto">
-    <div id="attsheet-wrap"><div class="empty"><div class="empty-text">Select a class and month.</div></div></div>
-  </div>
+  <div id="attsheet-wrap"></div>
 </div>
     <div id="page-syllabus" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
@@ -575,10 +570,12 @@
     <summary><span class="section-title">Attendance</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <ol>
-        <li>Choose the <b>grade</b>, the <b>month</b>, and whether to show active or all students.</li>
-        <li>Click a day's box for a student to mark it: <b>first click = P</b> (present), <b>second click = A</b> (absent), <b>third click = blank</b>. Each click saves automatically.</li>
+        <li>Choose the <b>month</b> at the top (&#9664; &#9654; move a month at a time) and, if you like, a status filter.</li>
+        <li>Open <b>Plus 1</b> or <b>Plus 2</b>. The month is split into weeks (Monday to Sunday); the current week is already open and marked <b>This week</b>. Each heading shows the class days and the percentage present.</li>
+        <li>Click a student's box on the day: <b>first click = P</b> (present), <b>second click = A</b> (absent), <b>third click = blank</b>. A bar above the table shows the day you're marking, with <b>Mark everyone present</b>; press <b>Done</b> when finished. Each click saves automatically.</li>
       </ol>
-      <p>The P and A columns count each student's month; the bottom row counts each day.</p>
+      <p>A day that has marks is locked. To change it, hover over its date and press <b>&#9998;</b>; <b>Clear day</b> (red) removes all its marks.</p>
+      <p><b>Week</b> shows each student's P / A for that week, <b>Month</b> their percentage present for the month; the bottom row counts who was present each day.</p>
     </div>
   </details>
 
@@ -833,25 +830,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109002932"></script>
-<script src="js/version.js?v=20261109002932"></script>
-<script src="js/config.js?v=20261109002932"></script>
-<script src="js/data.js?v=20261109002932"></script>
-<script src="js/utils.js?v=20261109002932"></script>
-<script src="js/students.js?v=20261109002932"></script>
-<script src="js/classes.js?v=20261109002932"></script>
-<script src="js/attendance.js?v=20261109002932"></script>
-<script src="js/syllabus.js?v=20261109002932"></script>
-<script src="js/payments.js?v=20261109002932"></script>
-<script src="js/scores.js?v=20261109002932"></script>
-<script src="js/profile.js?v=20261109002932"></script>
-<script src="js/settings.js?v=20261109002932"></script>
-<script src="js/users.js?v=20261109002932"></script>
-<script src="js/help.js?v=20261109002932"></script>
-<script src="js/storage.js?v=20261109002932"></script>
-<script src="js/import.js?v=20261109002932"></script>
-<script src="js/hourly.js?v=20261109002932"></script>
-<script src="js/app.js?v=20261109002932"></script>
+<script src="js/site-config.js?v=20261109004220"></script>
+<script src="js/version.js?v=20261109004220"></script>
+<script src="js/config.js?v=20261109004220"></script>
+<script src="js/data.js?v=20261109004220"></script>
+<script src="js/utils.js?v=20261109004220"></script>
+<script src="js/students.js?v=20261109004220"></script>
+<script src="js/classes.js?v=20261109004220"></script>
+<script src="js/attendance.js?v=20261109004220"></script>
+<script src="js/syllabus.js?v=20261109004220"></script>
+<script src="js/payments.js?v=20261109004220"></script>
+<script src="js/scores.js?v=20261109004220"></script>
+<script src="js/profile.js?v=20261109004220"></script>
+<script src="js/settings.js?v=20261109004220"></script>
+<script src="js/users.js?v=20261109004220"></script>
+<script src="js/help.js?v=20261109004220"></script>
+<script src="js/storage.js?v=20261109004220"></script>
+<script src="js/import.js?v=20261109004220"></script>
+<script src="js/hourly.js?v=20261109004220"></script>
+<script src="js/app.js?v=20261109004220"></script>
 
 </body>
 </html>

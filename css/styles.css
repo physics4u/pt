@@ -721,3 +721,21 @@ table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
 .syllabus-table tr.locked td{padding:8px 12px;}
 .syllabus-table tr.syl-today td:first-child .day-label::after{content:" \2022 today";color:var(--accent);font-size:10px;font-weight:700;}
 .syllabus-table .edit-cell{text-align:right;white-space:nowrap;}
+
+/* ---- Attendance: class sections → weeks ---- */
+.as-week{min-width:0;width:100%;}
+.as-week th.name-col,.as-week td.name-col{position:static;min-width:200px;}
+.as-week th.num,.as-week td.num{width:40px;text-align:center;padding-right:4px;}
+.as-week th.day-col{min-width:58px;position:relative;}
+.as-week th.day-col .dn{font-weight:400;font-size:9px;color:var(--text3);}
+.as-week th.today{color:var(--accent);}
+.as-week th.editing,.as-week td.editing{background:rgb(var(--accent-rgb) / 0.10);}
+.as-week th .row-edit{position:absolute;top:2px;right:2px;padding:1px 4px;font-size:11px;}
+table.as-week thead tr:hover .row-edit{visibility:hidden;}
+table.as-week thead th:hover .row-edit{visibility:visible;}
+@media (hover:none){ table.as-week thead th .row-edit{visibility:visible;} }
+.as-week th.sum,.as-week td.sum{min-width:64px;font-size:11px;font-weight:600;}
+.as-btn-p.lockd{cursor:default;border-style:dashed;border-color:transparent;}
+.as-btn-p.lockd.active-p,.as-btn-p.lockd.active-a{border-style:solid;}
+.as-editbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:13px;}
+.as-editbar span{margin-right:auto;color:var(--text2);}
