@@ -13,7 +13,8 @@ var Dashboard = (function () {
 
     // ---- Stat cards ----
     var active = D.students.filter(Utils.isActive);
-    var cnt = function (f) { return active.filter(f).length; };
+    // count people, not records (someone can have a group and an hourly record)
+    var cnt = function (f) { var m = {}; active.filter(f).forEach(function (s) { m[Utils.fullName(s)] = 1; }); return Object.keys(m).length; };
     var hr = Hourly.hourlyIn, p1 = function (s) { return Utils.clsOf(s) === "Grade XI"; }, p2 = function (s) { return Utils.clsOf(s) === "Grade XII"; };
     var split = function (f) { return cnt(function (s) { return f(s) && !hr(s); }) + " regular \u00b7 " + cnt(function (s) { return f(s) && hr(s); }) + " hourly"; };
     Utils.el("stat-students").textContent = active.length;

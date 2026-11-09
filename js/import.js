@@ -59,8 +59,8 @@ var ImportPage = (function () {
         if (!r.ok) { out.className = "import-msg err"; out.innerHTML = "&#9888; " + (r.error || "Import failed."); return; }
         out.className = "import-msg ok";
         var c = r.counts || {};
-        out.innerHTML = "<b>&#10004; Import complete.</b> Imported the " + label + " records: <b>" + c.students + "</b> students (" + c.newStudents + " new, " +
-          c.matched + " already in PT), <b>" + c.sessions + "</b> new hourly sessions, <b>" + c.payments + "</b> new hourly payments, <b>" +
+        out.innerHTML = "<b>&#10004; Import complete.</b> Imported the " + label + " records: <b>" + c.students + "</b> student records for " + label +
+          (c.replaced ? " (replacing " + c.replaced + " from an earlier import)" : "") + ", <b>" + c.sessions + "</b> new hourly sessions, <b>" + c.payments + "</b> new hourly payments, <b>" +
           c.scores + "</b> new test marks, " + c.plannerMonths + " planner months. A backup was made first (" + r.backup + "). " +
           "To see them, choose " + label + " in <b>Academic year</b> above.";
         Data.reload();

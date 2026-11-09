@@ -143,8 +143,10 @@ var Students = (function () {
     // is refused.
     if (_editIdx < 0) {
       var key = function (x) { return (x.fname + " " + x.lname).replace(/\s+/g, " ").trim().toLowerCase(); };
-      if (Data.allStudents().some(function (x) { return key(x) === key(student); })) {
-        Dialog.alert(fname + " " + lname + " is already a student in " + acadLabel() + "."); return;
+      // (a group record and an hourly record with the same name are allowed)
+      var hourly = function (x) { return (x.batch || "Regular") === "Hourly"; };
+      if (Data.allStudents().some(function (x) { return key(x) === key(student) && hourly(x) === hourly(student); })) {
+        Dialog.alert(fname + " " + lname + " is already " + (hourly(student) ? "an hourly" : "a group-class") + " student in " + acadLabel() + "."); return;
       }
     }
     _commit(student);

@@ -105,7 +105,7 @@ var Hourly = (function () {
   // Hourly in the academic year shown: this year, an hourly student; in an
   // earlier year, anyone who had one-to-one sessions that year.
   function hourlyIn(s) {
-    if (isCurrentAcad()) return isHourly(s) && Utils.inYear(s);
+    if (s.yearCls || isCurrentAcad()) return isHourly(s) && Utils.inYear(s);   // each year has its own hourly records
     var n = Utils.fullName(s);
     return sessionsOf(n).some(function (x) { return ACYR.indexOf(String(x.date).slice(0, 7)) >= 0; });
   }
@@ -114,8 +114,10 @@ var Hourly = (function () {
   function totals() {
     var t = { hours: 0, billed: 0, paid: 0, balance: 0, income: {} };
     ACYR.forEach(function (ym) { t.income[ym] = 0; });
+    var seen = {};                                   // one account per person
     Data.get().students.filter(hourlyIn).forEach(function (s) {
-      var name = Utils.fullName(s), a = account(name);
+      var name = Utils.fullName(s); if (seen[name]) return; seen[name] = true;
+      var a = account(name);
       t.hours += a.hours; t.billed += a.billed; t.paid += a.paid; t.balance += Math.max(0, a.balance);
       // Income counts in the month the fees are for (payments applied oldest
       // month first), like the monthly fees of regular students.
