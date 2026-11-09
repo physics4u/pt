@@ -13,6 +13,7 @@ var SettingsPage = (function () {
     _editing("Grade XII", false);
     _renderYear();
     _renderTz();
+    _renderCal();
   }
 
   // ---- Academic year: which year PT shows (this visit only) ----
@@ -75,6 +76,25 @@ var SettingsPage = (function () {
     if (td) td.textContent = ptToday().date.toLocaleDateString("en-GB", {weekday: "short", day: "2-digit", month: "short", year: "numeric"});
   }
 
+  // ---- Google Calendar ----
+  function _renderCal() {
+    var on = Settings.get("calOn") === "yes", t = Settings.get("calTutor") || "";
+    Utils.el("cal-on").checked = on;
+    Utils.el("cal-tutor").value = t;
+    Utils.el("cal-meta").textContent = "\u00b7 " + (on ? "on" + (t ? ", inviting " + t : "") : "off");
+  }
+  function saveCal() {
+    var on = Utils.el("cal-on").checked, t = Utils.el("cal-tutor").value.trim();
+    if (t && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) { Dialog.alert("Please enter a valid email address."); return; }
+    Settings.set("calOn", on ? "yes" : "");
+    Settings.set("calTutor", t);
+    Data.log("Google Calendar " + (on ? "turned on" : "turned off") + (t ? " (tutor " + t + ")" : ""));
+    _renderCal();
+    var out = Utils.el("cal-result");
+    out.className = "import-msg ok";
+    out.innerHTML = "<b>&#10004; Saved.</b> " + (on ? "New and changed classes now go to Google Calendar. Press <b>Add all classes now</b> to add the existing ones." : "Classes are no longer added to Google Calendar.");
+  }
+
   function backup(btn) {
     btn.disabled = true; btn.textContent = "Backing up\u2026";
     Data.backup().then(function (r) {
@@ -129,5 +149,5 @@ var SettingsPage = (function () {
     Utils.el("settings-" + _k(grade)).value = std.join("\n");
   }
 
-  return { init: init, edit: edit, cancel: cancel, save: save, useStandard: useStandard, saveAcad: saveAcad, saveTz: saveTz, backup: backup };
+  return { init: init, edit: edit, cancel: cancel, save: save, useStandard: useStandard, saveAcad: saveAcad, saveTz: saveTz, saveCal: saveCal, backup: backup };
 })();

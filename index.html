@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109032535">
+<link rel="stylesheet" href="css/styles.css?v=20261109033801">
 </head>
 <body>
 
@@ -332,6 +332,25 @@
     </div>
   </details>
 
+  <!-- Google Calendar (admins only) -->
+  <details class="section admin-only" id="sec-cal">
+    <summary>
+      <span class="section-title">Google Calendar</span><span class="section-meta" id="cal-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <label class="check" style="margin-bottom:10px"><input type="checkbox" id="cal-on"> Add classes to Google Calendar</label>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <label for="cal-tutor" style="margin:0">Tutor's Google email</label>
+        <input id="cal-tutor" type="email" placeholder="tutor@gmail.com" style="width:auto;min-width:260px">
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveCal()">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="Classes.syncAll(this)">Add all classes now</button>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">Each class on the Classes page goes into a <b>PT Classes</b> calendar: weekly classes repeat until 30 April, one-off classes happen once. The tutor is invited by email and the class appears in their Google Calendar with a reminder <b>30 minutes</b> before. Changing or deleting a class updates the calendar.</p>
+      <p class="section-note" style="margin:6px 0 0">For the reminder on the tutor's phone: in the Google Calendar app, open <b>Settings &rarr; (their account) &rarr; Default notifications &rarr; Events</b> and choose <b>30 minutes before</b>, and accept the first invitation (Yes).</p>
+      <div id="cal-result" class="import-msg" aria-live="polite"></div>
+    </div>
+  </details>
+
   <!-- Region (admins only) -->
   <details class="section admin-only" id="sec-tz">
     <summary>
@@ -564,7 +583,8 @@
   <details class="section help">
     <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>The weekly timetable. <b>+ Add class</b> (name, day, level, times, tutor, room); &#9998; on a class to change or delete it.</p>
+      <p>The timetable. <b>+ Add class</b>: name, <b>Repeats</b> (every week, or once on a date), day or date, level, times, tutor, room. &#9998; on a class changes or deletes it. Students shows the active students at that level.</p>
+      <p>When <b>Google Calendar</b> is turned on (Settings), each saved class also goes into the <b>PT Classes</b> calendar with a reminder 30 minutes before, and the tutor is invited by email; changes and deletions update the calendar. &#128197; next to the room means the class is in the calendar.</p>
     </div>
   </details>
 
@@ -576,6 +596,7 @@
         <dt>Users</dt><dd>Who can sign in, their role and last sign-in. Admins add users and use &#9998; to rename, change role, reset a password, block or delete.</dd>
         <dt>Chapter lists</dt><dd>(Admins) The planner's chapters, one per line. <b>Use the standard NCERT list</b> refills it; nothing changes until <b>Save</b>.</dd>
         <dt>Academic year</dt><dd>(Everyone) Show an earlier or later year everywhere in PT. Only your view changes, and PT opens on the current year again next time. <b>Back to the current year</b> returns.</dd>
+        <dt>Google Calendar</dt><dd>(Admins) Turn on, enter the tutor's Google email, <b>Save</b>, then <b>Add all classes now</b>. The owner allows calendar access once the first time (PT shows a message if it hasn't been allowed). For phone reminders the tutor accepts the first invitation and sets Google Calendar's default event notification to 30 minutes.</dd>
         <dt>Time zone</dt><dd>(Admins) Used for "today": the current week, today's date, end dates, the current academic year and times shown. Default India (IST).</dd>
         <dt>Storage</dt><dd>(Admins) Space used, by area. <b>Free up space</b> releases empty space.</dd>
         <dt>Import data</dt><dd>(Admins) Add a year's records from its Excel workbook (2021&ndash;22 onwards). <b>Check</b> shows totals to compare; <b>Import</b> adds the year without touching other years, matches students by name and takes a backup first. Then view it with <b>Academic year</b>.</dd>
@@ -730,7 +751,14 @@
     <div class="modal-body">
       <div class="form-row"><label>Class Name *</label><input id="c-name" placeholder="e.g. Plus 1 evening batch"></div>
       <div class="form-grid2">
-        <div class="form-row"><label>Day</label>
+        <div class="form-row"><label>Repeats</label>
+          <select id="c-repeat" onchange="Classes.toggleRepeat()">
+            <option value="weekly">Every week</option>
+            <option value="once">Once (one date)</option>
+          </select>
+        </div>
+        <div class="form-row" id="c-date-row" style="display:none"><label>Date</label><input id="c-date" type="date"></div>
+        <div class="form-row" id="c-day-row"><label>Day</label>
           <select id="c-day">
             <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
             <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
@@ -752,6 +780,7 @@
         <div class="form-row"><label>Room</label><input id="c-room" placeholder="e.g. Room 3A"></div>
       </div>
       <div class="form-row"><label>Monthly Fee (&#8377;)</label><input id="c-fee" type="number" placeholder="1500"></div>
+      <div class="section-note" id="c-cal-note" style="margin:4px 0 0"></div>
     </div>
     <div class="modal-footer">
       <button type="button" class="link-btn danger-link modal-delete" id="modal-class-delete" onclick="Classes.delCurrent()">Delete this class</button>
@@ -788,25 +817,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109032535"></script>
-<script src="js/version.js?v=20261109032535"></script>
-<script src="js/config.js?v=20261109032535"></script>
-<script src="js/data.js?v=20261109032535"></script>
-<script src="js/utils.js?v=20261109032535"></script>
-<script src="js/students.js?v=20261109032535"></script>
-<script src="js/classes.js?v=20261109032535"></script>
-<script src="js/attendance.js?v=20261109032535"></script>
-<script src="js/syllabus.js?v=20261109032535"></script>
-<script src="js/payments.js?v=20261109032535"></script>
-<script src="js/scores.js?v=20261109032535"></script>
-<script src="js/profile.js?v=20261109032535"></script>
-<script src="js/settings.js?v=20261109032535"></script>
-<script src="js/users.js?v=20261109032535"></script>
-<script src="js/help.js?v=20261109032535"></script>
-<script src="js/storage.js?v=20261109032535"></script>
-<script src="js/import.js?v=20261109032535"></script>
-<script src="js/hourly.js?v=20261109032535"></script>
-<script src="js/app.js?v=20261109032535"></script>
+<script src="js/site-config.js?v=20261109033801"></script>
+<script src="js/version.js?v=20261109033801"></script>
+<script src="js/config.js?v=20261109033801"></script>
+<script src="js/data.js?v=20261109033801"></script>
+<script src="js/utils.js?v=20261109033801"></script>
+<script src="js/students.js?v=20261109033801"></script>
+<script src="js/classes.js?v=20261109033801"></script>
+<script src="js/attendance.js?v=20261109033801"></script>
+<script src="js/syllabus.js?v=20261109033801"></script>
+<script src="js/payments.js?v=20261109033801"></script>
+<script src="js/scores.js?v=20261109033801"></script>
+<script src="js/profile.js?v=20261109033801"></script>
+<script src="js/settings.js?v=20261109033801"></script>
+<script src="js/users.js?v=20261109033801"></script>
+<script src="js/help.js?v=20261109033801"></script>
+<script src="js/storage.js?v=20261109033801"></script>
+<script src="js/import.js?v=20261109033801"></script>
+<script src="js/hourly.js?v=20261109033801"></script>
+<script src="js/app.js?v=20261109033801"></script>
 
 </body>
 </html>
