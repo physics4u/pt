@@ -66,7 +66,7 @@ var Attendance = (function () {
       var locked = marked[d] && editing !== d;
       return "<th class='day-col" + (wk ? " weekend-col" : "") + (di === 1 ? " wk-start" : "") + (editing === d ? " editing" : "") +
         (locked ? " locked" : "") + (thisMonth && d === now.getDate() ? " today" : "") +
-        "' title='" + d + " " + MONTHS[month - 1] + " (" + DAYS[di] + ")'>" + d + "<br><span class='dn'>" + DAYS[di].slice(0, 2) + "</span>" +
+        "' title='" + Utils.fmtDate(year + "-" + String(month).padStart(2, "0") + "-" + String(d).padStart(2, "0")) + " (" + DAYS[di] + ")'>" + d + "<br><span class='dn'>" + DAYS[di].slice(0, 2) + "</span>" +
         (locked ? Utils.hoverEdit("Attendance.edit('" + cls + "'," + d + ")", "Change this day") : "") + "</th>";
     }).join("") + "<th class='sum' style='color:var(--accent3)'>P</th><th class='sum' style='color:var(--danger)'>A</th><th class='sum'>%</th></tr>";
 
@@ -95,7 +95,7 @@ var Attendance = (function () {
     }).join("") + "<td></td><td></td><td></td></tr>";
 
     var mPct = allP + allA ? Math.round(allP / (allP + allA) * 100) : null;
-    var bar = editing ? "<div class='as-editbar'><span>Marking <b>" + editing + " " + mon + "</b>: click a box for P → A → blank.</span>" +
+    var bar = editing ? "<div class='as-editbar'><span>Marking <b>" + Utils.fmtDate(year + "-" + String(month).padStart(2, "0") + "-" + String(editing).padStart(2, "0")) + "</b>: click a box for P → A → blank.</span>" +
         "<button class='btn btn-secondary btn-sm' onclick='Attendance.allPresent(\"" + cls + "\"," + editing + ")'>Mark everyone present</button>" +
         (marked[editing] ? "<button class='btn btn-danger btn-sm' onclick='Attendance.clearDay(\"" + cls + "\"," + editing + ")'>Clear day</button>" : "") +
         "<button class='btn btn-primary btn-sm' onclick='Attendance.done(\"" + cls + "\")'>Done</button></div>"
@@ -136,7 +136,7 @@ var Attendance = (function () {
     Data.save(); render();
   }
   function clearDay(cls, d) {
-    Dialog.confirm("Clear attendance for " + d + " " + MONTHS[Number(_ym.split("-")[1]) - 1] + " (" + Utils.grade(cls) + ")?",
+    Dialog.confirm("Clear attendance for " + Utils.fmtDate(_ym + "-" + String(d).padStart(2, "0")) + " (" + Utils.grade(cls) + ")?",
                    { okText: "Clear", danger: true }).then(function (ok) {
       if (!ok) return;
       var sheet = _rec(cls);

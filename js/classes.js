@@ -113,7 +113,7 @@ var Classes = (function () {
   function _date(d) {
     if (!d) return "?";
     var x = new Date(d + "T00:00:00");
-    return isNaN(x) ? d : x.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return Utils.fmtDate(d);
   }
 
   // Settings → Google Calendar: put every class in the calendar

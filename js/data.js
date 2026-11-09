@@ -214,7 +214,7 @@ var Data = (function () {
     setTimeZone(D.settings && D.settings.tz);
     applyAcademicYear(viewYear());
     var td = document.getElementById("today-date");
-    if (td) td.textContent = ptToday().date.toLocaleDateString("en-GB", {weekday:"short", day:"2-digit", month:"short", year:"numeric"});
+    if (td) td.textContent = Utils.fmtDate(ptToday().date);
     if (typeof currentPage !== "undefined" && typeof showPage === "function") showPage(currentPage);
     else Dashboard.render();
   }
@@ -276,11 +276,7 @@ var Data = (function () {
   });
 
   // ---- Activity log ----
-  function _time() {
-    var n = new Date();
-    return n.toLocaleDateString("en-GB", {timeZone: PT_TZ, day:"2-digit", month:"short"}) + " " +
-           n.toLocaleTimeString("en-GB", {timeZone: PT_TZ, hour:"2-digit", minute:"2-digit"});
-  }
+  function _time() { return Utils.dateTime(new Date()); }
 
   function log(txt) {
     if (_me) txt += " \u2014 " + (_me.name || _me.username);

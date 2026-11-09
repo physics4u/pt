@@ -511,9 +511,7 @@ var Theme = (function () {
 //  BOOTSTRAP
 // ================================================================
 (function init() {
-  Utils.el("today-date").textContent = ptToday().date.toLocaleDateString("en-GB", {
-    weekday:"short", day:"2-digit", month:"short", year:"numeric"
-  });
+  Utils.el("today-date").textContent = Utils.fmtDate(ptToday().date);
 
   document.querySelectorAll(".modal-overlay:not(.login-overlay)").forEach(function (m) {
     m.addEventListener("click", function (e) {

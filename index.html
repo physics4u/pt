@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109074739">
+<link rel="stylesheet" href="css/styles.css?v=20261109160602">
 </head>
 <body>
 
@@ -345,7 +345,7 @@
         <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveCal()">Save</button>
         <button class="btn btn-secondary btn-sm" onclick="Classes.syncAll(this)">Add all classes now</button>
       </div>
-      <p class="section-note" style="margin:10px 0 0">Each class on the Classes page goes into a <b>PT Classes</b> calendar: weekly classes repeat until 30 April, one-off classes happen once. The tutor is invited by email and the class appears in their Google Calendar with a reminder <b>30 minutes</b> before. Changing or deleting a class updates the calendar.</p>
+      <p class="section-note" style="margin:10px 0 0">Each class on the Classes page goes into a <b>PT Classes</b> calendar: weekly classes repeat until the end of the academic year (April), one-off classes happen once. The tutor is invited by email and the class appears in their Google Calendar with a reminder <b>30 minutes</b> before. Changing or deleting a class updates the calendar.</p>
       <p class="section-note" style="margin:6px 0 0">For the reminder on the tutor's phone: in the Google Calendar app, open <b>Settings &rarr; (their account) &rarr; Default notifications &rarr; Events</b> and choose <b>30 minutes before</b>, and accept the first invitation (Yes).</p>
       <div id="cal-result" class="import-msg" aria-live="polite"></div>
     </div>
@@ -533,7 +533,7 @@
       <h4>Find a student</h4>
       <p>Students are grouped into Plus 1, Plus 2, Hourly (Plus 1) and Hourly (Plus 2). Typing in the search box opens the sections with a match.</p>
       <h4>Profile</h4>
-      <p>Details, attendance by month, fees, sessions and payments (hourly), and the report card, each in its own section. The &#9998; on <b>Student details</b> opens the edit form.</p>
+      <p>Details, attendance by month, fees, sessions and payments (hourly), and the report card, each in its own section. <b>Attendance</b>, <b>Fees</b> and <b>Report card</b> start with a strip showing the PT logo, the student's name, class, academic year and today's date, so a screenshot is easy to identify. <b>&#128247; Share</b> on those sections makes a picture of the section: on a phone it opens the share menu (e.g. WhatsApp to the parent); on a computer it downloads the picture. The &#9998; on <b>Student details</b> opens the edit form.</p>
       <p class="tip">Changing a student's name leaves their earlier attendance and fees under the old name, so fix spellings early.</p>
     </div>
   </details>
@@ -651,6 +651,7 @@
         <dt>P / A</dt><dd>Present / Absent.</dd>
         <dt>&#9998;</dt><dd>Edit. Shows when you hover over a locked entry.</dd>
         <dt>134:45</dt><dd>134 hours 45 minutes.</dd>
+        <dt>Dates</dt><dd>Always shown as <b>01 Jan 2026</b>, including in date boxes.</dd>
       </dl>
     </div>
   </details>
@@ -819,25 +820,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109074739"></script>
-<script src="js/version.js?v=20261109074739"></script>
-<script src="js/config.js?v=20261109074739"></script>
-<script src="js/data.js?v=20261109074739"></script>
-<script src="js/utils.js?v=20261109074739"></script>
-<script src="js/students.js?v=20261109074739"></script>
-<script src="js/classes.js?v=20261109074739"></script>
-<script src="js/attendance.js?v=20261109074739"></script>
-<script src="js/syllabus.js?v=20261109074739"></script>
-<script src="js/payments.js?v=20261109074739"></script>
-<script src="js/scores.js?v=20261109074739"></script>
-<script src="js/profile.js?v=20261109074739"></script>
-<script src="js/settings.js?v=20261109074739"></script>
-<script src="js/users.js?v=20261109074739"></script>
-<script src="js/help.js?v=20261109074739"></script>
-<script src="js/storage.js?v=20261109074739"></script>
-<script src="js/import.js?v=20261109074739"></script>
-<script src="js/hourly.js?v=20261109074739"></script>
-<script src="js/app.js?v=20261109074739"></script>
+<script src="js/site-config.js?v=20261109160602"></script>
+<script src="js/version.js?v=20261109160602"></script>
+<script src="js/config.js?v=20261109160602"></script>
+<script src="js/data.js?v=20261109160602"></script>
+<script src="js/utils.js?v=20261109160602"></script>
+<script src="js/students.js?v=20261109160602"></script>
+<script src="js/classes.js?v=20261109160602"></script>
+<script src="js/attendance.js?v=20261109160602"></script>
+<script src="js/syllabus.js?v=20261109160602"></script>
+<script src="js/payments.js?v=20261109160602"></script>
+<script src="js/scores.js?v=20261109160602"></script>
+<script src="js/profile.js?v=20261109160602"></script>
+<script src="js/settings.js?v=20261109160602"></script>
+<script src="js/users.js?v=20261109160602"></script>
+<script src="js/help.js?v=20261109160602"></script>
+<script src="js/storage.js?v=20261109160602"></script>
+<script src="js/import.js?v=20261109160602"></script>
+<script src="js/hourly.js?v=20261109160602"></script>
+<script src="js/app.js?v=20261109160602"></script>
 
 </body>
 </html>

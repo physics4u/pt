@@ -47,12 +47,33 @@ var Utils = (function () {
   function curYm() { return ptToday().ym; }
   // Today as "YYYY-MM-DD" in PT's time zone (for date boxes)
   function todayIso() { return ptToday().iso; }
+  // ---- Dates: always "01 Jan 2026" ----
+  var MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  // "2026-01-01", a Date, or "" → "01 Jan 2026" (or "" / the original text if it isn't a date)
+  function fmtDate(v) {
+    if (v === null || v === undefined || v === "") return "";
+    var y, m, d;
+    if (v instanceof Date) { if (isNaN(v)) return ""; y = v.getFullYear(); m = v.getMonth(); d = v.getDate(); }
+    else {
+      var x = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+      if (!x) return String(v);
+      y = +x[1]; m = +x[2] - 1; d = +x[3];
+    }
+    return String(d).padStart(2, "0") + " " + MON3[m] + " " + y;
+  }
+  // Short weekday for a date: "Mon"
+  function weekday(v) {
+    var x = v instanceof Date ? v : new Date(String(v).slice(0, 10) + "T00:00:00");
+    return isNaN(x) ? "" : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][x.getDay()];
+  }
   // A date-time in PT's time zone: "09 Nov 2026 16:45"
   function dateTime(d) {
     d = d instanceof Date ? d : new Date(d);
     if (isNaN(d)) return "";
-    return d.toLocaleDateString("en-GB", { timeZone: PT_TZ, day: "2-digit", month: "short", year: "numeric" }) + " " +
-           d.toLocaleTimeString("en-GB", { timeZone: PT_TZ, hour: "2-digit", minute: "2-digit" });
+    var p = {};
+    new Intl.DateTimeFormat("en-GB", { timeZone: PT_TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })
+      .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
+    return fmtDate(p.year + "-" + p.month + "-" + p.day) + " " + (p.hour === "24" ? "00" : p.hour) + ":" + p.minute;
   }
 
   // ---- A student's class in the academic year shown ----
@@ -154,6 +175,7 @@ var Utils = (function () {
 
   return { el: el, closeModal: closeModal, openModal: openModal,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
+           fmtDate: fmtDate, weekday: weekday,
            isActive: isActive, inYear: inYear, statusIn: statusIn, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
            fullName: fullName, grade: grade,
            studentLink: studentLink, hoverEdit: hoverEdit };
@@ -299,4 +321,65 @@ var Dialog = (function () {
   function alert(msg, opts)   { return _show(msg, opts, false); }
   function confirm(msg, opts) { return _show(msg, opts, true); }
   return { alert: alert, confirm: confirm };
+})();
+
+
+// ================================================================
+//  Date boxes show "01 Jan 2026" whatever the computer's language.
+//  Every <input type="date"> is kept (it holds the value as 2026-01-01)
+//  but hidden behind a box that shows the PT format and opens the
+//  calendar when clicked.
+// ================================================================
+(function () {
+  var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+  Object.defineProperty(HTMLInputElement.prototype, "value", {
+    configurable: true,
+    get: function () { return desc.get.call(this); },
+    set: function (v) { desc.set.call(this, v); if (this._ptSync) this._ptSync(); }
+  });
+
+  function enhance(inp) {
+    if (inp._ptSync || inp.type !== "date") return;
+    var box = document.createElement("span");
+    box.className = "pt-datebox";
+    inp.parentNode.insertBefore(box, inp);
+    box.appendChild(inp);
+    var show = document.createElement("span"); show.className = "pt-date-text"; box.appendChild(show);
+    var icon = document.createElement("span"); icon.className = "pt-date-icon"; icon.innerHTML = "&#128197;"; box.appendChild(icon);
+    var clear = document.createElement("button"); clear.type = "button"; clear.className = "pt-date-clear"; clear.title = "Clear"; clear.innerHTML = "&#215;";
+    box.appendChild(clear);
+    inp._ptSync = function () {
+      var v = desc.get.call(inp);
+      show.textContent = v ? Utils.fmtDate(v) : (inp.getAttribute("placeholder") || "Choose a date");
+      box.classList.toggle("empty", !v);
+      box.classList.toggle("disabled", !!inp.disabled);
+      clear.style.display = v && !inp.required && !inp.disabled ? "" : "none";
+    };
+    inp._ptSync();
+    inp.addEventListener("input", inp._ptSync);
+    inp.addEventListener("change", inp._ptSync);
+    box.addEventListener("click", function (e) {
+      if (e.target === clear || inp.disabled) return;
+      try { inp.showPicker(); } catch (x) { inp.focus(); inp.click(); }
+    });
+    clear.addEventListener("click", function (e) {
+      e.stopPropagation();
+      desc.set.call(inp, ""); inp._ptSync();
+      inp.dispatchEvent(new Event("input", { bubbles: true })); inp.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
+  function scan(root) {
+    if (root.querySelectorAll) root.querySelectorAll("input[type=date]").forEach(enhance);
+    if (root.tagName === "INPUT") enhance(root);
+  }
+  function start() {
+    scan(document);
+    new MutationObserver(function (list) {
+      list.forEach(function (m) {
+        m.addedNodes.forEach(function (n) { if (n.nodeType === 1) scan(n); });
+        if (m.type === "attributes" && m.target._ptSync) m.target._ptSync();
+      });
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled"] });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
