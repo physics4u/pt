@@ -251,7 +251,23 @@ var PAGE_CFG = {
   settings:  {title:"Settings",         sub:"Users, chapter lists, academic year, storage, backups and appearance", btn:null}
 };
 
+// ---- Phone menu: the sidebar slides in over the page (☰ in the top bar) ----
+var Nav = (function () {
+  function _set(open) {
+    document.body.classList.toggle("nav-open", open);
+    var b = document.getElementById("menu-btn"); if (b) b.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  function open() { _set(true); }
+  function close() { _set(false); }
+  function toggle() { _set(!document.body.classList.contains("nav-open")); }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && document.body.classList.contains("nav-open")) close(); });
+  // back on a wide screen: the menu is always there
+  window.addEventListener("resize", function () { if (window.innerWidth > 900) close(); });
+  return { open: open, close: close, toggle: toggle };
+})();
+
 function showPage(id) {
+  Nav.close();
   document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
   document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
 

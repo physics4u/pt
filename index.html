@@ -6,12 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109181342">
+<link rel="stylesheet" href="css/styles.css?v=20261109200628">
 </head>
 <body>
 
 <!-- ===== SIDEBAR ===== -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="logo" onclick="showPage('dashboard')" title="Home">
     <img src="logo.png" alt="PT logo">
     <div>
@@ -38,9 +38,11 @@
   </div>
 </aside>
 
+<div class="nav-backdrop" onclick="Nav.close()"></div>
 <!-- ===== MAIN ===== -->
 <div class="main">
   <div class="topbar">
+    <button type="button" class="menu-btn" id="menu-btn" onclick="Nav.toggle()" aria-label="Menu" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-sub" id="page-sub"></div>
     <div class="year-chip" id="year-chip" title="Academic year" onclick="Utils.openYear()" style="cursor:pointer"></div>
@@ -147,10 +149,10 @@
 </div>
     <div id="page-classes" class="page">
   <div class="panel">
-    <table>
+    <div class="tbl-scroll"><table>
       <thead><tr><th class="num">#</th><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th></th></tr></thead>
       <tbody id="classes-tbody"></tbody>
-    </table>
+    </table></div>
     <div id="classes-empty" class="empty" style="display:none">
       <div class="empty-icon">&#128197;</div>
       <div class="empty-text">No classes scheduled yet.</div>
@@ -165,9 +167,9 @@
         <option value="Grade XI">Plus 1</option>
         <option value="Grade XII">Plus 2</option>
       </select>
-      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
+      <span class="month-step"><button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
       <select id="attsheet-month" onchange="Attendance.render()" style="width:auto"></select>
-      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button>
+      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button></span>
       <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
@@ -182,9 +184,9 @@
         <option value="Grade XI">Plus 1</option>
         <option value="Grade XII">Plus 2</option>
       </select>
-      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
+      <span class="month-step"><button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
       <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto"></select>
-      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button>
+      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button></span>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
@@ -230,10 +232,10 @@
         <b>Admin</b>: also manages users, chapter lists, the academic year and backups.
         The <b>Owner</b> is the built-in <code>admin</code> sign-in that uses the owner passcode; it always works, so you can't be locked out.</p>
 
-      <table class="users-table">
+      <div class="tbl-scroll"><table class="users-table">
         <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Role</th><th>Active</th><th>Last sign-in</th><th></th></tr></thead>
         <tbody id="users-tbody"></tbody>
-      </table>
+      </table></div>
 
       <form class="user-form" id="user-form" onsubmit="return Users.submit(event)" style="display:none">
         <div class="user-form-title" id="user-form-title">Add a user</div>
@@ -493,6 +495,7 @@
     <summary><span class="section-title">How PT pages work</span><span class="section-meta">&middot; sections, locked entries, active students, academic year</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <dl class="guide-dl">
+        <dt>Phones &amp; tablets</dt><dd>On a small screen the menu hides behind <b>&#9776;</b> at the top left. Tap it to open the menu; choosing a page (or tapping beside the menu) closes it. Wide tables scroll sideways.</dd>
         <dt>Sections</dt><dd>Most pages are split into sections you open and close (Plus 1, Plus 2, Hourly, the planner's weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
         <dt>Locked entries &#9998;</dt><dd>Anything already saved is locked so it can't be changed by accident. Hover over it (on a phone or tablet the &#9998; is always shown) and press <b>&#9998;</b> to change it. <b>Delete</b> / <b>Clear</b> (in red) appear only while editing.</dd>
         <dt>Names</dt><dd>Click a student's name anywhere to open their profile.</dd>
@@ -829,26 +832,26 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109181342"></script>
-<script src="js/version.js?v=20261109181342"></script>
-<script src="js/config.js?v=20261109181342"></script>
-<script src="js/data.js?v=20261109181342"></script>
-<script src="js/utils.js?v=20261109181342"></script>
-<script src="js/students.js?v=20261109181342"></script>
-<script src="js/classes.js?v=20261109181342"></script>
-<script src="js/attendance.js?v=20261109181342"></script>
-<script src="js/syllabus.js?v=20261109181342"></script>
-<script src="js/payments.js?v=20261109181342"></script>
-<script src="js/scores.js?v=20261109181342"></script>
-<script src="js/profile.js?v=20261109181342"></script>
-<script src="js/settings.js?v=20261109181342"></script>
-<script src="js/users.js?v=20261109181342"></script>
-<script src="js/help.js?v=20261109181342"></script>
-<script src="js/storage.js?v=20261109181342"></script>
-<script src="js/import.js?v=20261109181342"></script>
-<script src="js/hourly.js?v=20261109181342"></script>
-<script src="js/progress.js?v=20261109181342"></script>
-<script src="js/app.js?v=20261109181342"></script>
+<script src="js/site-config.js?v=20261109200628"></script>
+<script src="js/version.js?v=20261109200628"></script>
+<script src="js/config.js?v=20261109200628"></script>
+<script src="js/data.js?v=20261109200628"></script>
+<script src="js/utils.js?v=20261109200628"></script>
+<script src="js/students.js?v=20261109200628"></script>
+<script src="js/classes.js?v=20261109200628"></script>
+<script src="js/attendance.js?v=20261109200628"></script>
+<script src="js/syllabus.js?v=20261109200628"></script>
+<script src="js/payments.js?v=20261109200628"></script>
+<script src="js/scores.js?v=20261109200628"></script>
+<script src="js/profile.js?v=20261109200628"></script>
+<script src="js/settings.js?v=20261109200628"></script>
+<script src="js/users.js?v=20261109200628"></script>
+<script src="js/help.js?v=20261109200628"></script>
+<script src="js/storage.js?v=20261109200628"></script>
+<script src="js/import.js?v=20261109200628"></script>
+<script src="js/hourly.js?v=20261109200628"></script>
+<script src="js/progress.js?v=20261109200628"></script>
+<script src="js/app.js?v=20261109200628"></script>
 
 </body>
 </html>
