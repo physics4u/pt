@@ -177,7 +177,7 @@ var Profile = (function () {
     if (Hourly.inGroup(s) || hasFees) div.insertAdjacentHTML("beforeend", _feesHtml(s, idx, name));
 
     // ---- Report card ----
-    div.insertAdjacentHTML("beforeend", _reportHtml(name));
+    div.insertAdjacentHTML("beforeend", _reportHtml(name, s));
 
     // Switch to profile page
     if (!keep || currentPage !== "profile") {
@@ -290,9 +290,17 @@ var Profile = (function () {
   }
 
   // ---------- report card ----------
-  function _reportHtml(name) {
+  function _reportHtml(name, s) {
     Scores.ensure();
-    var scores = (Data.get().scores || []).filter(function (sc) { return sc.student === name; })
+    // this year's marks (an earlier year includes its March/April after February)
+    var scores = (Data.get().scores || []).filter(function (sc) {
+      if (sc.student !== name) return false;
+      if (!sc.date) return true;
+      if (sc.date < acadFirstDay() || sc.date > acadEntryLastDay()) return false;
+      var m = sc.date.slice(5, 7);
+      // March/April are shared by two years: keep the marks of this year's class
+      return !(m === "03" || m === "04") || !sc.cls || sc.cls === (Utils.clsOf(s) || s.cls);
+    })
                    .sort(function (a, b) { return String(a.date).localeCompare(b.date); });
     var pcts = scores.filter(function (r) { return Number(r.total) > 0; }).map(function (r) { return Number(r.score) / Number(r.total) * 100; });
     var avg = pcts.length ? Math.round(pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length) : null;

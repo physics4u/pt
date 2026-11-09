@@ -47,6 +47,21 @@ function acadLabel(start) {
   var y = Number((start || ACYR[0]).slice(0, 4));
   return y + "\u2013" + String(y + 1).slice(2);
 }
+// Months whose fees, attendance and marks can belong to the year shown: an
+// earlier year also owns its students' entries in the March and April after it
+// (those months are shared with the next year; names tell them apart).
+function acadEntryMonths() {
+  var m = ACYR.slice();
+  if (m.length === 12) {
+    var last = m[m.length - 1].split("-"), y = +last[0], mo = +last[1];
+    for (var i = 0; i < 2; i++) { mo++; if (mo > 12) { mo = 1; y++; } m.push(y + "-" + String(mo).padStart(2, "0")); }
+  }
+  return m;
+}
+function acadEntryLastDay() {
+  var m = acadEntryMonths(), last = m[m.length - 1], p = last.split("-");
+  return last + "-" + String(new Date(+p[0], +p[1], 0).getDate()).padStart(2, "0");
+}
 function isCurrentAcad() { return ACYR[0] === defaultAcadStart(); }
 // First and last day of the academic year shown, "YYYY-MM-DD"
 function acadFirstDay() { return ACYR[0] + "-01"; }

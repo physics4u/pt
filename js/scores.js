@@ -165,7 +165,17 @@ var Scores = (function () {
 
   function _isActive(name) { return Utils.isActive(_byStudent()[name]); }
   // Tests dated in the academic year shown (undated tests show in every year)
-  function _inYear(t) { return !t.date || (t.date >= acadFirstDay() && t.date <= acadLastDay()); }
+  // A test belongs to the year on screen if it's dated in the year and (in
+  // March/April, which two years share) its marks are for this year's students.
+  function _inYear(t) {
+    if (!t.date) return true;
+    if (t.date < acadFirstDay() || t.date > acadEntryLastDay()) return false;
+    var m = t.date.slice(5, 7), shared = m === "03" || m === "04";
+    if (!shared) return true;
+    var marks = marksOf(t.id); if (!marks.length) return t.date <= acadLastDay();
+    var rc = Utils.rosterCls();
+    return marks.some(function (r) { return rc[r.student] === t.cls; });
+  }
 
   function _headerHtml(t) {
     var s = stats(t), listed = _students(t), n = listed.length;

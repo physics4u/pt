@@ -150,6 +150,11 @@ var Utils = (function () {
     return "<label class='check show-all-toggle'><input type='checkbox'" + (_showAll ? " checked" : "") +
            " onchange='Utils.setShowAll(this.checked)'> Show inactive students</label>";
   }
+  // Names of the students in the year on screen
+  function rosterNames() { var m = {}; Data.allStudents().forEach(function (s) { m[fullName(s)] = true; }); return m; }
+  // Name → class in the year on screen. In March/April (shared by two years) an
+  // entry for "Plus 2" belongs to the year in which that student was Plus 2.
+  function rosterCls() { var m = {}; Data.allStudents().forEach(function (s) { var c = clsOf(s); if (c) m[fullName(s)] = c; }); return m; }
   function shown(s) { return _showAll || isActive(s); }
   function openYear() { showPage("settings"); var d = el("sec-acad"); if (d) { d.open = true; d.scrollIntoView({block: "center"}); } }
 
@@ -176,7 +181,7 @@ var Utils = (function () {
   return { el: el, closeModal: closeModal, openModal: openModal,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
            fmtDate: fmtDate, weekday: weekday,
-           isActive: isActive, inYear: inYear, statusIn: statusIn, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
+           isActive: isActive, inYear: inYear, rosterNames: rosterNames, rosterCls: rosterCls, statusIn: statusIn, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
            fullName: fullName, grade: grade,
            studentLink: studentLink, hoverEdit: hoverEdit };
 })();
