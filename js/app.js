@@ -85,7 +85,7 @@ var Dashboard = (function () {
   // ----------------------------------------------------------------
   //  The year's totals (the academic year on screen): fees received and
   //  owed (group + hourly), teaching hours/days per class, hourly hours.
-  //  Used by the Dashboard and by Settings → Six-year progress.
+  //  Used by the Dashboard and by Settings → Progress over the years.
   // ----------------------------------------------------------------
   function totals() {
     var D = Data.get(), fees = 0, owed = 0, byName = {};
