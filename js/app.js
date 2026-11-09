@@ -319,6 +319,29 @@ var Dashboard = (function () {
   //  emptyId  : element id of the empty-state <div>
   //  totalId  : element id of the total hours <span>
   // ----------------------------------------------------------------
+  // ----------------------------------------------------------------
+  //  Share → a picture of one class's teaching hours for parents:
+  //  drawn afresh at a fixed size (every chapter, full names) with the
+  //  logo, class, academic year, totals and today's date on top.
+  // ----------------------------------------------------------------
+  function shareHours(grade, btn) {
+    var D = Data.get(), T = totals(), lbl = Utils.grade(grade);
+    var hrs = grade === "Grade XI" ? T.p1Hours : T.p2Hours, days = grade === "Grade XI" ? T.p1Days : T.p2Days;
+    var box = document.createElement("div");
+    box.className = "hours-snap";
+    box.innerHTML =
+      "<div class='pf-idstrip'><img src='logo.png' alt=''><div class='pf-id-main'><div class='pf-id-name'>" + lbl + " &middot; Teaching hours</div>" +
+      "<div class='pf-id-sub'>Academic year " + acadLabel() + (isCurrentAcad() ? " (so far)" : "") + "</div></div>" +
+      "<div class='pf-id-right'><div class='pf-id-sum'>" + _hm(hrs) + " hrs &middot; " + days + " class days</div><div class='pf-id-date'>" +
+      Utils.fmtDate(ptToday().iso) + "</div><div class='pf-id-org'>PT &middot; Physics Tuition</div></div></div>" +
+      "<div class='hours-snap-chart'><canvas id='hs-canvas'></canvas><div id='hs-empty' style='display:none;padding:24px;text-align:center;color:var(--text3)'>No classes in the Monthly Planner yet.</div><span id='hs-total' hidden></span></div>" +
+      "<div class='hours-snap-foot'>Hours spent on each chapter, from the class timings. " + _hm(hrs) + " means " + _hm(hrs).replace(":", " hours ").replace(/ 00$/, "") + (/:00$/.test(_hm(hrs)) ? "" : " minutes") + ".</div>";
+    document.body.appendChild(box);
+    _renderSyllabusChart(D, grade, "hs-canvas", "hs-empty", "hs-total", 30);
+    var file = lbl + " - Teaching hours - " + acadLabel().replace("\u2013", "-") + ".png";
+    Utils.snap(box, file, btn).then(function () { box.remove(); }, function () { box.remove(); });
+  }
+
   function _renderSyllabusChart(D, grade, canvasId, emptyId, totalId, rowH, countOnly) {
     var canvas  = Utils.el(canvasId);
     var empty   = Utils.el(emptyId);
@@ -394,7 +417,7 @@ var Dashboard = (function () {
     ctx.clearRect(0, 0, W, H);
 
     // Make room for the longest chapter label (up to 45% of the width).
-    ctx.font = "13px " + _chartFont();
+    ctx.font = (ROW_H >= 24 ? "14px " : "13px ") + _chartFont();   // the size the labels are drawn at
     var widest = 0;
     activeKeys.forEach(function (k) { widest = Math.max(widest, ctx.measureText(SHORT_LABELS[k] || k).width); });
     PAD_L = Math.min(Math.ceil(widest) + 18, Math.floor(W * 0.55));
@@ -478,7 +501,7 @@ var Dashboard = (function () {
     });
   }
 
-  return { render: render, totals: totals, plannerKeyInYear: _plannerKeyInYear };
+  return { render: render, totals: totals, plannerKeyInYear: _plannerKeyInYear, shareHours: shareHours };
 })();
 
 
