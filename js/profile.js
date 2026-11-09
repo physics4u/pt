@@ -32,7 +32,7 @@ var Profile = (function () {
   function sec(key, title, meta, body, actions, cls) {
     var open = key in _open ? _open[key] : !!DEFAULT_OPEN[key];
     if (SHARE[key]) {
-      body = _idStrip(String(title).replace(/<[^>]+>/g, "")) + body;
+      body = _idStrip(String(title).replace(/<[^>]+>/g, ""), meta) + body;
       actions = (actions || "") + "<button type='button' class='btn btn-secondary btn-sm pf-share' title='Make a picture to send' " +
         "onclick='Profile.share(\"" + key + "\", this)'>&#128247; Share</button>";
     }
@@ -43,13 +43,13 @@ var Profile = (function () {
       "<span class='show-pill' aria-hidden='true'></span></summary><div class='pf-body'>" + body + "</div></details>";
   }
   // Logo, student, class, academic year and today's date (for screenshots)
-  function _idStrip(what) {
+  function _idStrip(what, summary) {
     var s = Data.get().students[_idx]; if (!s) return "";
     var cls = Utils.grade(Utils.clsOf(s) || s.cls) + (Hourly.isHourly(s) ? " \u00b7 Hourly" : "");
     var today = Utils.fmtDate(ptToday().date);
     return "<div class='pf-idstrip'><img src='logo.png' alt=''><div class='pf-id-main'><div class='pf-id-name'>" + _esc(Utils.fullName(s)) +
       "</div><div class='pf-id-sub'>" + _esc(cls) + " &middot; Academic year " + acadLabel() + "</div></div>" +
-      "<div class='pf-id-right'><div class='pf-id-what'>" + _esc(what) + "</div><div class='pf-id-date'>" + today +
+      "<div class='pf-id-right'><div class='pf-id-what'>" + _esc(what) + "</div>" + (summary ? "<div class='pf-id-sum'>" + summary + "</div>" : "") + "<div class='pf-id-date'>" + today +
       "</div><div class='pf-id-org'>PT &middot; Physics Tuition</div></div></div>";
   }
 
