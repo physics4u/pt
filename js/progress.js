@@ -207,19 +207,22 @@ var Progress = (function () {
         "<div class='prog-chart'><div class='prog-title'>Teaching hours per year</div>" + _legend(hrs) + "<canvas id='prog-hours'></canvas></div>" +
         "<div class='prog-chart'><div class='prog-title'>Fees per student</div>" + _legend([{ label: "Fees received ÷ students", color: _css("--text3") }]) + "<canvas id='prog-per'></canvas></div>" +
       "</div>" +
-      "<div style='overflow-x:auto'><table class='tests-table prog-table'><thead><tr><th class='num'>#</th><th>Year</th><th class='c'>Students</th>" +
+      "<table class='tests-table prog-table prog-years'><thead><tr><th class='num'>#</th><th>Year</th><th class='c'>Students</th>" +
         "<th class='c'>Plus 1</th><th class='c'>Plus 2</th><th class='c'>Hourly</th><th class='r'>Fees received</th><th class='c'>Growth</th>" +
-        "<th class='r'>Per student</th><th class='c'>Plus 1 hrs / days</th><th class='c'>Plus 2 hrs / days</th><th class='c'>Hourly hrs</th></tr></thead><tbody>" +
+        "<th class='r'>Per student</th><th class='c'>Plus 1<br>hrs / days</th><th class='c'>Plus 2<br>hrs / days</th><th class='c'>Hourly<br>hrs</th></tr></thead><tbody>" +
       rows.map(function (r, i) {
         var g = i && rows[i - 1].fees ? (r.fees - rows[i - 1].fees) / rows[i - 1].fees * 100 : null;
-        return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + r.label + "</b>" + (r.current ? " <span class='muted small'>so far</span>" : "") + "</td>" +
-          "<td class='c'>" + r.students + "</td><td class='c'>" + r.p1 + "</td><td class='c'>" + r.p2 + "</td><td class='c'>" + r.hourly + "</td>" +
-          "<td class='r'>" + money(r.fees) + "</td>" +
-          "<td class='c' style='color:" + (g === null || r.current ? "var(--text3)" : g >= 0 ? "var(--accent3)" : "var(--danger)") + "'>" +
-            (g === null ? "—" : r.current ? "so far" : (g >= 0 ? "+" : "") + Math.round(g) + "%") + "</td>" +
-          "<td class='r'>" + money(r.perStudent) + "</td>" +
-          "<td class='c'>" + hm(r.p1Hours) + " / " + r.p1Days + "</td><td class='c'>" + hm(r.p2Hours) + " / " + r.p2Days + "</td><td class='c'>" + hm(r.hourlyHours) + "</td></tr>";
-      }).join("") + "</tbody></table></div>" +
+        // data-l: the column name, shown beside the value when a phone lays each year out as a card
+        function td(cls, label, v, style) { return "<td class='" + cls + "' data-l='" + label + "'" + (style ? " style='" + style + "'" : "") + ">" + v + "</td>"; }
+        return "<tr><td class='num'>" + (i + 1) + "</td><td class='py'><b>" + r.label + "</b>" + (r.current ? " <span class='muted small'>so far</span>" : "") + "</td>" +
+          td("c", "Students", r.students) + td("c", "Plus 1", r.p1) + td("c", "Plus 2", r.p2) + td("c", "Hourly", r.hourly) +
+          td("r", "Fees received", "<b>" + money(r.fees) + "</b>") +
+          td("c", "Growth", g === null ? "\u2014" : r.current ? "so far" : (g >= 0 ? "+" : "") + Math.round(g) + "%",
+             "color:" + (g === null || r.current ? "var(--text3)" : g >= 0 ? "var(--accent3)" : "var(--danger)")) +
+          td("r", "Per student", money(r.perStudent)) +
+          td("c", "Plus 1 hrs / days", hm(r.p1Hours) + " / " + r.p1Days) + td("c", "Plus 2 hrs / days", hm(r.p2Hours) + " / " + r.p2Days) +
+          td("c", "Hourly hrs", hm(r.hourlyHours)) + "</tr>";
+      }).join("") + "</tbody></table>" +
       "<p class='section-note' style='margin:8px 0 0'>* " + acadLabel(defaultAcadStart()) + " is in progress (shown lighter, “so far”). Students are people enrolled in the year (someone in group and hourly classes counts once). Growth compares fees received with the year before. “Same point last year” counts fees by the day they were received, classes and hourly sessions held, and students who had started, up to today&rsquo;s date in each year.</p>";
     _bars(Utils.el("prog-sofar"), sf, fees, lakh, _growth(sf, "fees", true));
     _bars(Utils.el("prog-fees"), rows, fees, lakh, _growth(rows, "fees"));
