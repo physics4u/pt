@@ -23,6 +23,8 @@ var Dashboard = (function () {
     Utils.el("stat-p2").textContent = cnt(p2);
     Utils.el("stat-p2-sub").textContent = split(p2);
     Utils.el("stat-hr").textContent = cnt(hr);
+    Utils.el("stat-p1-mini").textContent = cnt(p1);
+    Utils.el("stat-p2-mini").textContent = cnt(p2);
     Utils.el("stat-hr-sub").textContent = "Plus 1: " + cnt(function (s) { return hr(s) && p1(s); }) + " \u00b7 Plus 2: " + cnt(function (s) { return hr(s) && p2(s); });
 
     // Group fees (this academic year) + hourly payments
@@ -43,9 +45,8 @@ var Dashboard = (function () {
     rev += H.paid; owed += H.balance;
     Utils.el("stat-revenue").textContent = "\u20b9" + rev.toLocaleString("en-IN");
     Utils.el("stat-pending").textContent = "\u20b9" + Math.round(owed).toLocaleString("en-IN");
-    Utils.el("stat-pending-sub").textContent = owed > 0 ? "fees not yet paid" : "all fees paid";
+    Utils.el("stat-pending-sub").textContent = owed > 0 ? "" : "all paid";
     Utils.el("stat-hourly").textContent = Hourly.hm(H.hours);
-    Utils.el("stat-hourly-sub").textContent = "one-to-one sessions";
 
     // ---- Grade hours & days tiles ----
     _renderGradeStats(D, "Grade XI",  "stat-xi-hours",  "stat-xi-days");
