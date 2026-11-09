@@ -206,7 +206,7 @@ var Profile = (function () {
     var r = _grid(ym);
     r.amount = Utils.el("pf-amt").value.trim(); r.status = Utils.el("pf-st").value;
     r.paydate = Utils.el("pf-date").value; r.notes = Utils.el("pf-notes").value.trim();
-    if (r.status === "Paid" && !r.paydate) r.paydate = new Date().toISOString().slice(0, 10);
+    if (r.status === "Paid" && !r.paydate) r.paydate = Utils.todayIso();
     Data.save(); done(); refresh();
   }
   function clearFee(ym) {

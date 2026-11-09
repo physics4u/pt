@@ -77,11 +77,10 @@ var Scores = (function () {
   function show() { _view = null; _open = {}; render(); }
   // "← All tests" from a mark sheet keeps the sections as they were.
   function back() { _view = null; render(); }
-  function showInactive(on) { _showInactive = !!on; render(); }
+  function showInactive(on) { Utils.setShowAll(on); }
 
   // Which sections are open (kept while moving around PT)
   var _open = {};               // all sections start collapsed when Scores is opened
-  var _showInactive = false;    // mark sheets hide inactive students unless ticked
   function toggle(key, el) { _open[key] = el.open; }
 
   function render() {
@@ -121,11 +120,11 @@ var Scores = (function () {
         "<td class='c'>" + (r && total ? Math.round(Number(r.score) / total * 100) + "%" : "\u2014") + "</td>" + marksBtn(t) + "</tr>";
     };
     var classTests = function (cls) {
-      return D.tests.filter(function (t) { return t.kind !== "one" && t.cls === cls; })
+      return D.tests.filter(function (t) { return t.kind !== "one" && t.cls === cls && _inYear(t); })
         .sort(function (a, b) { return _num(a) - _num(b) || String(a.date).localeCompare(b.date); });
     };
     var oneTests = function (cls) {
-      return D.tests.filter(function (t) { return t.kind === "one" && t.cls === cls; })
+      return D.tests.filter(function (t) { return t.kind === "one" && t.cls === cls && _inYear(t); })
         .sort(function (a, b) { return String(a.student).localeCompare(b.student) || String(a.date).localeCompare(b.date); });
     };
     box.innerHTML =
@@ -149,7 +148,7 @@ var Scores = (function () {
       if (s.cls === t.cls && Hourly.inGroup(s)) names[Utils.fullName(s)] = true;
     });
     marksOf(t.id).forEach(function (r) { names[r.student] = true; });
-    if (!_showInactive) Object.keys(names).forEach(function (n) { if (!_isActive(n)) delete names[n]; });
+    if (!Utils.showAll()) Object.keys(names).forEach(function (n) { if (!_isActive(n)) delete names[n]; });
     return Object.keys(names).sort(function (a, b) {
       var i = order.indexOf(a), j = order.indexOf(b);
       return (i < 0 ? 1e6 : i) - (j < 0 ? 1e6 : j) || a.localeCompare(b);
@@ -165,11 +164,9 @@ var Scores = (function () {
     return n ? " <span class='muted'>(" + n + " hidden)</span>" : "";
   }
 
-  function _isActive(name) {
-    var s = _byStudent()[name]; if (!s) return false;
-    var today = new Date(); today.setHours(0, 0, 0, 0);
-    return s.status === "Active" && !(s.endDate && new Date(s.endDate) < today);
-  }
+  function _isActive(name) { return Utils.isActive(_byStudent()[name]); }
+  // Tests dated in the academic year shown (undated tests show in every year)
+  function _inYear(t) { return !t.date || (t.date >= acadFirstDay() && t.date <= acadLastDay()); }
 
   function _headerHtml(t) {
     var s = stats(t), listed = _students(t), n = listed.length;
@@ -204,7 +201,7 @@ var Scores = (function () {
         "<div class='muted'>Portions: <b style='color:var(--text)'>" + _esc(t.title || "—") + "</b> · " + fmtDate(t.date) + "</div></div></div>" +
         "<div class='sheet-stats' id='sheet-stats'>" + _headerHtml(t) + "</div></div>" +
       "<div class='sheet-body'>" +
-        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><label class='check inactive-toggle'><input type='checkbox' onchange='Scores.showInactive(this.checked)'" + (_showInactive ? " checked" : "") + "> Show inactive students" + (_showInactive ? "" : _hiddenNote(t)) + "</label></div>" +
+        "<div class='panel'><div class='panel-header'><span class='panel-title'>Students' mark sheet</span><label class='check inactive-toggle show-all-toggle'><input type='checkbox' onchange='Utils.setShowAll(this.checked)'" + (Utils.showAll() ? " checked" : "") + "> Show inactive students" + (Utils.showAll() ? "" : _hiddenNote(t)) + "</label></div>" +
           "<div class='sheet-hint muted'>Marks save automatically. Hover a row and press <b>Edit</b> to change a mark or add one later.</div>" +
           "<table class='tests-table mark-table'><thead><tr><th class='num'>#</th><th>Name of student</th><th class='c'>Marks obtained</th><th class='c'>Marks (%)</th><th></th></tr></thead>" +
           "<tbody>" + (rows || "<tr><td colspan='5' class='muted'>No students in this class.</td></tr>") + "</tbody></table></div>" +
@@ -311,14 +308,14 @@ var Scores = (function () {
     ensure();
     var cls = Utils.el("tm-class").value || "Grade XI";
     _fillModal(cls);
-    Utils.el("tm-date").value = new Date().toISOString().slice(0, 10);
+    Utils.el("tm-date").value = Utils.todayIso();
     Utils.el("tm-title").value = ""; Utils.el("tm-total").value = "";
     Utils.openModal("modal-test");
   }
   function _nextNum(cls, student) {
     var n = 0;
     Data.get().tests.forEach(function (t) {
-      if (t.cls === cls && (student ? t.student === student : t.kind !== "one")) n = Math.max(n, _num(t));
+      if (_inYear(t) && t.cls === cls && (student ? t.student === student : t.kind !== "one")) n = Math.max(n, _num(t));
     });
     return "Test " + (n + 1);
   }

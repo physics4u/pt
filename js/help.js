@@ -35,5 +35,9 @@ var Help = (function () {
     });
   }
 
-  return { init: init, search: search };
+  function all(open) {
+    document.querySelectorAll("#page-help details.help").forEach(function (d) { if (d.style.display !== "none") d.open = open; });
+  }
+
+  return { init: init, search: search, all: all };
 })();

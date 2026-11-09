@@ -25,7 +25,6 @@ var Payments = (function () {
       return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
     });
   }
-  function _status() { return (Utils.el("pay-status") || {}).value || ""; }
 
   function _rec(cls, ym, s) {
     var D = Data.get(), name = Utils.fullName(s), sk = "paygrid|" + cls + "|" + ym;
@@ -51,8 +50,7 @@ var Payments = (function () {
 
   // ---------- group classes: month grid ----------
   function _groupSection(cls) {
-    var sf = _status();
-    var all = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && (!sf || s.status === sf); });
+    var all = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); });
     var withDues = all.filter(function (s) { return _dueMonths(s) > 0; });
     var list = _duesOnly ? withDues : all;
     var key = cls, title = Utils.grade(cls);
@@ -101,8 +99,7 @@ var Payments = (function () {
 
   // ---------- hourly students ----------
   function _hourlySection(cls) {
-    var sf = _status();
-    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && s.cls === cls && (!sf || s.status === sf); });
+    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && s.cls === cls && Utils.shown(s); });
     var acc = all.map(function (s) { return { s: s, a: Hourly.account(Utils.fullName(s)) }; });
     var withDues = acc.filter(function (x) { return x.a.balance > 0.5; });
     var list = _duesOnly ? withDues : acc;

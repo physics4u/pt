@@ -66,7 +66,7 @@ var Syllabus = (function () {
     var ym = Utils.el("syllabus-month").value; if (!ym) return;
     var p = ym.split("-"), year = Number(p[0]), month = Number(p[1]);
     var weeks = _weeks(year, month);
-    var now = new Date(), thisMonth = Utils.curYm() === ym;
+    var now = ptToday().date, thisMonth = Utils.curYm() === ym;
     if (_ym !== ym) {                       // new month: open only the current week
       Object.keys(_open).forEach(function (k) { if (k.indexOf("|w") > 0) delete _open[k]; });
       _editing = {};
