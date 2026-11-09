@@ -843,3 +843,11 @@ details.section[open] > summary .show-pill{border-color:rgb(var(--accent-rgb) / 
 details.section:not([open]){opacity:0.92;}
 details.section:not([open]):hover{opacity:1;}
 [data-theme="light"] details.section[open]{box-shadow:0 0 0 1px rgb(var(--accent-rgb) / 0.25),0 6px 18px rgb(0 0 0 / 0.08);}
+
+/* Import result: a coloured box, so it can't be mistaken for the explanation */
+.import-msg:empty{display:none;}
+.import-msg{margin-top:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);border-left-width:4px;font-size:13.5px;line-height:1.5;color:var(--text);background:var(--surface2);}
+.import-msg.ok{border-color:var(--accent3);background:rgb(var(--accent3-rgb) / 0.12);}
+.import-msg.ok b:first-child{color:var(--accent3);}
+.import-msg.err{border-color:var(--danger);background:rgb(var(--danger-rgb) / 0.12);color:var(--danger);font-weight:600;}
+.import-msg.info{border-color:var(--accent);background:rgb(var(--accent-rgb) / 0.10);}
