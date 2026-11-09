@@ -178,7 +178,52 @@ var Utils = (function () {
   // ---- Full name helper ----
   function fullName(s) { return [s.fname, s.lname].filter(function (x) { return x; }).join(" "); }
 
-  return { el: el, closeModal: closeModal, openModal: openModal,
+  // ---- Picture of part of the page (Share): share on a phone, download on a computer ----
+  var _h2c = null;
+  function _loadH2C() {
+    if (window.html2canvas) return Promise.resolve();
+    if (_h2c) return _h2c;
+    _h2c = new Promise(function (ok, no) {
+      var sc = document.createElement("script");
+      sc.src = "js/vendor/html2canvas.min.js";
+      sc.onload = function () { ok(); }; sc.onerror = function () { _h2c = null; no(); };
+      document.head.appendChild(sc);
+    });
+    return _h2c;
+  }
+  function snap(el, file, btn, failMsg) {
+    btn.disabled = true; var label = btn.innerHTML; btn.textContent = "Preparing\u2026";
+    var held = [];
+    var restore = function () { held.forEach(function (h) { h[0].setAttribute("ontoggle", h[1]); }); held = []; };
+    var done = function () { restore(); btn.disabled = false; btn.innerHTML = label; };
+    return _loadH2C().then(function () {
+      el.classList.add("pf-capturing");
+      // the picture is made from a copy of the page: keep the copy's sections quiet
+      document.querySelectorAll("[ontoggle]").forEach(function (e) { held.push([e, e.getAttribute("ontoggle")]); e.removeAttribute("ontoggle"); });
+      var bg = getComputedStyle(document.body).backgroundColor;
+      return window.html2canvas(el, { backgroundColor: bg, scale: 2, useCORS: true, logging: false,
+        onclone: function (doc) { doc.querySelectorAll("[ontoggle]").forEach(function (e) { e.removeAttribute("ontoggle"); }); } });
+    }).then(function (canvas) {
+      el.classList.remove("pf-capturing"); restore();
+      canvas.toBlob(function (blob) {
+        var f = null;
+        try { f = new File([blob], file, { type: "image/png" }); } catch (e) { f = null; }
+        if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
+          navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}).then(done);
+        } else {
+          var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          done();
+        }
+      }, "image/png");
+    }).catch(function () {
+      el.classList.remove("pf-capturing"); done();
+      Dialog.alert(failMsg || "The picture couldn't be made. You can still take a screenshot.");
+    });
+  }
+
+  return { el: el, closeModal: closeModal, openModal: openModal, snap: snap,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
            fmtDate: fmtDate, weekday: weekday,
            isActive: isActive, inYear: inYear, rosterNames: rosterNames, rosterCls: rosterCls, statusIn: statusIn, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,

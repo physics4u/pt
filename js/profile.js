@@ -54,52 +54,13 @@ var Profile = (function () {
   }
 
   // Turn a section (with its strip) into a PNG: share it on a phone, download it on a computer.
-  var _h2c = null;
-  function _loadH2C() {
-    if (window.html2canvas) return Promise.resolve();
-    if (_h2c) return _h2c;
-    _h2c = new Promise(function (ok, no) {
-      var sc = document.createElement("script");
-      sc.src = "js/vendor/html2canvas.min.js";
-      sc.onload = function () { ok(); }; sc.onerror = function () { _h2c = null; no(); };
-      document.head.appendChild(sc);
-    });
-    return _h2c;
-  }
   function share(key, btn) {
     var d = document.querySelector(".pf-sec[data-key='" + key + "']"); if (!d) return;
     d.open = true; _open[key] = true;
-    var body = d.querySelector(".pf-body"), s = Data.get().students[_idx];
+    var s = Data.get().students[_idx];
     var file = Utils.fullName(s) + " - " + SHARE[key] + " - " + acadLabel().replace("\u2013", "-") + ".png";
-    btn.disabled = true; var label = btn.innerHTML; btn.textContent = "Preparing\u2026";
-    var held = [];
-    var restore = function () { held.forEach(function (h) { h[0].setAttribute("ontoggle", h[1]); }); held = []; };
-    var done = function () { restore(); btn.disabled = false; btn.innerHTML = label; };
-    _loadH2C().then(function () {
-      body.classList.add("pf-capturing");
-      // the picture is made from a copy of the page: keep the copy's sections quiet
-      held = []; document.querySelectorAll("[ontoggle]").forEach(function (e) { held.push([e, e.getAttribute("ontoggle")]); e.removeAttribute("ontoggle"); });
-      var bg = getComputedStyle(document.body).backgroundColor;
-      return window.html2canvas(body, { backgroundColor: bg, scale: 2, useCORS: true, logging: false,
-        onclone: function (doc) { doc.querySelectorAll("[ontoggle]").forEach(function (e) { e.removeAttribute("ontoggle"); }); } });
-    }).then(function (canvas) {
-      body.classList.remove("pf-capturing"); restore();
-      canvas.toBlob(function (blob) {
-        var f = null;
-        try { f = new File([blob], file, { type: "image/png" }); } catch (e) { f = null; }
-        if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
-          navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}).then(done);
-        } else {
-          var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file;
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-          done();
-        }
-      }, "image/png");
-    }).catch(function () {
-      body.classList.remove("pf-capturing"); done();
-      Dialog.alert("The picture couldn't be made. You can still take a screenshot: the section shows the student, class and date at the top.");
-    });
+    Utils.snap(d.querySelector(".pf-body"), file, btn,
+      "The picture couldn't be made. You can still take a screenshot: the section shows the student, class and date at the top.");
   }
 
   function toggle(key, el) { _open[key] = el.open; }

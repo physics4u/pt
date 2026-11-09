@@ -478,7 +478,7 @@ var Dashboard = (function () {
     });
   }
 
-  return { render: render, totals: totals };
+  return { render: render, totals: totals, plannerKeyInYear: _plannerKeyInYear };
 })();
 
 
