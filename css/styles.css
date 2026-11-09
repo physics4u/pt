@@ -822,3 +822,24 @@ table.as-week thead th:hover .row-edit{visibility:visible;}
 .content:has(#page-dashboard.active){padding-bottom:8px;}
 .app-footer{align-items:center;}
 .app-footer .app-version{margin:0;line-height:1.4;}
+
+/* Payments grid: fit all 14 months without scrolling sideways */
+.pay-grid{width:100%;table-layout:auto;}
+.pay-grid th{padding:5px 2px;}
+.pay-grid th.mo{min-width:46px;}
+.pay-grid th .yr{display:block;line-height:1;margin-top:1px;}
+.pay-grid td{padding:3px 2px;}
+.pay-grid td.nm{padding:3px 8px;}
+.pay-grid td.nm .stu-link{display:inline-block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+.pay-pill{min-width:42px;padding:1px 3px;font-size:10px;}
+.pay-grid .num{width:34px;min-width:34px;max-width:34px;}
+.pay-grid .sticky1{left:34px;}
+/* Open sections stand out from the closed ones (every page) */
+details.section[open]{border-color:rgb(var(--accent-rgb) / 0.65);box-shadow:0 0 0 1px rgb(var(--accent-rgb) / 0.25),0 6px 20px rgb(0 0 0 / 0.22);}
+details.section[open] > summary{background:rgb(var(--accent-rgb) / 0.13);border-bottom:1px solid rgb(var(--accent-rgb) / 0.35);}
+details.section[open] > summary:hover{background:rgb(var(--accent-rgb) / 0.18);}
+details.section[open] > summary .section-title{color:var(--accent);}
+details.section[open] > summary .show-pill{border-color:rgb(var(--accent-rgb) / 0.6);color:var(--accent);}
+details.section:not([open]){opacity:0.92;}
+details.section:not([open]):hover{opacity:1;}
+[data-theme="light"] details.section[open]{box-shadow:0 0 0 1px rgb(var(--accent-rgb) / 0.25),0 6px 18px rgb(0 0 0 / 0.08);}
