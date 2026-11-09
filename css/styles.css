@@ -879,3 +879,5 @@ details.section:not([open]):hover{opacity:1;}
 .pt-datebox.disabled{cursor:default;background:transparent;border-color:transparent;padding-left:0;}
 .pt-datebox.disabled .pt-date-icon{display:none;}
 .pf-id-sum{font-size:13px;font-weight:600;color:var(--text);}
+.search-hint{padding:10px 14px;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);border-left:4px solid var(--accent);background:rgb(var(--accent-rgb) / 0.08);font-size:13.5px;}
+.stu-suggest{color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
