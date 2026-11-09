@@ -99,10 +99,14 @@ var Profile = (function () {
     div.innerHTML = html;
 
     // ---- Hourly: fees, sessions, payments ----
-    if (Hourly.isHourly(s)) div.insertAdjacentHTML("beforeend", Hourly.profileHtml(idx));
+    // A student can have a group record and an hourly record (same name):
+    // either profile shows both parts for the year on screen.
+    var hasSessions = (Data.get().sessions || []).some(function (x) { return x.student === name && ACYR.indexOf(String(x.date).slice(0, 7)) >= 0; });
+    var hasFees = ACYR.some(function (ym) { return (((Data.get().paygrid || {})["paygrid|" + (Utils.clsOf(s) || s.cls) + "|" + ym]) || {})[name]; });
+    if (Hourly.isHourly(s) || hasSessions) div.insertAdjacentHTML("beforeend", Hourly.profileHtml(idx));
 
     // ---- Group class fees ----
-    if (Hourly.inGroup(s)) div.insertAdjacentHTML("beforeend", _feesHtml(s, idx, name));
+    if (Hourly.inGroup(s) || hasFees) div.insertAdjacentHTML("beforeend", _feesHtml(s, idx, name));
 
     // ---- Report card ----
     div.insertAdjacentHTML("beforeend", _reportHtml(name));
