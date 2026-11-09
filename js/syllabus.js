@@ -1,156 +1,196 @@
 // ================================================================
-//  JS_Syllabus — Monthly Planner (chapter/time per day)
+//  syllabus.js — Monthly Planner (chapter and timing for each day)
+//
+//  Two collapsible sections, Plus 1 and Plus 2, closed when the page is
+//  opened from the menu. Inside each, the month is split into weeks
+//  (Mon–Sun); only the current week starts open. An entered day is
+//  locked: hover it and press ✏ to change it (Clear appears then).
+//  Empty days stay open for typing and lock once something is entered.
 // ================================================================
 
 var Syllabus = (function () {
-  var _cls = "Grade XI";
+  var CLASSES = [["Grade XI", "Plus 1"], ["Grade XII", "Plus 2"]];
+  var _open = {};     // "Grade XI" → section open; "Grade XI|w2" → week open
+  var _ym = null;     // month shown
+  var _editing = {};  // "Grade XI|12" → day unlocked for editing
 
-  function init() {
-    var sel  = Utils.el("syllabus-month");
-    var ym   = Utils.curYm();
-    var opts = Array.from(sel.options).map(function (o) { return o.value; });
-    sel.value = opts.includes(ym) ? ym : "2026-03";
-    setClass(_cls);
+  function _esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
   }
 
-  function setClass(cls) {
-    _cls = cls;
-    var sel = Utils.el("syl-grade");
-    if (sel) sel.value = cls;
+  // Opening the planner from the menu: this month, sections closed
+  function init() {
+    var sel = Utils.el("syllabus-month");
+    var ym = Utils.curYm();
+    var opts = Array.from(sel.options).map(function (o) { return o.value; });
+    sel.value = opts.includes(ym) ? ym : opts[0];
+    _open = {}; _editing = {}; _ym = null;
     render();
+  }
+  // Open one class (kept for links into the planner)
+  function setClass(cls) { _open[cls] = true; render(); }
+  function step(n) {
+    var sel = Utils.el("syllabus-month"), i = sel.selectedIndex + n;
+    if (i < 0 || i >= sel.options.length) return;
+    sel.selectedIndex = i; render();
+  }
+  function toggle(key, el) { _open[key] = el.open; }
+
+  function _isEntered(ent) {
+    return !!(ent && ((ent.chapter && ent.chapter !== "-- None --") || (ent.start && ent.start !== "--") || (ent.end && ent.end !== "--")));
+  }
+  function _hours(ent) {
+    if (!ent) return 0;
+    var a = Hourly.parseTime(ent.start), b = Hourly.parseTime(ent.end);
+    return a === null || b === null || b <= a ? 0 : b - a;
+  }
+  function _store(cls, ym) {
+    var D = Data.get();
+    if (!D.syllabus) D.syllabus = {};
+    return D.syllabus[cls + "|" + ym] || {};
+  }
+
+  // Weeks of the month, Monday to Sunday: [[1..7], [8..14], ...]
+  function _weeks(year, month) {
+    var dim = new Date(year, month, 0).getDate(), weeks = [], cur = [];
+    for (var d = 1; d <= dim; d++) {
+      cur.push(d);
+      if (new Date(year, month - 1, d).getDay() === 0 || d === dim) { weeks.push(cur); cur = []; }
+    }
+    return weeks;
   }
 
   function render() {
-    var ym  = Utils.el("syllabus-month").value; if (!ym) return;
-    var sk  = _cls + "|" + ym;
-    var lbl = Utils.el("syl-class-label");
-    if (lbl) lbl.textContent = Utils.grade(_cls) + " \u2014 " + (ACYR_LBL[ym] || ym);
-    _buildTable(sk, ym, Utils.el("syllabus-table-wrap"));
-  }
-
-  // ---- Decide if a day entry counts as "entered" ----
-  function _isEntered(ent) {
-    var hasChapter = ent.chapter && ent.chapter !== "-- None --";
-    var hasStart   = ent.start   && ent.start   !== "--";
-    var hasEnd     = ent.end     && ent.end     !== "--";
-    return hasChapter || hasStart || hasEnd;
-  }
-
-  // ---- Apply / refresh the row class based on current entry state ----
-  // Weekend rows ONLY get the "weekend" class — never syl-entered.
-  // This guarantees orange always wins with zero CSS conflict.
-  // Weekday rows get syl-entered (green) or syl-empty (muted).
-  function _applyRowClass(row, ent, isWeekend) {
-    row.classList.remove("syl-entered", "syl-empty", "weekend", "weekend-entered");
-    if (isWeekend) {
-      // Weekend: always orange regardless of whether data is entered
-      row.classList.add("weekend");
-      if (_isEntered(ent)) row.classList.add("weekend-entered");
-    } else {
-      // Weekday: green if entered, muted if empty
-      row.classList.add(_isEntered(ent) ? "syl-entered" : "syl-empty");
+    var ym = Utils.el("syllabus-month").value; if (!ym) return;
+    var p = ym.split("-"), year = Number(p[0]), month = Number(p[1]);
+    var weeks = _weeks(year, month);
+    var now = new Date(), thisMonth = Utils.curYm() === ym;
+    if (_ym !== ym) {                       // new month: open only the current week
+      Object.keys(_open).forEach(function (k) { if (k.indexOf("|w") > 0) delete _open[k]; });
+      _editing = {};
+      _ym = ym;
+      if (thisMonth) weeks.forEach(function (w, i) {
+        if (w.indexOf(now.getDate()) >= 0) CLASSES.forEach(function (c) { _open[c[0] + "|w" + i] = true; });
+      });
     }
+    var mon = MONTHS[month - 1].slice(0, 3);
+
+    Utils.el("syllabus-table-wrap").innerHTML = CLASSES.map(function (c) {
+      var cls = c[0], saved = _store(cls, ym), chapters = Settings.chapters(cls);
+      var days = 0, hrs = 0;
+      var weekHtml = weeks.map(function (w, wi) {
+        var wd = 0, wh = 0, chs = [];
+        var rows = w.map(function (d) {
+          var ent = saved[String(d)] || saved[d] || {};
+          var di = new Date(year, month - 1, d).getDay(), wk = di === 0 || di === 6;
+          var entered = _isEntered(ent), h = _hours(ent);
+          if (entered) { wd++; wh += h; if (ent.chapter && ent.chapter !== "-- None --" && chs.indexOf(ent.chapter) < 0) chs.push(ent.chapter); }
+          var isToday = thisMonth && d === now.getDate();
+          var rowCls = (wk ? "weekend" + (entered ? " weekend-entered" : "") : entered ? "syl-entered" : "syl-empty") + (isToday ? " syl-today" : "");
+          var date = "<td><span class='day-label'>" + String(d).padStart(2, "0") + " " + mon + " <span class='day-name'>" + DAYS[di] + "</span></span></td>";
+          var key = cls + "|" + d;
+          if (entered && !_editing[key]) {
+            return "<tr class='" + rowCls + " locked' data-cls='" + cls + "' data-day='" + d + "'>" + date +
+              "<td>" + _esc(ent.start && ent.start !== "--" ? ent.start : "—") + "</td>" +
+              "<td>" + _esc(ent.chapter && ent.chapter !== "-- None --" ? ent.chapter : "—") + "</td>" +
+              "<td>" + _esc(ent.end && ent.end !== "--" ? ent.end : "—") + "</td>" +
+              "<td class='c'>" + (h ? Hourly.hm(h) : "—") + "</td>" +
+              "<td class='muted'>" + _esc(ent.notes || "") + "</td>" +
+              "<td class='edit-cell'>" + Utils.hoverEdit("Syllabus.unlock('" + cls + "'," + d + ")", "Change this day") + "</td></tr>";
+          }
+          var sel = function (opts, cur, field, c2) {
+            return "<select class='syllabus-input " + c2 + "' data-field='" + field + "'>" + opts.map(function (o) {
+              return "<option" + (o === cur ? " selected" : "") + ">" + _esc(o) + "</option>"; }).join("") + "</select>";
+          };
+          return "<tr class='" + rowCls + (_editing[key] ? " editing" : "") + "' data-cls='" + cls + "' data-day='" + d + "'>" + date +
+            "<td>" + sel(TIMES, ent.start || "--", "start", "time-input") + "</td>" +
+            "<td>" + sel(chapters, ent.chapter || "-- None --", "chapter", "chapter-input") + "</td>" +
+            "<td>" + sel(TIMES, ent.end || "--", "end", "time-input") + "</td>" +
+            "<td class='c syl-hrs'>" + (h ? Hourly.hm(h) : "") + "</td>" +
+            "<td><input class='syllabus-input' data-field='notes' placeholder='Notes...' value='" + _esc(ent.notes || "") + "'></td>" +
+            "<td class='edit-cell'>" + (_editing[key] ?
+              "<button type='button' class='btn btn-secondary btn-sm' onclick='Syllabus.lock(\"" + cls + "\"," + d + ")'>Done</button> " +
+              "<button type='button' class='btn btn-danger btn-sm' onclick='Syllabus.clearDay(\"" + cls + "\"," + d + ")'>Clear</button>" : "") +
+            "</td></tr>";
+        }).join("");
+        days += wd; hrs += wh;
+        var wkey = cls + "|w" + wi;
+        var label = "Week " + (wi + 1) + " <span class='muted' style='font-weight:500'>" + w[0] + (w.length > 1 ? "–" + w[w.length - 1] : "") + " " + mon + "</span>";
+        var meta = wd ? wd + " day" + (wd === 1 ? "" : "s") + " &middot; " + Hourly.hm(wh) + " hrs" +
+                        (chs.length ? " &middot; <span class='syl-chs'>" + _esc(chs.join(", ")) + "</span>" : "")
+                      : "no classes yet";
+        return "<details class='section syl-week'" + (_open[wkey] ? " open" : "") + " ontoggle='Syllabus.toggle(\"" + wkey + "\", this)'>" +
+          "<summary><span class='section-title'>" + label + "</span><span class='section-meta'>&middot; " + meta + "</span>" +
+          (thisMonth && w.indexOf(now.getDate()) >= 0 ? "<span class='chip chip-gold' style='margin-left:6px'>This week</span>" : "") +
+          "<span class='show-pill' aria-hidden='true'></span></summary>" +
+          "<div class='section-body' style='padding:0'><div style='overflow-x:auto'><table class='syllabus-table'><thead><tr>" +
+          "<th style='width:110px'>Date</th><th style='width:120px'>Start time</th><th>Chapter / Topic</th><th style='width:120px'>End time</th>" +
+          "<th class='c' style='width:60px'>Hours</th><th style='width:160px'>Notes</th><th style='width:120px'></th></tr></thead><tbody>" + rows +
+          "</tbody></table></div></div></details>";
+      }).join("");
+      return "<details class='section tests-section syl-class'" + (_open[cls] ? " open" : "") + " ontoggle='Syllabus.toggle(\"" + cls + "\", this)'>" +
+        "<summary><span class='section-title'>" + c[1] + "</span><span class='section-meta'>&middot; " + MONTHS[month - 1] + " " + year +
+        " &middot; " + days + " day" + (days === 1 ? "" : "s") + " &middot; " + Hourly.hm(hrs) + " hrs</span>" +
+        "<span class='show-pill' aria-hidden='true'></span></summary><div class='section-body syl-weeks'>" + weekHtml + "</div></details>";
+    }).join("");
+    _wire();
   }
 
-  function _buildTable(storageKey, ym, wrapEl) {
-    var parts = ym.split("-"); var year = Number(parts[0]); var month = Number(parts[1]);
-    var dim   = new Date(year, month, 0).getDate();
-    var D     = Data.get();
-    if (!D.syllabus)              D.syllabus              = {};
-    if (!D.syllabus[storageKey])  D.syllabus[storageKey]  = {};
-    var saved = D.syllabus[storageKey];
-
-    var table = document.createElement("table"); table.className = "syllabus-table";
-    var thead = table.createTHead(); var hr = thead.insertRow();
-    var cols   = ["Date", "Start Time", "Chapter / Topic", "End Time", "Notes"];
-    var widths = ["100px", "110px", "", "110px", "130px"];
-    cols.forEach(function (c, i) {
-      var th = document.createElement("th"); th.textContent = c;
-      if (widths[i]) th.style.width = widths[i]; hr.appendChild(th);
+  function _wire() {
+    var wrap = Utils.el("syllabus-table-wrap");
+    wrap.querySelectorAll("tr[data-day] .syllabus-input").forEach(function (el) {
+      el.addEventListener(el.tagName === "INPUT" ? "input" : "change", _onChange);
     });
-
-    var tbody = table.createTBody();
-    for (var d = 1; d <= dim; d++) {
-      var di  = new Date(year, month - 1, d).getDay();
-      var wk  = di === 0 || di === 6;
-      // Read entry using both string and number key for compatibility
-      var ent = saved[String(d)] || saved[d] || {};
-      var row = tbody.insertRow();
-      row.id  = "syl-row-" + d;
-      _applyRowClass(row, ent, wk);
-
-      // Date label
-      var dc = row.insertCell();
-      var sp = document.createElement("span"); sp.className = "day-label";
-      sp.textContent = String(d).padStart(2, "0") + " " + MONTHS[month - 1].slice(0, 3) + " ";
-      var daySpan = document.createElement("span"); daySpan.className = "day-name";
-      daySpan.textContent = DAYS[di];
-      sp.appendChild(daySpan); dc.appendChild(sp);
-
-      // Start time
-      var stc   = row.insertCell();
-      var stSel = _makeSelect(TIMES, ent.start || "--", storageKey, d, "start");
-      stSel.classList.add("time-input"); stc.appendChild(stSel);
-
-      // Chapter
-      var chc   = row.insertCell();
-      var chSel = _makeSelect(Settings.chapters(_cls), ent.chapter || "-- None --", storageKey, d, "chapter");
-      chSel.classList.add("chapter-input"); chc.appendChild(chSel);
-
-      // End time
-      var etc   = row.insertCell();
-      var etSel = _makeSelect(TIMES, ent.end || "--", storageKey, d, "end");
-      etSel.classList.add("time-input"); etc.appendChild(etSel);
-
-      // Notes
-      var nc  = row.insertCell();
-      var inp = document.createElement("input"); inp.type = "text"; inp.className = "syllabus-input";
-      inp.placeholder = "Notes..."; inp.value = ent.notes || "";
-      inp.dataset.key = storageKey; inp.dataset.day = String(d); inp.dataset.field = "notes";
-      inp.style.width = "100%";
-      inp.addEventListener("input", _onChange);
-      nc.appendChild(inp);
-    }
-    wrapEl.innerHTML = "";
-    wrapEl.appendChild(table);
-  }
-
-  function _makeSelect(options, current, key, day, field) {
-    var sel = document.createElement("select"); sel.className = "syllabus-input";
-    sel.dataset.key = key; sel.dataset.day = String(day); sel.dataset.field = field;
-    options.forEach(function (o) {
-      var opt = document.createElement("option"); opt.value = o; opt.textContent = o;
-      if (o === current) opt.selected = true; sel.appendChild(opt);
+    // An empty day locks once something is entered and you move to another row
+    wrap.querySelectorAll("tr[data-day]:not(.locked)").forEach(function (tr) {
+      tr.addEventListener("focusout", function (e) {
+        if (e.relatedTarget && tr.contains(e.relatedTarget)) return;
+        var cls = tr.dataset.cls, d = tr.dataset.day;
+        if (_editing[cls + "|" + d]) return;            // being edited: stays open until Done
+        var ent = _store(cls, _ym)[d];
+        if (!_isEntered(ent)) return;
+        var to = e.relatedTarget, tr2 = to && to.closest && to.closest("tr[data-day]");
+        var back = tr2 ? { cls: tr2.dataset.cls, day: tr2.dataset.day, field: to.dataset.field } : null;
+        render();
+        if (back) {                                     // keep the cursor where it was going
+          var el = Utils.el("syllabus-table-wrap").querySelector("tr[data-cls='" + back.cls + "'][data-day='" + back.day + "'] [data-field='" + back.field + "']");
+          if (el) el.focus();
+        }
+      });
     });
-    sel.addEventListener("change", _onChange);
-    return sel;
   }
 
   function _onChange() {
-    var D     = Data.get();
-    var k     = this.dataset.key;
-    var day   = String(this.dataset.day);
-    var field = this.dataset.field;
-
-    if (!D.syllabus)          D.syllabus          = {};
-    if (!D.syllabus[k])       D.syllabus[k]       = {};
-    if (!D.syllabus[k][day])  D.syllabus[k][day]  = {};
+    var tr = this.closest("tr"), cls = tr.dataset.cls, day = String(tr.dataset.day), field = this.dataset.field;
+    var D = Data.get(), k = cls + "|" + _ym;
+    if (!D.syllabus) D.syllabus = {};
+    if (!D.syllabus[k]) D.syllabus[k] = {};
+    if (!D.syllabus[k][day]) D.syllabus[k][day] = {};
     D.syllabus[k][day][field] = this.value;
     Data.save();
-
-    // Refresh the row colour immediately
-    var row = document.getElementById("syl-row-" + day);
-    if (row) {
-      var ent = D.syllabus[k][day] || {};
-      var isWeekend = row.classList.contains("weekend");
-      _applyRowClass(row, ent, isWeekend);
-    }
+    var ent = D.syllabus[k][day], h = _hours(ent);
+    tr.querySelector(".syl-hrs").textContent = h ? Hourly.hm(h) : "";
+    var wk = tr.classList.contains("weekend");
+    tr.classList.remove("syl-entered", "syl-empty", "weekend-entered");
+    if (wk) { if (_isEntered(ent)) tr.classList.add("weekend-entered"); }
+    else tr.classList.add(_isEntered(ent) ? "syl-entered" : "syl-empty");
   }
 
-  function save() {
-    Data.save();
-    Data.log("Saved Monthly Planner for " + Utils.grade(_cls) + " \u2014 " + (ACYR_LBL[Utils.el("syllabus-month").value] || ""));
+  function unlock(cls, d) { _editing[cls + "|" + d] = true; render(); }
+  function lock(cls, d) { delete _editing[cls + "|" + d]; render(); }
+  function clearDay(cls, d) {
+    Dialog.confirm("Clear " + d + " " + MONTHS[Number(_ym.split("-")[1]) - 1] + " for " + Utils.grade(cls) + "? Its times, chapter and notes will be removed.",
+                   { okText: "Clear", danger: true }).then(function (ok) {
+      if (!ok) return;
+      var D = Data.get(), k = cls + "|" + _ym;
+      if (D.syllabus && D.syllabus[k]) { delete D.syllabus[k][String(d)]; delete D.syllabus[k][d]; }
+      delete _editing[cls + "|" + d];
+      Data.save(); render();
+    });
   }
 
-  return { init: init, setClass: setClass, render: render, save: save };
+  return { init: init, setClass: setClass, step: step, toggle: toggle, render: render,
+           unlock: unlock, lock: lock, clearDay: clearDay };
 })();
