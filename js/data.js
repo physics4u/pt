@@ -288,8 +288,9 @@ var Data = (function () {
     if (D.activity.length > 50) D.activity.length = 50;
   }
 
+  // Students of the academic year on screen (every page lists these)
   function allStudents() {
-    return D.students.slice().sort(function (a, b) {
+    return D.students.filter(function (s) { return Utils.inYear(s); }).sort(function (a, b) {
       var ca = a.cls || "", cb = b.cls || "";
       if (ca !== cb) return ca.localeCompare(cb);
       return (a.fname + " " + a.lname).localeCompare(b.fname + " " + b.lname);
