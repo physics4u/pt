@@ -76,7 +76,7 @@ var Profile = (function () {
             "<span>&#128222; " + _esc(s.phone || "—") + "</span>" +
             "<span>&#9993; " + _esc(s.email || "—") + "</span>" +
             "<span>Batch: " + _esc(s.batch || "Regular") + "</span>" +
-            "<span>Status: <b>" + _esc(s.status) + "</b></span>" +
+            "<span>Status: <b>" + _esc(Utils.statusIn(s)) + "</b>" + (isCurrentAcad() ? "" : " in " + acadLabel() + " <span class='muted'>(now " + _esc(s.status) + ")</span>") + "</span>" +
           "</div>" +
         "</div>" +
         "<div style='margin-left:auto'><button class='btn btn-secondary' onclick='showPage(\"students\")' style='font-size:12px'>&#8592; Back</button></div>" +

@@ -49,7 +49,7 @@ var Students = (function () {
           (hourly ? "<th>Rate</th>" : "<th>Monthly fee</th>") + "<th>Status</th><th></th></tr></thead><tbody>" +
         rows.map(function (s, n) {
           var i  = D.students.indexOf(s);
-          var sc = s.status === "Active" ? "green" : s.status === "Trial" ? "orange" : "red";
+          var st = Utils.statusIn(s), sc = st === "Active" ? "green" : st === "Trial" ? "orange" : "red";
           var fee = hourly ? (s.hourlyRate ? "₹" + Number(s.hourlyRate).toLocaleString("en-IN") + "/hr" : "—")
                            : (s.monthlyFee ? "₹" + Number(s.monthlyFee).toLocaleString("en-IN") : "—");
           return "<tr>" +
@@ -59,7 +59,7 @@ var Students = (function () {
             "<td>" + (s.school || "—") + "</td>" +
             "<td>" + (s.phone  || "—") + "</td>" +
             "<td>" + fee + "</td>" +
-            "<td><span class='badge badge-" + sc + "'>" + s.status + "</span></td>" +
+            "<td><span class='badge badge-" + sc + "'" + (isCurrentAcad() ? "" : " title='In " + acadLabel() + "'") + ">" + st + "</span></td>" +
             "<td class='edit-cell'>" + Utils.hoverEdit("Students.openModal(" + i + ")", "Edit student") + "</td></tr>";
         }).join("") + "</tbody></table>"
         : "<div class='empty' style='padding:20px'><div class='empty-text'>" + (inGroup.length ? "No matching students." : "No students yet.") + "</div></div>";
