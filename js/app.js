@@ -14,7 +14,7 @@ var Dashboard = (function () {
     // ---- Stat cards ----
     var active = D.students.filter(Utils.isActive);
     var cnt = function (f) { return active.filter(f).length; };
-    var hr = Hourly.isHourly, p1 = function (s) { return s.cls === "Grade XI"; }, p2 = function (s) { return s.cls === "Grade XII"; };
+    var hr = Hourly.isHourly, p1 = function (s) { return Utils.clsOf(s) === "Grade XI"; }, p2 = function (s) { return Utils.clsOf(s) === "Grade XII"; };
     var split = function (f) { return cnt(function (s) { return f(s) && !hr(s); }) + " regular \u00b7 " + cnt(function (s) { return f(s) && hr(s); }) + " hourly"; };
     Utils.el("stat-students").textContent = active.length;
     Utils.el("stat-students-sub").textContent = split(function () { return true; });

@@ -141,7 +141,7 @@ var Hourly = (function () {
     var eSes = P.editing("ses") ? ses.filter(function (x) { return x.id === _editId(); })[0] : null;
     var adding = P.editing("ses", "new");
     var chOpts = function (cur) {
-      return Settings.chapters(s.cls || "Grade XI").map(function (c) {
+      return Settings.chapters(Utils.clsOf(s) || s.cls || "Grade XI").map(function (c) {
         var v = c === "-- None --" ? "" : c;
         return "<option value='" + esc(v) + "'" + (v === (cur || "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
     };
