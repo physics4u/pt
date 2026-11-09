@@ -57,33 +57,64 @@ var Hourly = (function () {
       .sort(function (a, b) { return a.date.localeCompare(b.date); });
   }
 
-  // Bills by month for the academic year, payments applied oldest-first.
+  // A payment noted "For October 2026" pays for that month.
+  function _forMonth(p) {
+    var m = /\bfor\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})/i.exec(p.notes || "");
+    if (!m) return null;
+    var i = ["january","february","march","april","may","june","july","august","september","october","november","december"].indexOf(m[1].toLowerCase());
+    return m[2] + "-" + String(i + 1).padStart(2, "0");
+  }
+
+  // Bills by month for the academic year shown. Payments are worked out over
+  // the student's whole history: a payment marked "For <month>" pays that
+  // month; the rest go to the oldest unpaid months first. So a payment made
+  // in April for February counts towards February's year, not April's.
   function account(name) {
-    var months = {}, billed = 0, hours = 0, paid = 0;
-    ACYR.forEach(function (ym) { months[ym] = { hours: 0, fee: 0, count: 0, paid: 0 }; });
-    var inYear = function (d) { return months.hasOwnProperty(String(d).slice(0, 7)); };
+    var fee = {};                                     // every month with sessions
     sessionsOf(name).forEach(function (x) {
-      if (!inYear(x.date)) return;
-      var h = sessionHours(x), m = months[x.date.slice(0, 7)];
-      m.hours += h; m.count++; m.fee += h * Number(x.rate || 0);
+      var ym = String(x.date).slice(0, 7), h = sessionHours(x);
+      var f = fee[ym] = fee[ym] || { hours: 0, fee: 0, count: 0 };
+      f.hours += h; f.count++; f.fee += h * Number(x.rate || 0);
     });
-    ACYR.forEach(function (ym) { billed += months[ym].fee; hours += months[ym].hours; });
-    paymentsOf(name).forEach(function (p) { if (inYear(p.date)) paid += Number(p.amount || 0); });
-    var left = paid;
+    var all = Object.keys(fee).sort(), paidTo = {}, pool = 0, lastPay = null;
+    paymentsOf(name).forEach(function (p) {
+      var amt = Number(p.amount || 0), fm = _forMonth(p);
+      if (fm && fee[fm]) paidTo[fm] = (paidTo[fm] || 0) + amt; else pool += amt;
+      lastPay = p;
+    });
+    all.forEach(function (ym) {                       // over-payment for a month joins the pool
+      if ((paidTo[ym] || 0) > fee[ym].fee) { pool += paidTo[ym] - fee[ym].fee; paidTo[ym] = fee[ym].fee; }
+    });
+    all.forEach(function (ym) {
+      var need = fee[ym].fee - (paidTo[ym] || 0), take = Math.min(pool, Math.max(0, need));
+      paidTo[ym] = (paidTo[ym] || 0) + take; pool -= take;
+    });
+    var months = {}, billed = 0, hours = 0, paid = 0;
     ACYR.forEach(function (ym) {
-      var m = months[ym], take = Math.min(left, m.fee);
-      m.paid = take; left -= take;
-      m.status = m.fee <= 0 ? "" : take >= m.fee - 0.5 ? "Paid" : take > 0 ? "Part-paid" : "Due";
+      var f = fee[ym] || { hours: 0, fee: 0, count: 0 }, pd = paidTo[ym] || 0;
+      months[ym] = { hours: f.hours, fee: f.fee, count: f.count, paid: pd,
+                     status: f.fee <= 0 ? "" : pd >= f.fee - 0.5 ? "Paid" : pd > 0 ? "Part-paid" : "Due" };
+      billed += f.fee; hours += f.hours; paid += pd;
     });
-    return { months: months, hours: hours, billed: billed, paid: paid,
-             balance: billed - paid, credit: Math.max(0, left) };
+    // Money paid in advance shows in the year it was received.
+    var credit = lastPay && ACYR.indexOf(String(lastPay.date).slice(0, 7)) >= 0 ? Math.max(0, pool) : 0;
+    return { months: months, hours: hours, billed: billed, paid: paid + credit,
+             balance: billed - paid, credit: credit };
+  }
+
+  // Hourly in the academic year shown: this year, an hourly student; in an
+  // earlier year, anyone who had one-to-one sessions that year.
+  function hourlyIn(s) {
+    if (isCurrentAcad()) return isHourly(s);
+    var n = Utils.fullName(s);
+    return sessionsOf(n).some(function (x) { return ACYR.indexOf(String(x.date).slice(0, 7)) >= 0; });
   }
 
   // Dashboard / payments page helpers
   function totals() {
     var t = { hours: 0, billed: 0, paid: 0, balance: 0, income: {} };
     ACYR.forEach(function (ym) { t.income[ym] = 0; });
-    Data.get().students.filter(isHourly).forEach(function (s) {
+    Data.get().students.filter(hourlyIn).forEach(function (s) {
       var name = Utils.fullName(s), a = account(name);
       t.hours += a.hours; t.billed += a.billed; t.paid += a.paid; t.balance += Math.max(0, a.balance);
       // Income counts in the month the fees are for (payments applied oldest
@@ -268,6 +299,6 @@ var Hourly = (function () {
   }
 
   return { parseTime: parseTime, hm: hm, isHourly: isHourly, inGroup: inGroup, sessionHours: sessionHours,
-           account: account, totals: totals, sessionDays: sessionDays, profileHtml: profileHtml,
+           account: account, totals: totals, hourlyIn: hourlyIn, sessionDays: sessionDays, profileHtml: profileHtml,
            setRate: setRate, saveSession: saveSession, delSession: delSession, savePayment: savePayment, delPayment: delPayment };
 })();

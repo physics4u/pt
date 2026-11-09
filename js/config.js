@@ -60,7 +60,11 @@ function setAcademicYear(startYm) {
   var y = Number(m[1]), mo = Number(m[2]);
   ACYR.length = 0;
   Object.keys(ACYR_LBL).forEach(function (k) { delete ACYR_LBL[k]; });
-  for (var i = 0; i < 14; i++) {
+  // The current year shows 14 months (March to the following April). An
+  // earlier year shows March to February: its last March and April are the
+  // first months of the next year, and are counted there.
+  var n = (y + "-" + String(mo).padStart(2, "0")) < defaultAcadStart() ? 12 : 14;
+  for (var i = 0; i < n; i++) {
     var ym = y + "-" + String(mo).padStart(2, "0");
     ACYR.push(ym);
     ACYR_LBL[ym] = MONTHS[mo - 1] + " " + y;
