@@ -30,7 +30,8 @@ var Syllabus = (function () {
     render();
   }
   // Open one class (kept for links into the planner)
-  function setClass(cls) { _open[cls] = true; render(); }
+  var _cls = "Grade XI";   // class chosen in the drop-down
+  function setClass(cls) { _cls = cls; var sel = Utils.el("syl-grade"); if (sel) sel.value = cls; render(); }
   function step(n) {
     var sel = Utils.el("syllabus-month"), i = sel.selectedIndex + n;
     if (i < 0 || i >= sel.options.length) return;
@@ -77,7 +78,7 @@ var Syllabus = (function () {
     }
     var mon = MONTHS[month - 1].slice(0, 3);
 
-    Utils.el("syllabus-table-wrap").innerHTML = CLASSES.map(function (c) {
+    Utils.el("syllabus-table-wrap").innerHTML = CLASSES.filter(function (c) { return c[0] === _cls; }).map(function (c) {
       var cls = c[0], saved = _store(cls, ym), chapters = Settings.chapters(cls);
       var days = 0, hrs = 0;
       var weekHtml = weeks.map(function (w, wi) {
@@ -130,10 +131,9 @@ var Syllabus = (function () {
           "<th class='c' style='width:60px'>Hours</th><th style='width:160px'>Notes</th><th style='width:120px'></th></tr></thead><tbody>" + rows +
           "</tbody></table></div></div></details>";
       }).join("");
-      return "<details class='section tests-section syl-class'" + (_open[cls] ? " open" : "") + " ontoggle='Syllabus.toggle(\"" + cls + "\", this)'>" +
-        "<summary><span class='section-title'>" + c[1] + "</span><span class='section-meta'>&middot; " + MONTHS[month - 1] + " " + year +
-        " &middot; " + days + " day" + (days === 1 ? "" : "s") + " &middot; " + Hourly.hm(hrs) + " hrs</span>" +
-        "<span class='show-pill' aria-hidden='true'></span></summary><div class='section-body syl-weeks'>" + weekHtml + "</div></details>";
+      return "<div class='month-sum'><b>" + c[1] + " &middot; " + MONTHS[month - 1] + " " + year + "</b> &middot; " +
+        days + " class day" + (days === 1 ? "" : "s") + " &middot; " + Hourly.hm(hrs) + " hrs</div>" +
+        "<div class='syl-class syl-weeks'>" + weekHtml + "</div>";
     }).join("");
     _wire();
   }
