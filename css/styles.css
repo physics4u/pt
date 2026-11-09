@@ -878,3 +878,4 @@ details.section:not([open]):hover{opacity:1;}
 .pt-date-clear:hover{color:var(--danger);}
 .pt-datebox.disabled{cursor:default;background:transparent;border-color:transparent;padding-left:0;}
 .pt-datebox.disabled .pt-date-icon{display:none;}
+.pf-id-sum{font-size:13px;font-weight:600;color:var(--text);}
