@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109015930">
+<link rel="stylesheet" href="css/styles.css?v=20261109020713">
 </head>
 <body>
 
@@ -168,6 +168,10 @@
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span class="acad-label"></span>
+      <select class="filter" id="as-grade" onchange="Attendance.setClass(this.value)">
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
+      </select>
       <button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
       <select id="attsheet-month" onchange="Attendance.render()" style="width:auto"></select>
       <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button>
@@ -181,6 +185,10 @@
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span class="acad-label"></span>
+      <select class="filter" id="syl-grade" onchange="Syllabus.setClass(this.value)">
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
+      </select>
       <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
       <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto"></select>
       <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button>
@@ -465,7 +473,7 @@
     <summary><span class="section-title">How PT pages work</span><span class="section-meta">&middot; sections, locked entries, active students, academic year</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <dl class="guide-dl">
-        <dt>Sections</dt><dd>Pages are split into sections you open and close (Plus 1, Plus 2, Hourly, weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
+        <dt>Sections</dt><dd>Most pages are split into sections you open and close (Plus 1, Plus 2, Hourly, the planner's weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
         <dt>Locked entries &#9998;</dt><dd>Anything already saved is locked so it can't be changed by accident. Hover over it (on a phone or tablet the &#9998; is always shown) and press <b>&#9998;</b> to change it. <b>Delete</b> / <b>Clear</b> (in red) appear only while editing.</dd>
         <dt>Names</dt><dd>Click a student's name anywhere to open their profile.</dd>
         <dt>Active students</dt><dd>Lists show only <b>active</b> students. Tick <b>Show inactive students</b> on any page to see everyone; the choice applies to every page until PT is closed.</dd>
@@ -529,7 +537,7 @@
   <details class="section help">
     <summary><span class="section-title">Monthly Planner</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>Choose the month (&#9664; &#9654; step a month), open Plus 1 or Plus 2, and use the week marked <b>This week</b>. For each class day pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>, and add notes. A day locks when you move to another row; &#9998; reopens it, with <b>Done</b> and <b>Clear</b>. Week headings show days, hours and chapters covered. Chapters come from <b>Settings &rarr; Chapter lists</b>.</p>
+      <p>Choose <b>Plus 1</b> or <b>Plus 2</b> and the month (&#9664; &#9654; step a month); the line above the weeks shows the month's class days and hours. The month is split into weeks with the current one open (<b>This week</b>). For each class day pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>, and add notes. A day locks when you move to another row; &#9998; reopens it, with <b>Done</b> and <b>Clear</b>. Week headings show days, hours and chapters covered. Chapters come from <b>Settings &rarr; Chapter lists</b>.</p>
     </div>
   </details>
 
@@ -537,7 +545,7 @@
   <details class="section help">
     <summary><span class="section-title">Attendance</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>Choose the month, open Plus 1 or Plus 2 and the week. Click a student's box on the day: <b>P</b> &rarr; <b>A</b> &rarr; blank. The bar above the table shows the day you're marking, with <b>Mark everyone present</b>, <b>Clear day</b> and <b>Done</b>. Marked days are locked; hover over the date and press &#9998; to change one. <b>Week</b> is the student's P / A for the week, <b>Month</b> their % present; the bottom row counts who was present.</p>
+      <p>Choose <b>Plus 1</b> or <b>Plus 2</b> and the month; the whole month is shown in one table, with a thicker line before each Monday. Click a student's box on the day: <b>P</b> &rarr; <b>A</b> &rarr; blank. The bar above the table shows the day you're marking, with <b>Mark everyone present</b>, <b>Clear day</b> and <b>Done</b>. Marked days are locked; hover over the date and press &#9998; to change one. <b>P</b>, <b>A</b> and <b>%</b> are the student's totals for the month; the bottom row counts who was present each day.</p>
     </div>
   </details>
 
@@ -783,25 +791,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109015930"></script>
-<script src="js/version.js?v=20261109015930"></script>
-<script src="js/config.js?v=20261109015930"></script>
-<script src="js/data.js?v=20261109015930"></script>
-<script src="js/utils.js?v=20261109015930"></script>
-<script src="js/students.js?v=20261109015930"></script>
-<script src="js/classes.js?v=20261109015930"></script>
-<script src="js/attendance.js?v=20261109015930"></script>
-<script src="js/syllabus.js?v=20261109015930"></script>
-<script src="js/payments.js?v=20261109015930"></script>
-<script src="js/scores.js?v=20261109015930"></script>
-<script src="js/profile.js?v=20261109015930"></script>
-<script src="js/settings.js?v=20261109015930"></script>
-<script src="js/users.js?v=20261109015930"></script>
-<script src="js/help.js?v=20261109015930"></script>
-<script src="js/storage.js?v=20261109015930"></script>
-<script src="js/import.js?v=20261109015930"></script>
-<script src="js/hourly.js?v=20261109015930"></script>
-<script src="js/app.js?v=20261109015930"></script>
+<script src="js/site-config.js?v=20261109020713"></script>
+<script src="js/version.js?v=20261109020713"></script>
+<script src="js/config.js?v=20261109020713"></script>
+<script src="js/data.js?v=20261109020713"></script>
+<script src="js/utils.js?v=20261109020713"></script>
+<script src="js/students.js?v=20261109020713"></script>
+<script src="js/classes.js?v=20261109020713"></script>
+<script src="js/attendance.js?v=20261109020713"></script>
+<script src="js/syllabus.js?v=20261109020713"></script>
+<script src="js/payments.js?v=20261109020713"></script>
+<script src="js/scores.js?v=20261109020713"></script>
+<script src="js/profile.js?v=20261109020713"></script>
+<script src="js/settings.js?v=20261109020713"></script>
+<script src="js/users.js?v=20261109020713"></script>
+<script src="js/help.js?v=20261109020713"></script>
+<script src="js/storage.js?v=20261109020713"></script>
+<script src="js/import.js?v=20261109020713"></script>
+<script src="js/hourly.js?v=20261109020713"></script>
+<script src="js/app.js?v=20261109020713"></script>
 
 </body>
 </html>

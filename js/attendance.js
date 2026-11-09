@@ -23,7 +23,8 @@ var Attendance = (function () {
     _open = {}; _edit = {}; _ym = null;
     render();
   }
-  function setClass(cls) { _open[cls] = true; render(); }       // used by links into Attendance
+  var _cls = "Grade XI";   // class chosen in the drop-down
+  function setClass(cls) { _cls = cls; var sel = Utils.el("as-grade"); if (sel) sel.value = cls; render(); }
   function step(n) {
     var sel = Utils.el("attsheet-month"), i = sel.selectedIndex + n;
     if (i < 0 || i >= sel.options.length) return;
@@ -46,88 +47,65 @@ var Attendance = (function () {
   function render() {
     var ym = Utils.el("attsheet-month").value; if (!ym) return;
     var p = ym.split("-"), year = Number(p[0]), month = Number(p[1]);
-    var weeks = _weeks(year, month), now = ptToday().date, thisMonth = Utils.curYm() === ym;
-    if (_ym !== ym) {
-      Object.keys(_open).forEach(function (k) { if (k.indexOf("|w") > 0) delete _open[k]; });
-      _edit = {}; _ym = ym;
-      if (thisMonth) weeks.forEach(function (w, i) {
-        if (w.indexOf(now.getDate()) >= 0) CLASSES.forEach(function (c) { _open[c[0] + "|w" + i] = true; });
-      });
-    }
+    var dim = new Date(year, month, 0).getDate(), now = ptToday().date, thisMonth = Utils.curYm() === ym;
+    if (_ym !== ym) { _edit = {}; _ym = ym; }
     var mon = MONTHS[month - 1].slice(0, 3);
+    var cls = _cls, title = Utils.grade(cls), sheet = _sheet(cls);
+    var names = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
+    var wrap = Utils.el("attsheet-wrap");
+    if (!names.length) {
+      wrap.innerHTML = "<div class='empty'><div class='empty-text'>No students in " + title + ".</div></div>"; return;
+    }
+    var days = []; for (var d = 1; d <= dim; d++) days.push(d);
+    var marked = {}, classDays = 0;
+    days.forEach(function (d) { marked[d] = _marked(sheet, names, d); if (marked[d]) classDays++; });
+    var editing = _edit[cls] || null;
 
-    Utils.el("attsheet-wrap").innerHTML = CLASSES.map(function (c) {
-      var cls = c[0], sheet = _sheet(cls);
-      var students = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); });
-      var names = students.map(Utils.fullName);
-      // Month totals per student
-      var mP = {}, mA = {}, classDays = 0, allP = 0, allA = 0;
-      names.forEach(function (n) {
-        mP[n] = 0; mA[n] = 0;
-        Object.keys(sheet[n] || {}).forEach(function (d) { var v = sheet[n][d]; if (v === "P") mP[n]++; if (v === "A") mA[n]++; });
-        allP += mP[n]; allA += mA[n];
-      });
-      for (var d0 = 1; d0 <= new Date(year, month, 0).getDate(); d0++) if (_marked(sheet, names, d0)) classDays++;
-      var mPct = allP + allA ? Math.round(allP / (allP + allA) * 100) : null;
+    var head = "<tr><th class='num'>#</th><th class='name-col'>Name</th>" + days.map(function (d) {
+      var di = new Date(year, month - 1, d).getDay(), wk = di === 0 || di === 6;
+      var locked = marked[d] && editing !== d;
+      return "<th class='day-col" + (wk ? " weekend-col" : "") + (di === 1 ? " wk-start" : "") + (editing === d ? " editing" : "") +
+        (locked ? " locked" : "") + (thisMonth && d === now.getDate() ? " today" : "") +
+        "' title='" + d + " " + MONTHS[month - 1] + " (" + DAYS[di] + ")'>" + d + "<br><span class='dn'>" + DAYS[di].slice(0, 2) + "</span>" +
+        (locked ? Utils.hoverEdit("Attendance.edit('" + cls + "'," + d + ")", "Change this day") : "") + "</th>";
+    }).join("") + "<th class='sum' style='color:var(--accent3)'>P</th><th class='sum' style='color:var(--danger)'>A</th><th class='sum'>%</th></tr>";
 
-      var body;
-      if (!names.length) {
-        body = "<div class='empty' style='padding:20px'><div class='empty-text'>No students in " + c[1] + ".</div></div>";
-      } else {
-        body = weeks.map(function (w, wi) {
-          var wkey = cls + "|w" + wi, wP = 0, wA = 0, wDays = 0;
-          var head = "<tr><th class='num'>#</th><th class='name-col'>Name</th>" + w.map(function (d) {
-            var di = new Date(year, month - 1, d).getDay(), wk = di === 0 || di === 6;
-            var marked = _marked(sheet, names, d), editing = _edit[cls] === d;
-            if (marked) wDays++;
-            return "<th class='day-col" + (wk ? " weekend-col" : "") + (editing ? " editing" : "") + (marked && !editing ? " locked" : "") +
-              (thisMonth && d === now.getDate() ? " today" : "") + "' title='" + d + " " + MONTHS[month - 1] + " (" + DAYS[di] + ")'>" +
-              d + "<br><span class='dn'>" + DAYS[di].slice(0, 2) + "</span>" +
-              (marked && !editing ? Utils.hoverEdit("Attendance.edit('" + cls + "'," + d + ")", "Change this day") : "") + "</th>";
-          }).join("") + "<th class='sum'>Week</th><th class='sum'>Month</th></tr>";
-          var rows = names.map(function (n, si) {
-            var rp = 0, ra = 0;
-            var cells = w.map(function (d) {
-              var di = new Date(year, month - 1, d).getDay(), wk = di === 0 || di === 6;
-              var v = (sheet[n] || {})[d] || "";
-              if (v === "P") rp++; if (v === "A") ra++;
-              var locked = _marked(sheet, names, d) && _edit[cls] !== d;
-              var cl = "as-btn-p" + (v === "P" ? " active-p" : v === "A" ? " active-a" : "");
-              return "<td class='" + (wk ? "weekend-col" : "") + (_edit[cls] === d ? " editing" : "") + "'>" + (locked
-                ? "<span class='" + cl + " lockd'>" + (v || "–") + "</span>"
-                : "<button class='" + cl + "' onclick='Attendance.mark(\"" + cls + "\"," + d + "," + si + ")'>" + (v || "--") + "</button>") + "</td>";
-            }).join("");
-            wP += rp; wA += ra;
-            var mt = mP[n] + mA[n], pct = mt ? Math.round(mP[n] / mt * 100) : null;
-            return "<tr><td class='num'>" + (si + 1) + "</td><td class='name-col'>" + Utils.studentLink(n) + "</td>" + cells +
-              "<td class='sum'><span style='color:var(--accent3)'>" + rp + "</span> / <span style='color:var(--danger)'>" + ra + "</span></td>" +
-              "<td class='sum' style='color:" + _pctCol(pct) + "'>" + (pct === null ? "--" : pct + "%") + "</td></tr>";
-          }).join("");
-          var foot = "<tr class='as-summary-row'><td></td><td class='name-col'>Present</td>" + w.map(function (d) {
-            var n = names.filter(function (x) { return (sheet[x] || {})[d] === "P"; }).length;
-            return "<td style='color:var(--accent3)'>" + (n || "--") + "</td>";
-          }).join("") + "<td></td><td></td></tr>";
-          var editing = _edit[cls] && w.indexOf(_edit[cls]) >= 0 ? _edit[cls] : null;
-          var bar = editing ? "<div class='as-editbar'><span>Marking <b>" + editing + " " + mon + "</b>: click a box for P → A → blank.</span>" +
-              "<button class='btn btn-secondary btn-sm' onclick='Attendance.allPresent(\"" + cls + "\"," + editing + ")'>Mark everyone present</button>" +
-              (_marked(sheet, names, editing) ? "<button class='btn btn-danger btn-sm' onclick='Attendance.clearDay(\"" + cls + "\"," + editing + ")'>Clear day</button>" : "") +
-              "<button class='btn btn-primary btn-sm' onclick='Attendance.done(\"" + cls + "\")'>Done</button></div>" : "";
-          var wt = wP + wA, wPct = wt ? Math.round(wP / wt * 100) : null;
-          var meta = wDays ? wDays + " class day" + (wDays === 1 ? "" : "s") + " &middot; <span style='color:" + _pctCol(wPct) + "'>" + wPct + "% present</span>" : "not marked yet";
-          return "<details class='section syl-week'" + (_open[wkey] ? " open" : "") + " ontoggle='Attendance.toggle(\"" + wkey + "\", this)'>" +
-            "<summary><span class='section-title'>Week " + (wi + 1) + " <span class='muted' style='font-weight:500'>" + w[0] +
-            (w.length > 1 ? "–" + w[w.length - 1] : "") + " " + mon + "</span></span><span class='section-meta'>&middot; " + meta + "</span>" +
-            (thisMonth && w.indexOf(now.getDate()) >= 0 ? "<span class='chip chip-gold' style='margin-left:6px'>This week</span>" : "") +
-            "<span class='show-pill' aria-hidden='true'></span></summary><div class='section-body' style='padding:0'>" + bar +
-            "<div style='overflow-x:auto'><table class='as-table as-week'><thead>" + head + "</thead><tbody>" + rows + foot + "</tbody></table></div></div></details>";
-        }).join("");
-      }
-      return "<details class='section tests-section syl-class as-class'" + (_open[cls] ? " open" : "") + " ontoggle='Attendance.toggle(\"" + cls + "\", this)'>" +
-        "<summary><span class='section-title'>" + c[1] + "</span><span class='section-meta'>&middot; " + MONTHS[month - 1] + " " + year +
-        " &middot; " + names.length + " students &middot; " + classDays + " class day" + (classDays === 1 ? "" : "s") +
-        (mPct === null ? "" : " &middot; <span style='color:" + _pctCol(mPct) + "'>" + mPct + "% present</span>") + "</span>" +
-        "<span class='show-pill' aria-hidden='true'></span></summary><div class='section-body syl-weeks'>" + body + "</div></details>";
+    var allP = 0, allA = 0;
+    var rows = names.map(function (n, si) {
+      var rp = 0, ra = 0;
+      var cells = days.map(function (d) {
+        var di = new Date(year, month - 1, d).getDay(), wk = di === 0 || di === 6;
+        var v = (sheet[n] || {})[d] || "";
+        if (v === "P") rp++; if (v === "A") ra++;
+        var locked = marked[d] && editing !== d;
+        var cl = "as-btn-p" + (v === "P" ? " active-p" : v === "A" ? " active-a" : "");
+        return "<td class='" + (wk ? "weekend-col" : "") + (di === 1 ? " wk-start" : "") + (editing === d ? " editing" : "") + "'>" + (locked
+          ? "<span class='" + cl + " lockd'>" + (v || "–") + "</span>"
+          : "<button class='" + cl + "' onclick='Attendance.mark(\"" + cls + "\"," + d + "," + si + ")'>" + (v || "--") + "</button>") + "</td>";
+      }).join("");
+      allP += rp; allA += ra;
+      var t = rp + ra, pct = t ? Math.round(rp / t * 100) : null;
+      return "<tr><td class='num'>" + (si + 1) + "</td><td class='name-col'>" + Utils.studentLink(n) + "</td>" + cells +
+        "<td class='sum' style='color:var(--accent3)'>" + rp + "</td><td class='sum' style='color:var(--danger)'>" + ra + "</td>" +
+        "<td class='sum' style='color:" + _pctCol(pct) + "'>" + (pct === null ? "--" : pct + "%") + "</td></tr>";
     }).join("");
+    var foot = "<tr class='as-summary-row'><td></td><td class='name-col'>Present</td>" + days.map(function (d) {
+      var c = names.filter(function (x) { return (sheet[x] || {})[d] === "P"; }).length;
+      return "<td class='" + (new Date(year, month - 1, d).getDay() === 1 ? "wk-start" : "") + "' style='color:var(--accent3)'>" + (c || "--") + "</td>";
+    }).join("") + "<td></td><td></td><td></td></tr>";
+
+    var mPct = allP + allA ? Math.round(allP / (allP + allA) * 100) : null;
+    var bar = editing ? "<div class='as-editbar'><span>Marking <b>" + editing + " " + mon + "</b>: click a box for P → A → blank.</span>" +
+        "<button class='btn btn-secondary btn-sm' onclick='Attendance.allPresent(\"" + cls + "\"," + editing + ")'>Mark everyone present</button>" +
+        (marked[editing] ? "<button class='btn btn-danger btn-sm' onclick='Attendance.clearDay(\"" + cls + "\"," + editing + ")'>Clear day</button>" : "") +
+        "<button class='btn btn-primary btn-sm' onclick='Attendance.done(\"" + cls + "\")'>Done</button></div>"
+      : "<div class='as-hint muted'>Click a box on a new day to start marking it. Marked days are locked: hover over the date and press &#9998; to change one.</div>";
+    wrap.innerHTML =
+      "<div class='month-sum'><b>" + title + " &middot; " + MONTHS[month - 1] + " " + year + "</b> &middot; " + names.length + " students &middot; " +
+        classDays + " class day" + (classDays === 1 ? "" : "s") +
+        (mPct === null ? "" : " &middot; <span style='color:" + _pctCol(mPct) + "'>" + mPct + "% present</span>") + "</div>" +
+      "<div class='panel as-month'>" + bar + "<div style='overflow-x:auto'><table class='as-table as-week as-full'><thead>" + head + "</thead><tbody>" +
+        rows + foot + "</tbody></table></div></div>";
   }
 
   function _names(cls) {
