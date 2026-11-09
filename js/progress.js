@@ -38,9 +38,67 @@ var Progress = (function () {
     };
   }
 
+  // The same date in the year starting `start` (today's day and month, that year's calendar)
+  function _sameDay(start) {
+    var t = ptToday().iso, shift = Number(start.slice(0, 4)) - Number(defaultAcadStart().slice(0, 4));
+    var y = Number(t.slice(0, 4)) + shift, md = t.slice(5);
+    if (md === "02-29" && !(y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0))) md = "02-28";
+    return y + "-" + md;
+  }
+
+  // One year's figures up to a date (fees by the day they were received,
+  // classes and sessions held by then, students who had started by then)
+  function _soFar(start, cut) {
+    setAcademicYear(start);
+    var D = Data.get(), first = acadFirstDay(), rc = Utils.rosterCls(), feeMonths = acadEntryMonths();
+    var r = { start: start, label: acadLabel(start), cut: cut, groupFees: 0, hourlyFees: 0, p1Hours: 0, p2Hours: 0, hourlyHours: 0 };
+    Object.keys(D.paygrid || {}).forEach(function (sk) {
+      var k = sk.split("|"); if (feeMonths.indexOf(k[2]) < 0) return;
+      var mo = k[2].slice(5);
+      Object.keys(D.paygrid[sk]).forEach(function (nm) {
+        if ((mo === "03" || mo === "04") && rc[nm] !== k[1]) return;
+        var e = D.paygrid[sk][nm];
+        if (e.status === "Paid" && String(e.paydate || k[2] + "-01") <= cut) r.groupFees += Number(e.amount) || 0;
+      });
+    });
+    var people = {}, hourly = {};
+    Data.allStudents().forEach(function (s) {
+      var n = Utils.fullName(s);
+      if (Hourly.hourlyIn(s)) hourly[n] = 1;
+      if (String(s.startDate || first) <= cut) people[n] = 1;
+    });
+    (D.hourpay || []).forEach(function (x) {
+      if (hourly[x.student] && x.date >= first && x.date <= cut) r.hourlyFees += Number(x.amount) || 0;
+    });
+    (D.sessions || []).forEach(function (x) {
+      if (hourly[x.student] && x.date >= first && x.date <= cut) r.hourlyHours += Hourly.sessionHours(x);
+    });
+    Object.keys(D.syllabus || {}).forEach(function (sk) {
+      var k = sk.split("|"); if (!Dashboard.plannerKeyInYear(sk)) return;
+      Object.keys(D.syllabus[sk]).forEach(function (day) {
+        var e = D.syllabus[sk][day], dt = k[1] + "-" + String(day).padStart(2, "0");
+        if (!e.chapter || dt < first || dt > cut) return;
+        var a = Hourly.parseTime(e.start), b = Hourly.parseTime(e.end);
+        if (a === null || b === null || b <= a) return;
+        if (k[0] === "Grade XI") r.p1Hours += b - a; else if (k[0] === "Grade XII") r.p2Hours += b - a;
+      });
+    });
+    r.fees = r.groupFees + r.hourlyFees;
+    r.hours = r.p1Hours + r.p2Hours + r.hourlyHours;
+    r.students = Object.keys(people).length;
+    return r;
+  }
+
   function compute() {
     var keep = viewYear(), rows = [];
     try { _years().forEach(function (y) { rows.push(_year(y)); }); }
+    finally { setAcademicYear(keep); }
+    return rows;
+  }
+  // Every year up to today's date in that year
+  function computeSoFar() {
+    var keep = viewYear(), rows = [];
+    try { _years().forEach(function (y) { rows.push(_soFar(y, _sameDay(y))); }); }
     finally { setAcademicYear(keep); }
     return rows;
   }
@@ -91,11 +149,11 @@ var Progress = (function () {
     return "<div class='prog-legend'>" + items.map(function (s) {
       return "<span><i style='background:" + s.color + "'></i>" + s.label + "</span>"; }).join("") + "</div>";
   }
-  function _growth(rows, key) {
+  function _growth(rows, key, fair) {
     return function (r, i) {
       if (!i || !rows[i - 1][key]) return null;
       var g = (r[key] - rows[i - 1][key]) / rows[i - 1][key] * 100;
-      if (r.current) return { text: "so far", color: _css("--text3") };
+      if (r.current && !fair) return { text: "so far", color: _css("--text3") };
       return { text: (g >= 0 ? "+" : "") + Math.round(g) + "%", color: g >= 0 ? _css("--accent3") : _css("--danger") };
     };
   }
@@ -110,13 +168,38 @@ var Progress = (function () {
     var first = rows[0], lastFull = rows.filter(function (r) { return !r.current; }).pop();
     var cagr = first && lastFull && lastFull !== first && first.fees > 0
       ? (Math.pow(lastFull.fees / first.fees, 1 / (rows.indexOf(lastFull) - rows.indexOf(first))) - 1) * 100 : null;
+    var sf = computeSoFar(), now = sf[sf.length - 1], prev = sf[sf.length - 2];
+    sf.forEach(function (r, i) { r.current = i === sf.length - 1; });
+    var dm = Utils.fmtDate(now.cut).replace(/ \d{4}$/, "");
+    function chg(a, b) {
+      if (!b) return "<td class='c muted'>\u2014</td>";
+      var g = (a - b) / b * 100;
+      return "<td class='c' style='color:" + (g >= 0 ? "var(--accent3)" : "var(--danger)") + ";font-weight:700'>" + (g >= 0 ? "+" : "") + Math.round(g) + "%</td>";
+    }
+    function line(lbl, a, b, f) { return "<tr><td>" + lbl + "</td><td class='r'><b>" + f(a) + "</b></td><td class='r'>" + f(b) + "</td>" + chg(a, b) + "</tr>"; }
+    var same = !prev ? "" :
+      "<div class='prog-same'><div class='prog-title'>Same point last year &middot; up to " + dm + "</div>" +
+      "<table class='tests-table prog-table prog-cmp'><thead><tr><th></th><th class='r'>" + now.label + "<small>to " + Utils.fmtDate(now.cut) + "</small></th>" +
+        "<th class='r'>" + prev.label + "<small>to " + Utils.fmtDate(prev.cut) + "</small></th><th class='c'>Change</th></tr></thead><tbody>" +
+        line("Fees received", now.fees, prev.fees, money) +
+        line("&nbsp;&nbsp;Group fees", now.groupFees, prev.groupFees, money) +
+        line("&nbsp;&nbsp;Hourly fees", now.hourlyFees, prev.hourlyFees, money) +
+        line("Students", now.students, prev.students, String) +
+        line("Teaching hours", now.hours, prev.hours, hm) +
+        line("&nbsp;&nbsp;Plus 1", now.p1Hours, prev.p1Hours, hm) +
+        line("&nbsp;&nbsp;Plus 2", now.p2Hours, prev.p2Hours, hm) +
+        line("&nbsp;&nbsp;Hourly", now.hourlyHours, prev.hourlyHours, hm) +
+      "</tbody></table></div>";
     var best = rows.filter(function (r) { return !r.current; }).sort(function (a, b) { return b.fees - a.fees; })[0];
-    box.innerHTML =
+    box.innerHTML = _strip() +
       "<div class='prog-kpis'>" +
         "<div><span>Fees received, all years</span><b>" + money(rows.reduce(function (t, r) { return t + r.fees; }, 0)) + "</b></div>" +
         (cagr === null ? "" : "<div><span>Average yearly growth (" + first.label + " to " + lastFull.label + ")</span><b style='color:" + (cagr >= 0 ? "var(--accent3)" : "var(--danger)") + "'>" + (cagr >= 0 ? "+" : "") + cagr.toFixed(1) + "%</b></div>") +
         (best ? "<div><span>Best year for fees</span><b>" + best.label + " &middot; " + lakh(best.fees) + "</b></div>" : "") +
         "<div><span>Students taught, all years</span><b>" + rows.reduce(function (t, r) { return t + r.students; }, 0) + "</b></div>" +
+      "</div>" +
+      "<div class='prog-grid'>" + same +
+        "<div class='prog-chart'><div class='prog-title'>Fees received up to " + dm + ", each year</div>" + _legend(fees) + "<canvas id='prog-sofar'></canvas></div>" +
       "</div>" +
       "<div class='prog-grid'>" +
         "<div class='prog-chart'><div class='prog-title'>Fees received per year</div>" + _legend(fees) + "<canvas id='prog-fees'></canvas></div>" +
@@ -137,11 +220,32 @@ var Progress = (function () {
           "<td class='r'>" + money(r.perStudent) + "</td>" +
           "<td class='c'>" + hm(r.p1Hours) + " / " + r.p1Days + "</td><td class='c'>" + hm(r.p2Hours) + " / " + r.p2Days + "</td><td class='c'>" + hm(r.hourlyHours) + "</td></tr>";
       }).join("") + "</tbody></table></div>" +
-      "<p class='section-note' style='margin:8px 0 0'>* " + acadLabel(defaultAcadStart()) + " is in progress (shown lighter, “so far”). Students are people enrolled in the year (someone in group and hourly classes counts once). Growth compares fees received with the year before.</p>";
+      "<p class='section-note' style='margin:8px 0 0'>* " + acadLabel(defaultAcadStart()) + " is in progress (shown lighter, “so far”). Students are people enrolled in the year (someone in group and hourly classes counts once). Growth compares fees received with the year before. “Same point last year” counts fees by the day they were received, classes and hourly sessions held, and students who had started, up to today&rsquo;s date in each year.</p>";
+    _bars(Utils.el("prog-sofar"), sf, fees, lakh, _growth(sf, "fees", true));
     _bars(Utils.el("prog-fees"), rows, fees, lakh, _growth(rows, "fees"));
     _bars(Utils.el("prog-students"), rows, stu, function (v, r) { return String(r.students); });
     _bars(Utils.el("prog-hours"), rows, hrs, function (v) { return hm(v); });
     _bars(Utils.el("prog-per"), rows, [{ key: "perStudent", label: "", color: _css("--text3") }], lakh);
+  }
+
+  // Logo, title and date at the top (for the picture)
+  function _strip() {
+    var y = _years();
+    return "<div class='pf-idstrip prog-strip'><img src='logo.png' alt=''><div class='pf-id-main'><div class='pf-id-name'>Progress over the years</div>" +
+      "<div class='pf-id-sub'>Academic years " + acadLabel(y[0]) + " to " + acadLabel(y[y.length - 1]) + "</div></div>" +
+      "<div class='pf-id-right'><div class='pf-id-date'>" + Utils.fmtDate(ptToday().date) + "</div><div class='pf-id-org'>PT &middot; Physics Tuition</div></div></div>";
+  }
+
+  // Share: a picture of the whole section, laid out at a fixed width so it
+  // looks the same from a phone or a computer
+  function share(btn) {
+    var d = Utils.el("sec-progress"); if (!d) return;
+    if (!d.open) d.open = true;
+    var box = Utils.el("progress-body");
+    box.classList.add("prog-snap"); render();
+    var y = _years();
+    var file = "PT progress " + acadLabel(y[0]).replace("\u2013", "-") + " to " + acadLabel(y[y.length - 1]).replace("\u2013", "-") + " - " + Utils.fmtDate(ptToday().date) + ".png";
+    Utils.snap(box, file, btn).then(function () { box.classList.remove("prog-snap"); render(); });
   }
 
   // Header label: "2021-22 to 2026-27 · 6 years"
@@ -154,5 +258,5 @@ var Progress = (function () {
   // Draw when the section is opened (it needs its width)
   function toggle(el) { if (el.open) render(); }
 
-  return { compute: compute, render: render, toggle: toggle, meta: meta };
+  return { compute: compute, computeSoFar: computeSoFar, render: render, toggle: toggle, meta: meta, share: share };
 })();
