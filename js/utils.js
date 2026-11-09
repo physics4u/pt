@@ -72,7 +72,7 @@ var Utils = (function () {
   function isActive(s) {
     if (!s) return false;
     if (isCurrentAcad()) {
-      if (s.status === "Inactive") return false;
+      if (!inYear(s) || s.status === "Inactive") return false;
       return !(s.endDate && s.endDate < todayIso());
     }
     if (!inYear(s)) return false;
@@ -85,7 +85,13 @@ var Utils = (function () {
   }
   // Was the student with PT at all in the academic year shown?
   function inYear(s) {
-    if (isCurrentAcad()) return true;
+    if (isCurrentAcad()) {
+      // enrolled this year (recorded when imported or saved); a student from an
+      // earlier year only carries over while still Active (e.g. after a new year starts)
+      if (new RegExp("(?:^|;)" + defaultAcadStart() + ":").test(String(s.yearCls || ""))) return true;
+      if (s.status !== "Inactive") return true;
+      return !s.yearCls && !!s.endDate && s.endDate >= acadFirstDay();
+    }
     var first = acadFirstDay(), last = acadLastDay();
     if (s.yearCls) return !!clsOf(s);                 // imported: listed in that year's records or not
     if (s.startDate && s.startDate <= last && (!s.endDate || s.endDate >= first)) return true;

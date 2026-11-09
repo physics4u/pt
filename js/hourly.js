@@ -105,7 +105,7 @@ var Hourly = (function () {
   // Hourly in the academic year shown: this year, an hourly student; in an
   // earlier year, anyone who had one-to-one sessions that year.
   function hourlyIn(s) {
-    if (isCurrentAcad()) return isHourly(s);
+    if (isCurrentAcad()) return isHourly(s) && Utils.inYear(s);
     var n = Utils.fullName(s);
     return sessionsOf(n).some(function (x) { return ACYR.indexOf(String(x.date).slice(0, 7)) >= 0; });
   }
