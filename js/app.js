@@ -78,6 +78,15 @@ var Dashboard = (function () {
 
   }
 
+  // A planner month belongs to the year on screen: "Grade XI|2026-05" when the
+  // month is in the year; "Grade XII|2022-03|2021-03" (an earlier year's own
+  // March/April after its February) when the third part is this year.
+  function _plannerKeyInYear(sk) {
+    var p = sk.split("|");
+    if (p.length >= 3) return p[2] === ACYR[0];
+    return ACYR.indexOf(p[1]) >= 0;
+  }
+
   // ----------------------------------------------------------------
   //  Helper: parse "02:00 PM" or "14:00" → decimal hours
   // ----------------------------------------------------------------
@@ -103,7 +112,7 @@ var Dashboard = (function () {
 
     if (D.syllabus) {
       Object.keys(D.syllabus).forEach(function (sk) {
-        if (sk.split("|")[0] !== grade || ACYR.indexOf(sk.split("|")[1]) < 0) return;
+        if (sk.split("|")[0] !== grade || !_plannerKeyInYear(sk)) return;
         var monthData = D.syllabus[sk];
         Object.keys(monthData).forEach(function (day) {
           var entry = monthData[day];
@@ -323,7 +332,7 @@ var Dashboard = (function () {
     if (D.syllabus) {
       Object.keys(D.syllabus).forEach(function (sk) {
         var skGrade = sk.split("|")[0];
-        if (skGrade !== grade || ACYR.indexOf(sk.split("|")[1]) < 0) return;
+        if (skGrade !== grade || !_plannerKeyInYear(sk)) return;
         var monthData = D.syllabus[sk];
         Object.keys(monthData).forEach(function (day) {
           var entry   = monthData[day];
