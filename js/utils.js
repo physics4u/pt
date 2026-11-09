@@ -67,14 +67,25 @@ var Utils = (function () {
 
   // ---- Active students ----
   // Current academic year: status is not Inactive and the end date hasn't passed.
-  // An earlier (or later) year: the student was there that year — their dates
-  // overlap it, or they have attendance, fees, sessions or marks in it.
+  // An earlier year: the student was there that year (in its records) and did
+  // not leave partway through it (no end date before the year ended).
   function isActive(s) {
     if (!s) return false;
     if (isCurrentAcad()) {
       if (s.status === "Inactive") return false;
       return !(s.endDate && s.endDate < todayIso());
     }
+    if (!inYear(s)) return false;
+    return !(s.endDate && s.endDate < acadLastDay());
+  }
+  // Status to show for the year on screen
+  function statusIn(s) {
+    if (isCurrentAcad()) return s.status || "Active";
+    return isActive(s) ? "Active" : "Inactive";
+  }
+  // Was the student with PT at all in the academic year shown?
+  function inYear(s) {
+    if (isCurrentAcad()) return true;
     var first = acadFirstDay(), last = acadLastDay();
     if (s.yearCls) return !!clsOf(s);                 // imported: listed in that year's records or not
     if (s.startDate && s.startDate <= last && (!s.endDate || s.endDate >= first)) return true;
@@ -137,7 +148,7 @@ var Utils = (function () {
 
   return { el: el, closeModal: closeModal, openModal: openModal,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
-           isActive: isActive, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
+           isActive: isActive, inYear: inYear, statusIn: statusIn, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
            fullName: fullName, grade: grade,
            studentLink: studentLink, hoverEdit: hoverEdit };
 })();
