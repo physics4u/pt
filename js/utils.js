@@ -86,11 +86,11 @@ var Utils = (function () {
   // Was the student with PT at all in the academic year shown?
   function inYear(s) {
     if (isCurrentAcad()) {
-      // enrolled this year (recorded when imported or saved); a student from an
-      // earlier year only carries over while still Active (e.g. after a new year starts)
+      // enrolled this year (recorded when imported or added/saved). Nothing
+      // carries over: a new academic year starts with no students.
       if (new RegExp("(?:^|;)" + defaultAcadStart() + ":").test(String(s.yearCls || ""))) return true;
-      if (s.status !== "Inactive") return true;
-      return !s.yearCls && !!s.endDate && s.endDate >= acadFirstDay();
+      if (s.yearCls) return false;                   // enrolled only in other years
+      return s.status !== "Inactive" || (!!s.endDate && s.endDate >= acadFirstDay());
     }
     var first = acadFirstDay(), last = acadLastDay();
     if (s.yearCls) return !!clsOf(s);                 // imported: listed in that year's records or not
