@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109000807">
+<link rel="stylesheet" href="css/styles.css?v=20261109002932">
 </head>
 <body>
 
@@ -192,10 +192,7 @@
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
-<select class="filter" id="syl-grade" onchange="Syllabus.setClass(this.value)">
-        <option value="Grade XI">Plus 1</option>
-        <option value="Grade XII">Plus 2</option>
-      </select>
+      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
       <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto">
         <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
         <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
@@ -205,11 +202,11 @@
         <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
         <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
       </select>
+      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
-  <div id="syl-class-label" style="margin-bottom:12px;font-size:12px;color:var(--text3)"></div>
-  <div class="panel" id="syllabus-table-wrap"></div>
+  <div id="syllabus-table-wrap"></div>
 </div>
     <div id="page-payments" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
@@ -563,10 +560,11 @@
     <summary><span class="section-title">Monthly Planner</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <ol>
-        <li>Choose the <b>grade</b> and the <b>month</b> at the top.</li>
-        <li>For each day you teach, pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>. Add notes if you like (for example the topics covered).</li>
-        <li>That's it: each change saves automatically.</li>
+        <li>Choose the <b>month</b> at the top (&#9664; &#9654; move a month at a time).</li>
+        <li>Open <b>Plus 1</b> or <b>Plus 2</b>. The month is split into weeks (Monday to Sunday); the current week is already open and marked <b>This week</b>. Each week's heading shows its days, hours and chapters.</li>
+        <li>For each day you teach, pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>. Add notes if you like (for example the topics covered). Each change saves automatically.</li>
       </ol>
+      <p>Once a day has an entry it is locked when you move to another row. To change it, hover over the day and press <b>&#9998;</b>; press <b>Done</b> when finished, or <b>Clear</b> (red) to remove the day's entry.</p>
       <p>Days with an entry are highlighted; weekends are tinted. The Dashboard's hours, days and Teaching Hours charts come from this page.</p>
       <p>The chapter list comes from <b>Settings &rarr; Chapter lists</b> (admins can edit it).</p>
     </div>
@@ -835,25 +833,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109000807"></script>
-<script src="js/version.js?v=20261109000807"></script>
-<script src="js/config.js?v=20261109000807"></script>
-<script src="js/data.js?v=20261109000807"></script>
-<script src="js/utils.js?v=20261109000807"></script>
-<script src="js/students.js?v=20261109000807"></script>
-<script src="js/classes.js?v=20261109000807"></script>
-<script src="js/attendance.js?v=20261109000807"></script>
-<script src="js/syllabus.js?v=20261109000807"></script>
-<script src="js/payments.js?v=20261109000807"></script>
-<script src="js/scores.js?v=20261109000807"></script>
-<script src="js/profile.js?v=20261109000807"></script>
-<script src="js/settings.js?v=20261109000807"></script>
-<script src="js/users.js?v=20261109000807"></script>
-<script src="js/help.js?v=20261109000807"></script>
-<script src="js/storage.js?v=20261109000807"></script>
-<script src="js/import.js?v=20261109000807"></script>
-<script src="js/hourly.js?v=20261109000807"></script>
-<script src="js/app.js?v=20261109000807"></script>
+<script src="js/site-config.js?v=20261109002932"></script>
+<script src="js/version.js?v=20261109002932"></script>
+<script src="js/config.js?v=20261109002932"></script>
+<script src="js/data.js?v=20261109002932"></script>
+<script src="js/utils.js?v=20261109002932"></script>
+<script src="js/students.js?v=20261109002932"></script>
+<script src="js/classes.js?v=20261109002932"></script>
+<script src="js/attendance.js?v=20261109002932"></script>
+<script src="js/syllabus.js?v=20261109002932"></script>
+<script src="js/payments.js?v=20261109002932"></script>
+<script src="js/scores.js?v=20261109002932"></script>
+<script src="js/profile.js?v=20261109002932"></script>
+<script src="js/settings.js?v=20261109002932"></script>
+<script src="js/users.js?v=20261109002932"></script>
+<script src="js/help.js?v=20261109002932"></script>
+<script src="js/storage.js?v=20261109002932"></script>
+<script src="js/import.js?v=20261109002932"></script>
+<script src="js/hourly.js?v=20261109002932"></script>
+<script src="js/app.js?v=20261109002932"></script>
 
 </body>
 </html>

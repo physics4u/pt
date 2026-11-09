@@ -454,7 +454,7 @@ details.section > summary{align-items:center;gap:6px;padding:12px 16px;}
 .show-pill{margin-left:auto;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;
   font-weight:700;color:var(--text);white-space:nowrap;}
 .show-pill::after{content:"Show \25BE";}
-details.section[open] .show-pill::after{content:"Hide \25B4";}
+details.section[open] > summary .show-pill::after{content:"Hide \25B4";}
 details.section > summary:hover .show-pill{border-color:var(--text3);}
 .section-body{padding:12px 16px 16px;}
 .section-note{font-size:12.5px;line-height:1.6;color:var(--text2);margin:0 0 12px;}
@@ -710,3 +710,14 @@ table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
 .att-row-label .p{color:var(--accent3);} .att-row-label .a{color:var(--danger);}
 .att-row .att-dots{padding:0;gap:3px;flex:1;}
 .att-row .att-dot{width:22px;height:20px;font-size:9.5px;border-radius:4px;}
+
+/* ---- Monthly Planner: class sections → weeks ---- */
+.syl-weeks{padding:10px 12px 4px;}
+.syl-week{margin-bottom:8px;background:var(--bg);}
+.syl-week > summary{padding:9px 14px;}
+.syl-week .section-title{font-size:14px;}
+.syl-week .section-meta{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%;}
+.syl-week .syl-chs{color:var(--text2);}
+.syllabus-table tr.locked td{padding:8px 12px;}
+.syllabus-table tr.syl-today td:first-child .day-label::after{content:" \2022 today";color:var(--accent);font-size:10px;font-weight:700;}
+.syllabus-table .edit-cell{text-align:right;white-space:nowrap;}
