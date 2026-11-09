@@ -245,7 +245,9 @@ var Profile = (function () {
   }
 
   function byName(name) {
-    var i = Data.get().students.findIndex(function (s) { return Utils.fullName(s) === name; });
+    // the same name can be in PT once per year: open the one in the year on screen
+    var all = Data.get().students, i = all.findIndex(function (s) { return Utils.fullName(s) === name && Utils.inYear(s); });
+    if (i < 0) i = all.findIndex(function (s) { return Utils.fullName(s) === name; });
     if (i >= 0) view(i); else Dialog.alert("There is no student called “" + name + "” any more.");
   }
 
