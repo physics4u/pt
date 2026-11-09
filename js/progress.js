@@ -1,5 +1,5 @@
 // ================================================================
-//  progress.js — Settings → Six-year progress (admins).
+//  progress.js — Settings → Progress over the years (admins).
 //  Works out each academic year's figures the same way the Dashboard
 //  does (by switching the year briefly, then switching back) and draws
 //  them side by side: fees received, students, teaching hours, plus a
@@ -133,11 +133,11 @@ var Progress = (function () {
       });
       ctx.globalAlpha = 1;
       ctx.fillStyle = _css("--text"); ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-      ctx.font = "bold 12px " + _font();
+      ctx.font = "bold " + (slot < 46 ? 10 : 12) + "px " + _font();
       ctx.fillText(fmt(totals[i], r), x + bw / 2, y - 4);
       ctx.fillStyle = _css("--text2"); ctx.textBaseline = "top"; ctx.font = "12px " + _font();
-      ctx.fillText(r.label + (r.current ? "*" : ""), x + bw / 2, base + 6);
-      if (sub) { var t = sub(r, i); if (t) { ctx.fillStyle = t.color || _css("--text3"); ctx.font = "bold 11px " + _font(); ctx.fillText(t.text, x + bw / 2, base + 22); } }
+      ctx.fillText((slot < 60 ? r.label.slice(2) : r.label) + (r.current ? "*" : ""), x + bw / 2, base + 6);
+      if (sub) { var t = sub(r, i); if (t) { ctx.fillStyle = t.color || _css("--text3"); ctx.font = "bold " + (slot < 46 ? 10 : 11) + "px " + _font(); ctx.fillText(t.text, x + bw / 2, base + 22); } }
     });
   }
   function _rect(ctx, x, y, w, h, r) {
