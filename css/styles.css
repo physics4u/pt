@@ -812,3 +812,13 @@ table.as-week thead th:hover .row-edit{visibility:visible;}
 .as-full th.name-col,.as-full td.name-col{min-width:122px;}
 .as-full th.sum,.as-full td.sum{min-width:26px;padding:2px 2px;}
 .as-full td.name-col .stu-link{display:inline-block;max-width:134px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+
+/* Sidebar: Settings & Help pinned at the bottom; page footer */
+.sidebar .nav{flex:1;overflow-y:auto;}
+.sidebar-footer{padding:8px 12px 12px;}
+.sidebar-footer .nav-item{margin:2px 0;}
+.app-footer{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:8px 0 12px;font-size:12px;color:var(--text3);font-family:var(--font-ui);border-top:1px solid var(--border);margin:0 32px;}
+.app-footer .sep{opacity:.6;}
+.content:has(#page-dashboard.active){padding-bottom:8px;}
+.app-footer{align-items:center;}
+.app-footer .app-version{margin:0;line-height:1.4;}

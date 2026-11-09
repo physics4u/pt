@@ -53,9 +53,23 @@ var Dashboard = (function () {
     _renderGradeStats(D, "Grade XII", "stat-xii-hours", "stat-xii-days");
 
     // ---- Charts ----
-    _renderRevenueChart(D);
-    _renderSyllabusChart(D, "Grade XI",  "syllabus-chart-xi",  "syllabus-empty-xi",  "syl-total-xi");
-    _renderSyllabusChart(D, "Grade XII", "syllabus-chart-xii", "syllabus-empty-xii", "syl-total-xii");
+    // Size the charts to fill the screen: teaching hours ~60%, income ~40%
+    // of the height left below the tiles (within sensible limits).
+    var grid = document.querySelector("#page-dashboard .grid2");
+    var foot = document.querySelector(".app-footer");
+    var avail = window.innerHeight - (grid ? grid.getBoundingClientRect().top + window.scrollY : 300) -
+                (foot ? foot.offsetHeight : 40) - 8 - 10 - 26;
+    var PANEL = 46;                                   // panel heading + padding
+    var teachH = Math.max(220, Math.round(avail * 0.6) - PANEL);
+    var incomeH = Math.max(170, Math.min(340, avail - (teachH + PANEL) - PANEL));
+    var n1 = _renderSyllabusChart(D, "Grade XI",  "syllabus-chart-xi",  "syllabus-empty-xi",  "syl-total-xi", 0, true);
+    var n2 = _renderSyllabusChart(D, "Grade XII", "syllabus-chart-xii", "syllabus-empty-xii", "syl-total-xii", 0, true);
+    var rowH = Math.max(19, Math.min(32, Math.floor((teachH - 30) / Math.max(n1, n2, 1))));
+    _renderSyllabusChart(D, "Grade XI",  "syllabus-chart-xi",  "syllabus-empty-xi",  "syl-total-xi", rowH);
+    _renderSyllabusChart(D, "Grade XII", "syllabus-chart-xii", "syllabus-empty-xii", "syl-total-xii", rowH);
+    // income takes whatever height the teaching charts left
+    incomeH = Math.max(170, Math.min(340, avail - (Math.max(n1, n2, 1) * rowH + 30) - 2 * PANEL));
+    _renderRevenueChart(D, incomeH);
 
   }
 
@@ -128,7 +142,7 @@ var Dashboard = (function () {
   // 2500 → "2.5", 12000 → "12"
   function _k(v) { var k = v / 1000; return k < 10 && k % 1 ? k.toFixed(1) : k.toFixed(0); }
 
-  function _renderRevenueChart(D) {
+  function _renderRevenueChart(D, height) {
     var canvas  = Utils.el("revenue-chart");
     var empty   = Utils.el("chart-empty");
     var totalEl = Utils.el("chart-total");
@@ -163,7 +177,7 @@ var Dashboard = (function () {
     totalEl.textContent = "Total: \u20b9" + total.toLocaleString("en-IN");
 
     var dpr = window.devicePixelRatio || 1;
-    var W = canvas.parentElement.clientWidth - 32, H = 160;
+    var W = canvas.parentElement.clientWidth - 32, H = height || 160;
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     var ctx = canvas.getContext("2d"); ctx.scale(dpr, dpr);
@@ -266,7 +280,7 @@ var Dashboard = (function () {
   //  emptyId  : element id of the empty-state <div>
   //  totalId  : element id of the total hours <span>
   // ----------------------------------------------------------------
-  function _renderSyllabusChart(D, grade, canvasId, emptyId, totalId) {
+  function _renderSyllabusChart(D, grade, canvasId, emptyId, totalId, rowH, countOnly) {
     var canvas  = Utils.el(canvasId);
     var empty   = Utils.el(emptyId);
     var totalEl = Utils.el(totalId);
@@ -317,15 +331,16 @@ var Dashboard = (function () {
     var activeKeys = CHAPTER_KEYS.filter(function (k) { return hoursMap[k] > 0; });
     var totalHrs   = CHAPTER_KEYS.reduce(function (s, k) { return s + hoursMap[k]; }, 0);
 
+    if (countOnly) return activeKeys.length;
     if (activeKeys.length === 0) {
-      canvas.style.display = "none"; empty.style.display = ""; totalEl.textContent = ""; return;
+      canvas.style.display = "none"; empty.style.display = ""; totalEl.textContent = ""; return 0;
     }
     canvas.style.display = ""; empty.style.display = "none";
     totalEl.textContent = "Total: " + _hm(totalHrs);
 
     // ---- Drawing ----
     var dpr    = window.devicePixelRatio || 1;
-    var ROW_H  = 19;
+    var ROW_H  = rowH || 19;
     var PAD_L  = 210;   // space for chapter labels
     var PAD_R  = 52;    // space for value labels
     var PAD_T  = 6;
@@ -383,7 +398,7 @@ var Dashboard = (function () {
     // Bars + labels
     activeKeys.forEach(function (chapter, idx) {
       var hrs  = hoursMap[chapter];
-      var barH = ROW_H * 0.62;
+      var barH = ROW_H * 0.66;
       var y    = PAD_T + idx * ROW_H + (ROW_H - barH) / 2;
       var barW = (hrs / niceMax) * chartW;
       var isRev = /^Revision/.test(chapter);
@@ -407,7 +422,7 @@ var Dashboard = (function () {
       var shortLabel = SHORT_LABELS[chapter] || chapter;
       ctx.fillStyle = isRev ? COL_REV : COL_LABEL;
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
-      ctx.font = "13px " + _chartFont();
+      ctx.font = (ROW_H >= 24 ? "14px " : "13px ") + _chartFont();
       // Shorten with "…" if the label still doesn't fit
       var room = PAD_L - 14;
       if (ctx.measureText(shortLabel).width > room) {
@@ -419,7 +434,7 @@ var Dashboard = (function () {
       // Hours value
       ctx.fillStyle = COL_VALUE; ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.font = "13px "+_chartFont()+"";
-      ctx.font = "600 13px "+_chartFont()+"";
+      ctx.font = (ROW_H >= 24 ? "600 14px " : "600 13px ") + _chartFont();
       ctx.fillText(_hm(hrs), PAD_L + barW + 6, y + barH / 2);
     });
   }
@@ -505,10 +520,12 @@ var Theme = (function () {
     });
   });
 
+  var _rz = null;
   window.addEventListener("resize", function () {
-    if (document.getElementById("page-dashboard").classList.contains("active")) {
-      Dashboard.render();
-    }
+    clearTimeout(_rz);
+    _rz = setTimeout(function () {
+      if (document.getElementById("page-dashboard").classList.contains("active")) Dashboard.render();
+    }, 120);
   });
 
   Utils.el("app-version").textContent = "Version " + PT_VERSION;

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109020713">
+<link rel="stylesheet" href="css/styles.css?v=20261109021847">
 </head>
 <body>
 
@@ -22,26 +22,19 @@
   <nav class="nav">
     <div class="nav-section">Overview</div>
     <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard')"><span class="nav-icon">&#128202;</span> Dashboard</div>
-    <div class="nav-section">Management</div>
+    <div class="nav-section">Students</div>
     <div class="nav-item" data-page="students" onclick="showPage('students')"><span class="nav-icon">&#128101;</span> Students</div>
+    <div class="nav-item" data-page="payments" onclick="showPage('payments')"><span class="nav-icon">&#128179;</span> Payments</div>
+    <div class="nav-section">Teaching</div>
     <div class="nav-item" data-page="classes" onclick="showPage('classes')"><span class="nav-icon">&#128197;</span> Classes</div>
-    <div class="nav-section">Syllabus</div>
     <div class="nav-item" data-page="syllabus" onclick="showPage('syllabus')"><span class="nav-icon">&#128214;</span> Monthly Planner</div>
     <div class="nav-item" data-page="attsheet" onclick="showPage('attsheet')"><span class="nav-icon">&#128198;</span> Attendance</div>
-    <div class="nav-section">Finance &amp; Grades</div>
-    <div class="nav-item" data-page="payments" onclick="showPage('payments')"><span class="nav-icon">&#128179;</span> Payments</div>
     <div class="nav-item" data-page="scores" onclick="showPage('scores')"><span class="nav-icon">&#128221;</span> Scores</div>
-    <div class="nav-section">Admin</div>
-    <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
-    <div class="nav-item" data-page="help" onclick="showPage('help')"><span class="nav-icon">&#10067;</span> Help</div>
-
   </nav>
   <div class="sidebar-footer">
     <div id="sync-status" style="margin-bottom:6px;display:none"></div>
-    <span id="today-date"></span>
-    <div class="app-version" onclick="showPage('help')" title="About PT">
-      &copy; PT &middot; San Jose, California<br><span id="app-version"></span>
-    </div>
+    <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
+    <div class="nav-item" data-page="help" onclick="showPage('help')"><span class="nav-icon">&#10067;</span> Help</div>
   </div>
 </aside>
 
@@ -643,6 +636,11 @@
 </div>
 
   </div>
+  <footer class="app-footer">
+    <span id="today-date"></span><span class="sep">&middot;</span>
+    <span class="app-version" onclick="showPage('help')" title="About PT">&copy; PT &middot; San Jose, California</span><span class="sep">&middot;</span>
+    <span class="app-version" id="app-version" onclick="showPage('help')" title="About PT"></span>
+  </footer>
 </div>
 
 <!-- Sign-in screen -->
@@ -791,25 +789,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109020713"></script>
-<script src="js/version.js?v=20261109020713"></script>
-<script src="js/config.js?v=20261109020713"></script>
-<script src="js/data.js?v=20261109020713"></script>
-<script src="js/utils.js?v=20261109020713"></script>
-<script src="js/students.js?v=20261109020713"></script>
-<script src="js/classes.js?v=20261109020713"></script>
-<script src="js/attendance.js?v=20261109020713"></script>
-<script src="js/syllabus.js?v=20261109020713"></script>
-<script src="js/payments.js?v=20261109020713"></script>
-<script src="js/scores.js?v=20261109020713"></script>
-<script src="js/profile.js?v=20261109020713"></script>
-<script src="js/settings.js?v=20261109020713"></script>
-<script src="js/users.js?v=20261109020713"></script>
-<script src="js/help.js?v=20261109020713"></script>
-<script src="js/storage.js?v=20261109020713"></script>
-<script src="js/import.js?v=20261109020713"></script>
-<script src="js/hourly.js?v=20261109020713"></script>
-<script src="js/app.js?v=20261109020713"></script>
+<script src="js/site-config.js?v=20261109021847"></script>
+<script src="js/version.js?v=20261109021847"></script>
+<script src="js/config.js?v=20261109021847"></script>
+<script src="js/data.js?v=20261109021847"></script>
+<script src="js/utils.js?v=20261109021847"></script>
+<script src="js/students.js?v=20261109021847"></script>
+<script src="js/classes.js?v=20261109021847"></script>
+<script src="js/attendance.js?v=20261109021847"></script>
+<script src="js/syllabus.js?v=20261109021847"></script>
+<script src="js/payments.js?v=20261109021847"></script>
+<script src="js/scores.js?v=20261109021847"></script>
+<script src="js/profile.js?v=20261109021847"></script>
+<script src="js/settings.js?v=20261109021847"></script>
+<script src="js/users.js?v=20261109021847"></script>
+<script src="js/help.js?v=20261109021847"></script>
+<script src="js/storage.js?v=20261109021847"></script>
+<script src="js/import.js?v=20261109021847"></script>
+<script src="js/hourly.js?v=20261109021847"></script>
+<script src="js/app.js?v=20261109021847"></script>
 
 </body>
 </html>
