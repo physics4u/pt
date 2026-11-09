@@ -100,7 +100,7 @@ var Payments = (function () {
 
   // ---------- hourly students ----------
   function _hourlySection(cls) {
-    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && Utils.clsOf(s) === cls && Utils.shown(s); });
+    var all = Data.allStudents().filter(function (s) { return Hourly.hourlyIn(s) && Utils.clsOf(s) === cls && Utils.shown(s); });
     var acc = all.map(function (s) { return { s: s, a: Hourly.account(Utils.fullName(s)) }; });
     var withDues = acc.filter(function (x) { return x.a.balance > 0.5; });
     var list = _duesOnly ? withDues : acc;

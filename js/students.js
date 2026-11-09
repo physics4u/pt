@@ -28,11 +28,11 @@ var Students = (function () {
     Utils.el("students-empty").style.display = total ? "none" : "";
 
     var groups = [
-      { key: "Grade XI",      title: "Plus 1",          test: function (s) { return Utils.clsOf(s) === "Grade XI"  && !Hourly.isHourly(s); } },
-      { key: "Grade XII",     title: "Plus 2",          test: function (s) { return Utils.clsOf(s) === "Grade XII" && !Hourly.isHourly(s); } },
-      { key: "one|Grade XI",  title: "Hourly (Plus 1)", test: function (s) { return Utils.clsOf(s) === "Grade XI"  && Hourly.isHourly(s); } },
-      { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return Utils.clsOf(s) === "Grade XII" && Hourly.isHourly(s); } },
-      { key: "none",          title: "No class set",    test: function (s) { return Utils.clsOf(s) !== "Grade XI" && s.cls !== "Grade XII"; } }
+      { key: "Grade XI",      title: "Plus 1",          test: function (s) { return Utils.clsOf(s) === "Grade XI"  && !Hourly.hourlyIn(s); } },
+      { key: "Grade XII",     title: "Plus 2",          test: function (s) { return Utils.clsOf(s) === "Grade XII" && !Hourly.hourlyIn(s); } },
+      { key: "one|Grade XI",  title: "Hourly (Plus 1)", test: function (s) { return Utils.clsOf(s) === "Grade XI"  && Hourly.hourlyIn(s); } },
+      { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return Utils.clsOf(s) === "Grade XII" && Hourly.hourlyIn(s); } },
+      { key: "none",          title: "No class set",    test: function (s) { var c = Utils.clsOf(s); return c !== "Grade XI" && c !== "Grade XII" && !(s.yearCls && !isCurrentAcad()); } }
     ];
     Utils.el("students-wrap").innerHTML = groups.map(function (g) {
       var inGroup = all.filter(g.test), rows = list.filter(g.test);
