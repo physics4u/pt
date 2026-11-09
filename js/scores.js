@@ -22,7 +22,10 @@ var Scores = (function () {
   }
   function _num(t) { var m = /(\d+)/.exec(t.num || ""); return m ? Number(m[1]) : 0; }
   function _byStudent() {
-    var m = {}; Data.get().students.forEach(function (s) { m[Utils.fullName(s)] = s; }); return m;
+    // the same name can be in PT once per year: the year on screen wins
+    var m = {}; Data.get().students.forEach(function (s) { m[Utils.fullName(s)] = s; });
+    Data.allStudents().forEach(function (s) { m[Utils.fullName(s)] = s; });
+    return m;
   }
 
   // Organise older score rows (one row per student, no test list) into tests:

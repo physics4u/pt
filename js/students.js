@@ -138,39 +138,24 @@ var Students = (function () {
     }
 
     var D = Data.get();
-    // Adding a name that's already in PT (e.g. last year's Plus 1 student coming
-    // back for Plus 2): enrol the same student in this year instead of a duplicate.
+    // A student enrolling in a year is always a new record, even if the same
+    // name is in PT from an earlier year. Only a second copy in the same year
+    // is refused.
     if (_editIdx < 0) {
       var key = function (x) { return (x.fname + " " + x.lname).replace(/\s+/g, " ").trim().toLowerCase(); };
-      var same = D.students.findIndex(function (x) { return key(x) === key(student); });
-      if (same >= 0) {
-        var old = D.students[same];
-        if (Utils.inYear(old)) { Dialog.alert(fname + " " + lname + " is already a student in " + acadLabel() + "."); return; }
-        Dialog.confirm(Utils.fullName(old) + " is already in PT from an earlier year (" + _history(old) + ").\n\n" +
-                       "Enrol the same student in " + acadLabel() + "? Their earlier records stay with them.",
-                       { okText: "Enrol" }).then(function (ok) {
-          if (!ok) return;
-          _editIdx = same; _commit(student, true);
-        });
-        return;
+      if (Data.allStudents().some(function (x) { return key(x) === key(student); })) {
+        Dialog.alert(fname + " " + lname + " is already a student in " + acadLabel() + "."); return;
       }
     }
-    _commit(student, false);
-  }
-
-  // e.g. "Plus 1 in 2025–26"
-  function _history(s) {
-    return String(s.yearCls || "").split(";").filter(Boolean).map(function (x) {
-      var p = x.split(":"); return Utils.grade(p[1]) + " in " + acadLabel(p[0]);
-    }).join(", ") || Utils.grade(s.cls);
+    _commit(student);
   }
 
   // Save the form into PT. The class is recorded for the academic year on
   // screen (yearCls); a student is only enrolled in the years they're added to.
-  function _commit(student, enrol) {
+  function _commit(student) {
     var D = Data.get(), fname = student.fname, lname = student.lname;
     var cur = _editIdx >= 0 ? D.students[_editIdx] : null, yr = ACYR[0];
-    var inThisYear = !cur || enrol || Utils.inYear(cur);
+    var inThisYear = !cur || Utils.inYear(cur);
     var prev = cur ? String(cur.yearCls || "") : "";
     student.yearCls = inThisYear
       ? prev.split(";").filter(function (x) { return x && x.indexOf(yr + ":") !== 0; })
@@ -178,7 +163,6 @@ var Students = (function () {
       : prev;
     // Looking at an earlier year changes that year's class only, not today's
     if (cur && !isCurrentAcad()) student.cls = cur.cls;
-    if (enrol) Data.log("Enrolled <b>" + fname + " " + lname + "</b> in " + acadLabel());
 
     if (_editIdx >= 0) {
       D.students[_editIdx] = Object.assign({}, D.students[_editIdx], student);   // keep any other fields
