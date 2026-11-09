@@ -17,15 +17,18 @@ var Students = (function () {
     var D    = Data.get();
     var q    = (Utils.el("student-search").value || "").trim().toLowerCase();
     var all  = Data.allStudents();
+    // A search looks through everyone in the year, inactive students included
     var list = all.filter(function (s) {
-      return Utils.fullName(s).toLowerCase().includes(q) && Utils.shown(s);
+      return q ? Utils.fullName(s).toLowerCase().includes(q) : Utils.shown(s);
     });
 
-    var total = D.students.length;
+    var total = all.length;
     Utils.el("students-count").innerHTML = list.length === total
       ? "<b>" + total + "</b> students"
       : "Showing <b>" + list.length + "</b> of " + total + " students";
     Utils.el("students-empty").style.display = total ? "none" : "";
+
+    var hint = q && !list.length ? _didYouMean(q, all) : "";
 
     var groups = [
       { key: "Grade XI",      title: "Plus 1",          test: function (s) { return Utils.clsOf(s) === "Grade XI"  && !Hourly.hourlyIn(s); } },
@@ -34,7 +37,7 @@ var Students = (function () {
       { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return Utils.clsOf(s) === "Grade XII" && Hourly.hourlyIn(s); } },
       { key: "none",          title: "No class set",    test: function (s) { var c = Utils.clsOf(s); return c !== "Grade XI" && c !== "Grade XII" && !(s.yearCls && !isCurrentAcad()); } }
     ];
-    Utils.el("students-wrap").innerHTML = groups.map(function (g) {
+    Utils.el("students-wrap").innerHTML = hint + groups.map(function (g) {
       var inGroup = all.filter(g.test), rows = list.filter(g.test);
       if (!inGroup.length && g.key === "none") return "";
       var active = inGroup.filter(Utils.isActive).length, hidden = inGroup.length - active;
@@ -70,6 +73,37 @@ var Students = (function () {
         "<div class='section-body' style='padding:0'><div style='overflow-x:auto'>" + body + "</div></div></details>";
     }).join("");
   }
+
+  // "Did you mean …?" for a search with no match (small typos: "Sarema" → Serena)
+  function _dist(a, b) {
+    var m = a.length, n = b.length, d = [];
+    for (var i = 0; i <= m; i++) { d[i] = [i]; }
+    for (var j = 1; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+  function _didYouMean(q, all) {
+    var best = [], bestD = 99;
+    all.forEach(function (s) {
+      var name = Utils.fullName(s), words = name.toLowerCase().split(/\s+/).concat([name.toLowerCase()]);
+      // closeness of the typed text to any word of the name; a word starting with the
+      // same letter wins a tie ("sarema" → Serena rather than Varma)
+      var d = Math.min.apply(null, words.map(function (w) {
+        return _dist(q, w.slice(0, Math.max(q.length, Math.min(w.length, q.length + 2)))) + (w.charAt(0) === q.charAt(0) ? 0 : 0.5);
+      }));
+      if (d < bestD) { bestD = d; best = [name]; } else if (d === bestD && best.indexOf(name) < 0) best.push(name);
+    });
+    var limit = q.length <= 4 ? 1 : 2;
+    var msg = "<div class='search-hint'>No student in " + acadLabel() + " matches \u201c" + _esc(q) + "\u201d.";
+    if (bestD <= limit + 0.5 && best.length) {
+      msg += " Did you mean " + best.slice(0, 3).map(function (n) {
+        return "<a class='stu-suggest' onclick='Students.searchFor(" + JSON.stringify(n).replace(/'/g, "&#39;") + ")'>" + _esc(n) + "</a>"; }).join(", ") + "?";
+    }
+    return msg + "</div>";
+  }
+  function searchFor(name) { Utils.el("student-search").value = name; render(); }
+  function _esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 
   function openModal(idx) {
     _editIdx = (idx !== undefined) ? idx : -1;
@@ -199,5 +233,5 @@ var Students = (function () {
     del(_editIdx, function () { Utils.closeModal("modal-student"); if (currentPage === "profile") showPage("students"); });
   }
 
-  return { show: show, toggle: toggle, render: render, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };
+  return { show: show, toggle: toggle, render: render, searchFor: searchFor, openModal: openModal, save: save, del: del, toggleBatch: toggleBatch, delCurrent: delCurrent };
 })();
