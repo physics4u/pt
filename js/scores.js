@@ -145,7 +145,7 @@ var Scores = (function () {
     if (t.kind === "one") return [t.student];
     var names = {}, order = Data.allStudents().map(Utils.fullName);
     Data.allStudents().forEach(function (s) {
-      if (s.cls === t.cls && Hourly.inGroup(s)) names[Utils.fullName(s)] = true;
+      if (Utils.clsOf(s) === t.cls && Hourly.inGroup(s)) names[Utils.fullName(s)] = true;
     });
     marksOf(t.id).forEach(function (r) { names[r.student] = true; });
     if (!Utils.showAll()) Object.keys(names).forEach(function (n) { if (!_isActive(n)) delete names[n]; });
@@ -159,7 +159,7 @@ var Scores = (function () {
     if (t.kind === "one") return "";
     var n = 0;
     Data.allStudents().forEach(function (s) {
-      if (s.cls === t.cls && Hourly.inGroup(s) && !_isActive(Utils.fullName(s))) n++;
+      if (Utils.clsOf(s) === t.cls && Hourly.inGroup(s) && !_isActive(Utils.fullName(s))) n++;
     });
     return n ? " <span class='muted'>(" + n + " hidden)</span>" : "";
   }
@@ -320,7 +320,7 @@ var Scores = (function () {
     return "Test " + (n + 1);
   }
   function _fillModal(cls) {
-    var hourly = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.isHourly(s) && s.status === "Active"; });
+    var hourly = Data.allStudents().filter(function (s) { return Utils.clsOf(s) === cls && Hourly.isHourly(s) && Utils.isActive(s); });
     var who = Utils.el("tm-who");
     who.innerHTML = "<option value=''>The whole class</option>" + hourly.map(function (s) {
       var n = Utils.fullName(s); return "<option value='" + _esc(n) + "'>One-to-one: " + _esc(n) + "</option>"; }).join("");

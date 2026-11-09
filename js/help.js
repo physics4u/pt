@@ -5,7 +5,6 @@ var Help = (function () {
 
   function init() {
     _about();
-    Utils.el("help-version").textContent = "Version " + PT_VERSION;
   }
 
   // Version information.

@@ -55,6 +55,16 @@ var Utils = (function () {
            d.toLocaleTimeString("en-GB", { timeZone: PT_TZ, hour: "2-digit", minute: "2-digit" });
   }
 
+  // ---- A student's class in the academic year shown ----
+  // Imported years record it in yearCls ("2025-03:Grade XI;2026-03:Grade XII").
+  // The current year always uses the class on the student's record.
+  function clsOf(s) {
+    if (!s) return "";
+    if (isCurrentAcad() || !s.yearCls) return s.cls || "";
+    var m = new RegExp("(?:^|;)" + ACYR[0] + ":([^;]+)").exec(String(s.yearCls));
+    return m ? m[1] : "";
+  }
+
   // ---- Active students ----
   // Current academic year: status is not Inactive and the end date hasn't passed.
   // An earlier (or later) year: the student was there that year — their dates
@@ -66,18 +76,19 @@ var Utils = (function () {
       return !(s.endDate && s.endDate < todayIso());
     }
     var first = acadFirstDay(), last = acadLastDay();
+    if (s.yearCls) return !!clsOf(s);                 // imported: listed in that year's records or not
     if (s.startDate && s.startDate <= last && (!s.endDate || s.endDate >= first)) return true;
     var D = Data.get(), name = fullName(s);
     var inMonths = function (obj, prefix) {
       return ACYR.some(function (ym) {
-        var g = (obj || {})[prefix + "|" + s.cls + "|" + ym] || {}, r = g[name];
+        var g = (obj || {})[prefix + "|" + clsOf(s) + "|" + ym] || {}, r = g[name];
         return r && Object.keys(r).some(function (k) { return r[k] && r[k] !== "--"; });
       });
     };
     if (inMonths(D.attsheets, "attsheet")) return true;
     if ((D.paygrid ? inMonths(D.paygrid, "paygrid") : false)) {
       // a paygrid row may just hold the default fee; count it only with a status
-      if (ACYR.some(function (ym) { var r = ((D.paygrid["paygrid|" + s.cls + "|" + ym]) || {})[name]; return r && r.status; })) return true;
+      if (ACYR.some(function (ym) { var r = ((D.paygrid["paygrid|" + clsOf(s) + "|" + ym]) || {})[name]; return r && r.status; })) return true;
     }
     var inYear = function (d) { return d && d >= first && d <= last; };
     if ((D.sessions || []).some(function (x) { return x.student === name && inYear(x.date); })) return true;
@@ -126,7 +137,7 @@ var Utils = (function () {
 
   return { el: el, closeModal: closeModal, openModal: openModal,
            flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
-           isActive: isActive, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
+           isActive: isActive, clsOf: clsOf, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
            fullName: fullName, grade: grade,
            studentLink: studentLink, hoverEdit: hoverEdit };
 })();

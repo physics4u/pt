@@ -47,9 +47,9 @@ var ImportPage = (function () {
   // Replace PT's records (not users) with the prepared year's records.
   function apply(btn) {
     var year = Utils.el("import-year").value, out = Utils.el("import-result"), label = year.replace("-", "\u2013");
-    Dialog.confirm("Import the " + label + " records?\n\nThis replaces PT's students, classes, planner, attendance, " +
-                   "payments, hourly sessions and scores with the " + label + " records. Users are kept. " +
-                   "A full backup is made first.", { okText: "Import", danger: true }).then(function (ok) {
+    Dialog.confirm("Import the " + label + " records?\n\nThe " + label + " attendance, planner, fees, hourly sessions and marks " +
+                   "are added to PT. Other years are kept, and students already in PT are matched by name. " +
+                   "Importing the same year again updates it without making duplicates. A full backup is made first.", { okText: "Import" }).then(function (ok) {
       if (!ok) return;
       btn.disabled = true; btn.textContent = "Importing\u2026";
       out.textContent = "";
@@ -57,9 +57,10 @@ var ImportPage = (function () {
         btn.disabled = false; btn.textContent = "Import";
         if (!r.ok) { out.innerHTML = "<span style='color:var(--danger)'>" + (r.error || "Import failed.") + "</span>"; return; }
         var c = r.counts || {};
-        out.innerHTML = "Imported the " + label + " records: <b>" + c.students + "</b> students, <b>" + c.sessions +
-          "</b> hourly sessions, <b>" + c.payments + "</b> hourly payments, <b>" + c.scores + "</b> test scores, " +
-          c.plannerMonths + " planner months. A backup was made first (" + r.backup + ").";
+        out.innerHTML = "Imported the " + label + " records: <b>" + c.students + "</b> students (" + c.newStudents + " new, " +
+          c.matched + " already in PT), <b>" + c.sessions + "</b> new hourly sessions, <b>" + c.payments + "</b> new hourly payments, <b>" +
+          c.scores + "</b> new test marks, " + c.plannerMonths + " planner months. A backup was made first (" + r.backup + "). " +
+          "To see them, choose " + label + " in <b>Academic year</b> above.";
         Data.reload();
       });
     });

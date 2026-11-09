@@ -71,7 +71,7 @@ var Profile = (function () {
         "<div class='profile-avatar'>" + _esc(initials) + "</div>" +
         "<div>" +
           "<div class='profile-name'>" + _esc(name) + "</div>" +
-          "<div style='font-size:13px;color:var(--text3)'>" + Utils.grade(s.cls) + (s.school ? " &bull; " + _esc(s.school) : "") + "</div>" +
+          "<div style='font-size:13px;color:var(--text3)'>" + Utils.grade(Utils.clsOf(s) || s.cls) + (s.school ? " &bull; " + _esc(s.school) : "") + "</div>" +
           "<div class='profile-meta'>" +
             "<span>&#128222; " + _esc(s.phone || "—") + "</span>" +
             "<span>&#9993; " + _esc(s.email || "—") + "</span>" +
@@ -113,7 +113,7 @@ var Profile = (function () {
       document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
       Utils.el("page-profile").classList.add("active");
       Utils.el("page-title").textContent = name + " — Profile";
-      Utils.el("page-sub").textContent = Utils.grade(s.cls) + (Hourly.isHourly(s) ? " · hourly student" : "");
+      Utils.el("page-sub").textContent = Utils.grade(Utils.clsOf(s) || s.cls) + (Hourly.isHourly(s) ? " · hourly student" : "");
       Utils.el("topbar-action").style.display = "none";
       currentPage = "profile";
       window.scrollTo(0, 0);
@@ -127,7 +127,7 @@ var Profile = (function () {
   function _attendance(s, name) {
     var D = Data.get(), tp = 0, ta = 0;
     var rows = ACYR.map(function (ym) {
-      var sheet = (D.attsheets || {})["attsheet|" + s.cls + "|" + ym] || {};
+      var sheet = (D.attsheets || {})["attsheet|" + (Utils.clsOf(s) || s.cls) + "|" + ym] || {};
       var rec = Object.assign({}, sheet[name] || {});
       if (Hourly.isHourly(s)) Hourly.sessionDays(name, ym).forEach(function (d) { rec[d] = "P"; });
       var days = Object.keys(rec).filter(function (d) { return rec[d] === "P" || rec[d] === "A"; })
@@ -150,7 +150,7 @@ var Profile = (function () {
   // ---------- group class fees: rows locked, ✏ to change ----------
   var STATUS_CHIP = { "Paid": "chip-green", "Pending": "chip-gold", "Overdue": "chip-red" };
   function _rec(s, ym, name) {
-    var g = ((Data.get().paygrid || {})["paygrid|" + s.cls + "|" + ym] || {})[name];
+    var g = ((Data.get().paygrid || {})["paygrid|" + (Utils.clsOf(s) || s.cls) + "|" + ym] || {})[name];
     return g || { status: "", amount: "", notes: "", paydate: "" };
   }
   function _feesHtml(s, idx, name) {
@@ -196,7 +196,7 @@ var Profile = (function () {
     Data.save(); done(); refresh();
   }
   function _grid(ym) {
-    var D = Data.get(), s = D.students[_idx], name = Utils.fullName(s), sk = "paygrid|" + s.cls + "|" + ym;
+    var D = Data.get(), s = D.students[_idx], name = Utils.fullName(s), sk = "paygrid|" + (Utils.clsOf(s) || s.cls) + "|" + ym;
     if (!D.paygrid) D.paygrid = {};
     if (!D.paygrid[sk]) D.paygrid[sk] = {};
     if (!D.paygrid[sk][name]) D.paygrid[sk][name] = { status: "", amount: "", notes: "", paydate: "" };

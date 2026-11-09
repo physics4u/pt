@@ -28,11 +28,11 @@ var Students = (function () {
     Utils.el("students-empty").style.display = total ? "none" : "";
 
     var groups = [
-      { key: "Grade XI",      title: "Plus 1",          test: function (s) { return s.cls === "Grade XI"  && !Hourly.isHourly(s); } },
-      { key: "Grade XII",     title: "Plus 2",          test: function (s) { return s.cls === "Grade XII" && !Hourly.isHourly(s); } },
-      { key: "one|Grade XI",  title: "Hourly (Plus 1)", test: function (s) { return s.cls === "Grade XI"  && Hourly.isHourly(s); } },
-      { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return s.cls === "Grade XII" && Hourly.isHourly(s); } },
-      { key: "none",          title: "No class set",    test: function (s) { return s.cls !== "Grade XI" && s.cls !== "Grade XII"; } }
+      { key: "Grade XI",      title: "Plus 1",          test: function (s) { return Utils.clsOf(s) === "Grade XI"  && !Hourly.isHourly(s); } },
+      { key: "Grade XII",     title: "Plus 2",          test: function (s) { return Utils.clsOf(s) === "Grade XII" && !Hourly.isHourly(s); } },
+      { key: "one|Grade XI",  title: "Hourly (Plus 1)", test: function (s) { return Utils.clsOf(s) === "Grade XI"  && Hourly.isHourly(s); } },
+      { key: "one|Grade XII", title: "Hourly (Plus 2)", test: function (s) { return Utils.clsOf(s) === "Grade XII" && Hourly.isHourly(s); } },
+      { key: "none",          title: "No class set",    test: function (s) { return Utils.clsOf(s) !== "Grade XI" && s.cls !== "Grade XII"; } }
     ];
     Utils.el("students-wrap").innerHTML = groups.map(function (g) {
       var inGroup = all.filter(g.test), rows = list.filter(g.test);
@@ -136,6 +136,11 @@ var Students = (function () {
     if (student.endDate) {
       if (student.endDate <= Utils.todayIso()) student.status = "Inactive";
     }
+
+    // Record the class for the current academic year (used when looking back at this year later)
+    var yrKey = defaultAcadStart(), prev = _editIdx >= 0 ? String(Data.get().students[_editIdx].yearCls || "") : "";
+    student.yearCls = prev.split(";").filter(function (x) { return x && x.indexOf(yrKey + ":") !== 0; })
+                          .concat(student.cls ? [yrKey + ":" + student.cls] : []).sort().join(";");
 
     var D = Data.get();
     if (_editIdx >= 0) {

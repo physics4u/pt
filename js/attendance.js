@@ -51,7 +51,7 @@ var Attendance = (function () {
     if (_ym !== ym) { _edit = {}; _ym = ym; }
     var mon = MONTHS[month - 1].slice(0, 3);
     var cls = _cls, title = Utils.grade(cls), sheet = _sheet(cls);
-    var names = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
+    var names = Data.allStudents().filter(function (s) { return Utils.clsOf(s) === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
     var wrap = Utils.el("attsheet-wrap");
     if (!names.length) {
       wrap.innerHTML = "<div class='empty'><div class='empty-text'>No students in " + title + ".</div></div>"; return;
@@ -109,7 +109,7 @@ var Attendance = (function () {
   }
 
   function _names(cls) {
-    return Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
+    return Data.allStudents().filter(function (s) { return Utils.clsOf(s) === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
   }
   function _rec(cls) {
     var D = Data.get(), sk = "attsheet|" + cls + "|" + _ym;

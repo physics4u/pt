@@ -33,7 +33,7 @@ var Payments = (function () {
     return g[name] || { status: "", amount: s.monthlyFee || "", notes: "", paydate: "" };
   }
   function _dueMonths(s) {
-    return ACYR.filter(function (ym) { var st = _rec(s.cls, ym, s).status; return st === "Pending" || st === "Overdue"; }).length;
+    return ACYR.filter(function (ym) { var st = _rec(Utils.clsOf(s), ym, s).status; return st === "Pending" || st === "Overdue"; }).length;
   }
 
   function _section(key, title, meta, body) {
@@ -50,7 +50,7 @@ var Payments = (function () {
 
   // ---------- group classes: month grid ----------
   function _groupSection(cls) {
-    var all = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); });
+    var all = Data.allStudents().filter(function (s) { return Utils.clsOf(s) === cls && Hourly.inGroup(s) && Utils.shown(s); });
     var withDues = all.filter(function (s) { return _dueMonths(s) > 0; });
     var list = _duesOnly ? withDues : all;
     var key = cls, title = Utils.grade(cls);
@@ -99,7 +99,7 @@ var Payments = (function () {
 
   // ---------- hourly students ----------
   function _hourlySection(cls) {
-    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && s.cls === cls && Utils.shown(s); });
+    var all = Data.allStudents().filter(function (s) { return Hourly.isHourly(s) && Utils.clsOf(s) === cls && Utils.shown(s); });
     var acc = all.map(function (s) { return { s: s, a: Hourly.account(Utils.fullName(s)) }; });
     var withDues = acc.filter(function (x) { return x.a.balance > 0.5; });
     var list = _duesOnly ? withDues : acc;
