@@ -111,7 +111,7 @@ var Utils = (function () {
       // carries over: a new academic year starts with no students.
       if (new RegExp("(?:^|;)" + defaultAcadStart() + ":").test(String(s.yearCls || ""))) return true;
       if (s.yearCls) return false;                   // enrolled only in other years
-      return s.status !== "Inactive" || (!!s.endDate && s.endDate >= acadFirstDay());
+      return true;                                   // no year recorded: from before PT kept years, i.e. this year
     }
     var first = acadFirstDay(), last = acadLastDay();
     if (s.yearCls) return !!clsOf(s);                 // imported: listed in that year's records or not

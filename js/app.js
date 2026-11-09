@@ -37,7 +37,8 @@ var Dashboard = (function () {
     Object.keys(D.paygrid || {}).forEach(function (sk) {
       if (feeMonths.indexOf(sk.split("|")[2]) < 0) return;
       Object.keys(D.paygrid[sk]).forEach(function (nm) {
-        if (rc[nm] !== sk.split("|")[1]) return;     // a student of this year, in that class
+        var mo = sk.split("|")[2].slice(5);           // March/April are shared by two years:
+        if ((mo === "03" || mo === "04") && rc[nm] !== sk.split("|")[1]) return;   // count this year's students only
         var r = D.paygrid[sk][nm];
         if (r.status === "Paid") rev += Number(r.amount) || 0;
         if (r.status === "Pending" || r.status === "Overdue") {
@@ -165,7 +166,8 @@ var Dashboard = (function () {
         var bucket = monthlyRev.hasOwnProperty(ym) ? ym : lastYm;
         Object.keys(D.paygrid[sk]).forEach(function (nm) {
           var r = D.paygrid[sk][nm];
-          if (rc[nm] === sk.split("|")[1] && r.status === "Paid") monthlyRev[bucket] += Number(r.amount) || 0;
+          var mo = ym.slice(5), mine = !(mo === "03" || mo === "04") || rc[nm] === sk.split("|")[1];
+          if (mine && r.status === "Paid") monthlyRev[bucket] += Number(r.amount) || 0;
         });
       });
     }
