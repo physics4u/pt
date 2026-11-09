@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109015712">
+<link rel="stylesheet" href="css/styles.css?v=20261109015930">
 </head>
 <body>
 
@@ -61,20 +61,32 @@
 
     <!-- Each page is in its own HTML file, included here -->
     <div id="page-dashboard" class="page active">
-  <div class="stat-grid five">
-    <div class="stat-card blue hero"><div class="stat-label">Students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub" id="stat-students-sub">active</div></div>
-    <div class="stat-card blue"><div class="stat-label">Plus 1</div><div class="stat-value" id="stat-p1">0</div><div class="stat-sub" id="stat-p1-sub">active</div></div>
-    <div class="stat-card orange"><div class="stat-label">Plus 2</div><div class="stat-value" id="stat-p2">0</div><div class="stat-sub" id="stat-p2-sub">active</div></div>
-    <div class="stat-card blue"><div class="stat-label">Hourly</div><div class="stat-value" id="stat-hr">0</div><div class="stat-sub" id="stat-hr-sub">active</div></div>
-    <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-value" id="stat-revenue">₹0</div><div class="stat-sub">fees paid</div></div>
-  </div>
-  <div class="stat-grid six">
-    <div class="stat-card red"><div class="stat-label">Outstanding</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub" id="stat-pending-sub">fees not yet paid</div></div>
-    <div class="stat-card blue"><div class="stat-label">Hourly hours</div><div class="stat-value" id="stat-hourly">0:00</div><div class="stat-sub" id="stat-hourly-sub">one-to-one sessions</div></div>
-    <div class="stat-card blue"><div class="stat-label">Plus 1 Hours</div><div class="stat-value" id="stat-xi-hours">0</div><div class="stat-sub">teaching hrs</div></div>
-    <div class="stat-card blue"><div class="stat-label">Plus 1 Days</div><div class="stat-value" id="stat-xi-days">0</div><div class="stat-sub">class days</div></div>
-    <div class="stat-card orange"><div class="stat-label">Plus 2 Hours</div><div class="stat-value" id="stat-xii-hours">0</div><div class="stat-sub">teaching hrs</div></div>
-    <div class="stat-card orange"><div class="stat-label">Plus 2 Days</div><div class="stat-value" id="stat-xii-days">0</div><div class="stat-sub">class days</div></div>
+  <div class="stat-grid five dash-tiles">
+    <div class="stat-card hero">
+      <div class="stat-label">Students</div><div class="stat-value" id="stat-students">0</div>
+      <div class="stat-sub" id="stat-students-sub">active</div>
+      <div class="tile-rows"><span>Plus 1 <b id="stat-p1-mini">0</b></span><span>Plus 2 <b id="stat-p2-mini">0</b></span></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label"><span class="dot p1"></span>Plus 1</div><div class="stat-value" id="stat-p1">0</div>
+      <div class="stat-sub" id="stat-p1-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-xi-hours">0</b> hrs</span><span><b id="stat-xi-days">0</b> days</span></div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label"><span class="dot p2"></span>Plus 2</div><div class="stat-value" id="stat-p2">0</div>
+      <div class="stat-sub" id="stat-p2-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-xii-hours">0</b> hrs</span><span><b id="stat-xii-days">0</b> days</span></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Hourly</div><div class="stat-value" id="stat-hr">0</div>
+      <div class="stat-sub" id="stat-hr-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-hourly">0:00</b> hrs one-to-one</span></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Fees received</div><div class="stat-value" id="stat-revenue">₹0</div>
+      <div class="stat-sub">this academic year</div>
+      <div class="tile-rows"><span class="owed">Outstanding <b id="stat-pending">₹0</b></span><span class="muted" id="stat-pending-sub"></span></div>
+    </div>
   </div>
 
   <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
@@ -481,10 +493,10 @@
     <summary><span class="section-title">Dashboard</span><span class="section-meta">&middot; what each number means</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <dl class="guide-dl">
-        <dt>Students, Plus 1, Plus 2, Hourly</dt><dd>Active students, split into regular and hourly.</dd>
-        <dt>Revenue / Outstanding</dt><dd>Group fees marked Paid plus hourly payments in the academic year / fees Pending or Overdue plus unpaid hourly balances.</dd>
-        <dt>Hourly hours</dt><dd>One-to-one session time in the year.</dd>
-        <dt>Plus 1 / Plus 2 Hours and Days</dt><dd>From the Monthly Planner: days with a chapter and both times. <b>134:45</b> means 134 hours 45 minutes.</dd>
+        <dt>Students</dt><dd>All active students: regular and hourly, and how many in Plus 1 and Plus 2.</dd>
+        <dt>Plus 1 / Plus 2</dt><dd>Active students in the class, with the teaching <b>hours</b> and class <b>days</b> from the Monthly Planner (days with a chapter and both times). <b>134:45</b> means 134 hours 45 minutes.</dd>
+        <dt>Hourly</dt><dd>Active one-to-one students and their session hours this year.</dd>
+        <dt>Fees received / Outstanding</dt><dd>Group fees marked Paid plus hourly payments this academic year / fees Pending or Overdue plus unpaid hourly balances.</dd>
         <dt>Charts</dt><dd>Teaching hours per chapter, and income per month (counted in the month the fee is for).</dd>
       </dl>
     </div>
@@ -771,25 +783,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109015712"></script>
-<script src="js/version.js?v=20261109015712"></script>
-<script src="js/config.js?v=20261109015712"></script>
-<script src="js/data.js?v=20261109015712"></script>
-<script src="js/utils.js?v=20261109015712"></script>
-<script src="js/students.js?v=20261109015712"></script>
-<script src="js/classes.js?v=20261109015712"></script>
-<script src="js/attendance.js?v=20261109015712"></script>
-<script src="js/syllabus.js?v=20261109015712"></script>
-<script src="js/payments.js?v=20261109015712"></script>
-<script src="js/scores.js?v=20261109015712"></script>
-<script src="js/profile.js?v=20261109015712"></script>
-<script src="js/settings.js?v=20261109015712"></script>
-<script src="js/users.js?v=20261109015712"></script>
-<script src="js/help.js?v=20261109015712"></script>
-<script src="js/storage.js?v=20261109015712"></script>
-<script src="js/import.js?v=20261109015712"></script>
-<script src="js/hourly.js?v=20261109015712"></script>
-<script src="js/app.js?v=20261109015712"></script>
+<script src="js/site-config.js?v=20261109015930"></script>
+<script src="js/version.js?v=20261109015930"></script>
+<script src="js/config.js?v=20261109015930"></script>
+<script src="js/data.js?v=20261109015930"></script>
+<script src="js/utils.js?v=20261109015930"></script>
+<script src="js/students.js?v=20261109015930"></script>
+<script src="js/classes.js?v=20261109015930"></script>
+<script src="js/attendance.js?v=20261109015930"></script>
+<script src="js/syllabus.js?v=20261109015930"></script>
+<script src="js/payments.js?v=20261109015930"></script>
+<script src="js/scores.js?v=20261109015930"></script>
+<script src="js/profile.js?v=20261109015930"></script>
+<script src="js/settings.js?v=20261109015930"></script>
+<script src="js/users.js?v=20261109015930"></script>
+<script src="js/help.js?v=20261109015930"></script>
+<script src="js/storage.js?v=20261109015930"></script>
+<script src="js/import.js?v=20261109015930"></script>
+<script src="js/hourly.js?v=20261109015930"></script>
+<script src="js/app.js?v=20261109015930"></script>
 
 </body>
 </html>
