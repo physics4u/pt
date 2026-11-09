@@ -317,6 +317,7 @@ var Login = (function () {
   function show(msg) {
     var o = document.getElementById("login-overlay");
     o.classList.add("open");
+    var pw = document.getElementById("login-pass"); if (pw._ptHide) pw._ptHide();   // start with the password hidden
     document.getElementById("login-msg").textContent = msg || "";
     setTimeout(function () {
       var u = document.getElementById("login-user");
@@ -337,7 +338,7 @@ var Login = (function () {
           ? "PT is being updated. Please try again in a minute."
           : (resp.error || "Could not sign in");
       } else {
-        document.getElementById("login-pass").value = "";
+        var pw = document.getElementById("login-pass"); pw.value = ""; if (pw._ptHide) pw._ptHide();
         msg.textContent = "";
       }
     });

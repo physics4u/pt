@@ -400,3 +400,45 @@ var Dialog = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
+
+
+// ================================================================
+//  Password boxes: an eye button shows or hides what was typed.
+//  Added to every <input type="password">, including ones added later.
+// ================================================================
+(function () {
+  var EYE = "<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><path fill='none' stroke='currentColor' stroke-width='2' d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3' fill='none' stroke='currentColor' stroke-width='2'/></svg>";
+  var EYE_OFF = "<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><path fill='none' stroke='currentColor' stroke-width='2' d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3' fill='none' stroke='currentColor' stroke-width='2'/><path d='M3 3l18 18' stroke='currentColor' stroke-width='2'/></svg>";
+  function enhance(inp) {
+    if (inp._ptEye || inp.type !== "password") return;
+    inp._ptEye = true;
+    var wrap = document.createElement("span"); wrap.className = "pt-pwbox";
+    inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "pt-eye"; btn.tabIndex = -1;
+    var set = function (show) {
+      inp.type = show ? "text" : "password";
+      btn.innerHTML = show ? EYE_OFF : EYE;
+      btn.title = show ? "Hide password" : "Show password";
+      btn.setAttribute("aria-label", btn.title);
+    };
+    set(false);
+    btn.addEventListener("mousedown", function (e) { e.preventDefault(); });   // keep the cursor in the box
+    btn.addEventListener("click", function () { set(inp.type === "password"); inp.focus(); });
+    wrap.appendChild(btn);
+    // hide it again when the form is sent or the box is cleared
+    if (inp.form) inp.form.addEventListener("submit", function () { set(false); });
+    inp._ptHide = function () { set(false); };
+  }
+  function scan(root) {
+    if (root.querySelectorAll) root.querySelectorAll("input[type=password]").forEach(enhance);
+    if (root.tagName === "INPUT") enhance(root);
+  }
+  function start() {
+    scan(document);
+    new MutationObserver(function (list) {
+      list.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) scan(n); }); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();

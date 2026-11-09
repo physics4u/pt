@@ -881,3 +881,10 @@ details.section:not([open]):hover{opacity:1;}
 .pf-id-sum{font-size:13px;font-weight:600;color:var(--text);}
 .search-hint{padding:10px 14px;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);border-left:4px solid var(--accent);background:rgb(var(--accent-rgb) / 0.08);font-size:13.5px;}
 .stu-suggest{color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+
+/* Password box with a show/hide eye */
+.pt-pwbox{position:relative;display:block;width:100%;}
+.pt-pwbox input{width:100%;padding-right:40px !important;box-sizing:border-box;}
+.pt-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--text3);cursor:pointer;
+  padding:4px;line-height:0;border-radius:6px;}
+.pt-eye:hover{color:var(--accent);background:var(--surface2);}
