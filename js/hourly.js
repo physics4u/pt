@@ -105,120 +105,134 @@ var Hourly = (function () {
   }
 
   // ---------- profile sections ----------
-  function renderProfile(div, idx) {
-    var s = Data.get().students[idx], name = Utils.fullName(s), a = account(name);
-    var yr = ACYR_LBL[ACYR[0]].split(" ")[1] + "–" + String(Number(ACYR_LBL[ACYR[0]].split(" ")[1]) + 1).slice(2);
+  function _editId() { return Profile.editId(); }
 
-    // Fees by month
-    var fee = document.createElement("div"); fee.className = "profile-full hourly-block";
+  function profileHtml(idx) {
+    var s = Data.get().students[idx], name = Utils.fullName(s), a = account(name);
+    var P = Profile;
+
+    // ---- Hourly fees by month (rate locked, ✏ to change) ----
     var rows = ACYR.filter(function (ym) { var m = a.months[ym]; return m.count || m.paid; }).map(function (ym, i) {
       var m = a.months[ym];
       var cls = {"Paid":"chip-green","Part-paid":"chip-gold","Due":"chip-red"}[m.status] || "";
       return "<tr><td class='num'>" + (i + 1) + "</td><td>" + ACYR_LBL[ym] + "</td><td>" + m.count + "</td><td>" + hm(m.hours) + "</td><td>" + money(m.fee) +
              "</td><td>" + money(m.paid) + "</td><td>" + (m.status ? "<span class='chip " + cls + "'>" + m.status + "</span>" : "") + "</td></tr>";
     }).join("");
-    fee.innerHTML =
-      "<div class='profile-section-title hourly-head'><span>Hourly fees " + yr + "</span>" +
-        "<span class='hourly-rate'><label for='hr-rate'>Rate per hour (₹)</label>" +
-        "<input id='hr-rate' type='number' min='0' value='" + esc(s.hourlyRate || "") + "' placeholder='e.g. 800'>" +
-        "<button class='btn btn-primary btn-sm' onclick='Hourly.setRate(" + idx + ")'>Save rate</button></span></div>" +
+    var rate = P.lockedValue("Rate per hour", s.hourlyRate ? money(s.hourlyRate) : "not set", "rate",
+      "<input id='hr-rate' class='pf-focus' type='number' min='0' value='" + esc(s.hourlyRate || "") + "' placeholder='e.g. 800'>",
+      "Hourly.setRate(" + idx + ")");
+    var due = a.balance > 0.5;
+    var html = P.sec("hfees", "Hourly fees " + P.yearLabel(),
+      hm(a.hours) + " hrs &middot; " + (due ? "<span style='color:var(--danger)'>" + money(a.balance) + " due</span>"
+                                            : "<span style='color:var(--accent3)'>" + (a.credit > 0.5 ? money(a.credit) + " in credit" : "settled") + "</span>"),
       "<div class='hourly-sum'>" +
         "<div><span>Hours</span><b>" + hm(a.hours) + "</b></div>" +
         "<div><span>Billed</span><b>" + money(a.billed) + "</b></div>" +
         "<div><span>Paid</span><b>" + money(a.paid) + "</b></div>" +
-        "<div class='" + (a.balance > 0.5 ? "due" : "ok") + "'><span>" + (a.balance > 0.5 ? "Balance due" : a.credit > 0.5 ? "In credit" : "Balance") +
-          "</span><b>" + money(a.balance > 0 ? a.balance : a.credit) + "</b></div>" +
+        "<div class='" + (due ? "due" : "ok") + "'><span>" + (due ? "Balance due" : a.credit > 0.5 ? "In credit" : "Balance") +
+          "</span><b>" + money(due ? a.balance : a.credit) + "</b></div>" +
       "</div>" +
       "<table class='hourly-table'><thead><tr><th class='num'>#</th><th>Month</th><th>Sessions</th><th>Hours</th><th>Fee</th><th>Paid</th><th>Status</th></tr></thead>" +
-      "<tbody>" + (rows || "<tr><td colspan='7' class='muted'>No sessions yet this year.</td></tr>") + "</tbody></table>";
-    div.appendChild(fee);
+      "<tbody>" + (rows || "<tr><td colspan='7' class='muted'>No sessions yet this year.</td></tr>") + "</tbody></table>",
+      rate, "pf-full pf-hover");
 
-    // Sessions + payments side by side
-    var two = document.createElement("div"); two.className = "hourly-two";
-
-    var chOpts = Settings.chapters(s.cls || "Grade XI").map(function (c) {
-      return "<option value='" + esc(c === "-- None --" ? "" : c) + "'>" + esc(c) + "</option>"; }).join("");
-    var tOpts = TIMES.filter(function (t) { return t !== "--"; }).map(function (t) { return "<option>" + t + "</option>"; }).join("");
+    // ---- Sessions ----
     var ses = sessionsOf(name).slice().reverse();
-    var sesSec = document.createElement("div"); sesSec.className = "profile-section";
-    sesSec.innerHTML =
-      "<div class='profile-section-title hourly-head'><span>Sessions <span class='muted'>&middot; " + ses.length + "</span></span>" +
-        "<button class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"ses-form\")'>+ Add session</button></div>" +
-      "<form id='ses-form' class='hourly-form' style='display:none' onsubmit='return Hourly.addSession(event," + idx + ")'>" +
+    var eSes = P.editing("ses") ? ses.filter(function (x) { return x.id === _editId(); })[0] : null;
+    var adding = P.editing("ses", "new");
+    var chOpts = function (cur) {
+      return Settings.chapters(s.cls || "Grade XI").map(function (c) {
+        var v = c === "-- None --" ? "" : c;
+        return "<option value='" + esc(v) + "'" + (v === (cur || "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
+    };
+    var tOpts = function (cur) {
+      return TIMES.filter(function (t) { return t !== "--"; }).map(function (t) { return "<option" + (t === cur ? " selected" : "") + ">" + t + "</option>"; }).join("");
+    };
+    var sesForm = (adding || eSes) ?
+      "<form class='hourly-form' onsubmit='return Hourly.saveSession(event," + idx + ")'>" +
         "<div class='hf-grid'>" +
-          "<div class='form-row'><label>Date</label><input id='ses-date' type='date' required value='" + new Date().toISOString().slice(0, 10) + "'></div>" +
-          "<div class='form-row'><label>Start</label><select id='ses-start'>" + tOpts + "</select></div>" +
-          "<div class='form-row'><label>End</label><select id='ses-end'>" + tOpts + "</select></div>" +
-          "<div class='form-row hf-wide'><label>Chapter</label><select id='ses-chapter'>" + chOpts + "</select></div>" +
-          "<div class='form-row hf-wide'><label>Notes</label><input id='ses-notes' placeholder='Topics covered'></div>" +
+          "<div class='form-row'><label>Date</label><input id='ses-date' class='pf-focus' type='date' required value='" + (eSes ? esc(eSes.date) : new Date().toISOString().slice(0, 10)) + "'></div>" +
+          "<div class='form-row'><label>Start</label><select id='ses-start'>" + tOpts(eSes && eSes.start) + "</select></div>" +
+          "<div class='form-row'><label>End</label><select id='ses-end'>" + tOpts(eSes && eSes.end) + "</select></div>" +
+          "<div class='form-row hf-wide'><label>Chapter</label><select id='ses-chapter'>" + chOpts(eSes && eSes.chapter) + "</select></div>" +
+          "<div class='form-row hf-wide'><label>Notes</label><input id='ses-notes' placeholder='Topics covered' value='" + esc(eSes ? eSes.notes || "" : "") + "'></div>" +
         "</div>" +
-        "<div class='user-form-actions'><span class='muted' style='margin-right:auto'>Billed at " + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "the student's rate") + "</span>" +
-          "<button type='button' class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"ses-form\")'>Cancel</button>" +
-          "<button type='submit' class='btn btn-primary btn-sm'>Add session</button></div>" +
-      "</form>" +
+        "<div class='user-form-actions'>" +
+          (eSes ? "<button type='button' class='btn btn-danger btn-sm' style='margin-right:auto' onclick='Hourly.delSession(" + idx + ",\"" + esc(eSes.id) + "\")'>Delete this session</button>"
+                : "<span class='muted' style='margin-right:auto'>Billed at " + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "the student's rate") + "</span>") +
+          "<button type='button' class='btn btn-secondary btn-sm' onclick='Profile.cancel()'>Cancel</button>" +
+          "<button type='submit' class='btn btn-primary btn-sm'>" + (eSes ? "Save changes" : "Add session") + "</button></div>" +
+      "</form>" : "";
+    var sesBody = sesForm +
       "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Time</th><th>Hours</th><th>Chapter</th><th></th></tr></thead><tbody>" +
       (ses.length ? ses.map(function (x, i) {
         var d = new Date(x.date + "T00:00:00");
-        return "<tr title='" + esc(x.notes || "") + "'><td class='num'>" + (ses.length - i) + "</td><td>" + d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) +
+        return "<tr" + (eSes && eSes.id === x.id ? " class='editing'" : "") + " title='" + esc(x.notes || "") + "'><td class='num'>" + (ses.length - i) + "</td><td>" + d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) +
           " <span class='muted'>" + d.toLocaleDateString("en-GB", {weekday:"short"}) + "</span></td>" +
           "<td>" + esc(x.start) + "–" + esc(x.end) + "</td><td>" + hm(sessionHours(x)) + "</td>" +
           "<td>" + esc(x.chapter || "—") + (x.notes ? "<div class='muted small'>" + esc(x.notes) + "</div>" : "") + "</td>" +
-          "<td><button class='link-btn danger-link' onclick='Hourly.delSession(" + idx + ",\"" + esc(x.id) + "\")'>Delete</button></td></tr>";
+          "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"ses\",\"" + x.id + "\",\"ses\")", "Change this session") + "</td></tr>";
       }).join("") : "<tr><td colspan='6' class='muted'>No sessions yet. Use + Add session.</td></tr>") +
       "</tbody></table></div>";
 
+    // ---- Payments received ----
     var pays = paymentsOf(name).slice().reverse();
-    var paySec = document.createElement("div"); paySec.className = "profile-section";
-    paySec.innerHTML =
-      "<div class='profile-section-title hourly-head'><span>Payments received <span class='muted'>&middot; " + pays.length + "</span></span>" +
-        "<button class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"pay-form\")'>+ Add payment</button></div>" +
-      "<form id='pay-form' class='hourly-form' style='display:none' onsubmit='return Hourly.addPayment(event," + idx + ")'>" +
+    var ePay = P.editing("pay") ? pays.filter(function (x) { return x.id === _editId(); })[0] : null;
+    var addingPay = P.editing("pay", "new");
+    var payForm = (addingPay || ePay) ?
+      "<form class='hourly-form' onsubmit='return Hourly.savePayment(event," + idx + ")'>" +
         "<div class='hf-grid'>" +
-          "<div class='form-row'><label>Date</label><input id='pay-date' type='date' required value='" + new Date().toISOString().slice(0, 10) + "'></div>" +
-          "<div class='form-row'><label>Amount (₹)</label><input id='pay-amount' type='number' min='1' required value='" + (a.balance > 0 ? Math.round(a.balance) : "") + "'></div>" +
-          "<div class='form-row hf-wide'><label>Notes</label><input id='pay-notes' placeholder='e.g. bank transfer, cash'></div>" +
+          "<div class='form-row'><label>Date</label><input id='pay-date' class='pf-focus' type='date' required value='" + (ePay ? esc(ePay.date) : new Date().toISOString().slice(0, 10)) + "'></div>" +
+          "<div class='form-row'><label>Amount (₹)</label><input id='pay-amount' type='number' min='1' required value='" + (ePay ? esc(ePay.amount) : a.balance > 0 ? Math.round(a.balance) : "") + "'></div>" +
+          "<div class='form-row hf-wide'><label>Notes</label><input id='pay-notes' placeholder='e.g. bank transfer, cash' value='" + esc(ePay ? ePay.notes || "" : "") + "'></div>" +
         "</div>" +
         "<div class='user-form-actions'>" +
-          "<button type='button' class='btn btn-secondary btn-sm' onclick='Hourly.toggle(\"pay-form\")'>Cancel</button>" +
-          "<button type='submit' class='btn btn-primary btn-sm'>Add payment</button></div>" +
-      "</form>" +
+          (ePay ? "<button type='button' class='btn btn-danger btn-sm' style='margin-right:auto' onclick='Hourly.delPayment(" + idx + ",\"" + esc(ePay.id) + "\")'>Delete this payment</button>" : "") +
+          "<button type='button' class='btn btn-secondary btn-sm' onclick='Profile.cancel()'>Cancel</button>" +
+          "<button type='submit' class='btn btn-primary btn-sm'>" + (ePay ? "Save changes" : "Add payment") + "</button></div>" +
+      "</form>" : "";
+    var payBody = payForm +
       "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead><tbody>" +
       (pays.length ? pays.map(function (p, i) {
-        return "<tr><td class='num'>" + (pays.length - i) + "</td><td>" + new Date(p.date + "T00:00:00").toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + "</td>" +
+        return "<tr" + (ePay && ePay.id === p.id ? " class='editing'" : "") + "><td class='num'>" + (pays.length - i) + "</td><td>" + new Date(p.date + "T00:00:00").toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + "</td>" +
           "<td>" + money(p.amount) + "</td><td>" + esc(p.notes || "") + "</td>" +
-          "<td><button class='link-btn danger-link' onclick='Hourly.delPayment(" + idx + ",\"" + esc(p.id) + "\")'>Delete</button></td></tr>";
+          "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"pay\",\"" + p.id + "\",\"pay\")", "Change this payment") + "</td></tr>";
       }).join("") : "<tr><td colspan='5' class='muted'>No payments yet.</td></tr>") +
       "</tbody></table></div>";
+    var paid = pays.reduce(function (t, p) { return t + (Number(p.amount) || 0); }, 0);
 
-    two.appendChild(sesSec); two.appendChild(paySec); div.appendChild(two);
+    return html +
+      P.sec("ses", "Sessions", ses.length + " &middot; " + hm(a.hours) + " hrs", sesBody,
+            "<button type='button' class='btn btn-secondary btn-sm' onclick='Profile.edit(\"ses\",\"new\",\"ses\")'>+ Add session</button>") +
+      P.sec("pay", "Payments received", pays.length + " &middot; " + money(paid), payBody,
+            "<button type='button' class='btn btn-secondary btn-sm' onclick='Profile.edit(\"pay\",\"new\",\"pay\")'>+ Add payment</button>");
   }
 
   // ---------- actions ----------
   function _id() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  function _refresh(idx) { Profile.view(idx); }
-  function toggle(id) {
-    var f = Utils.el(id); f.style.display = f.style.display === "none" ? "" : "none";
-  }
+  function _refresh() { Profile.done(); Profile.refresh(); }
 
   function setRate(idx) {
     var s = Data.get().students[idx], v = Utils.el("hr-rate").value.trim();
     s.hourlyRate = v;
     Data.log("Set hourly rate for <b>" + esc(Utils.fullName(s)) + "</b> to ₹" + v);
-    Data.save(); _refresh(idx);
+    Data.save(); _refresh();
   }
 
-  function addSession(e, idx) {
+  // Add a session, or save changes to the one being edited
+  function saveSession(e, idx) {
     if (e) e.preventDefault();
-    var s = Data.get().students[idx];
-    var x = { id: _id(), student: Utils.fullName(s), date: Utils.el("ses-date").value,
+    var s = Data.get().students[idx], id = _editId();
+    var old = id !== "new" ? _D().sessions.filter(function (x) { return x.id === id; })[0] : null;
+    var x = { id: old ? old.id : _id(), student: Utils.fullName(s), date: Utils.el("ses-date").value,
               start: Utils.el("ses-start").value, end: Utils.el("ses-end").value,
               chapter: Utils.el("ses-chapter").value, notes: Utils.el("ses-notes").value.trim(),
-              rate: s.hourlyRate || "" };
+              rate: old ? old.rate : s.hourlyRate || "" };
     if (!sessionHours(x)) { Dialog.alert("The end time must be after the start time."); return false; }
-    if (!x.rate) { Dialog.alert("Set the student's rate per hour first (above)."); return false; }
-    _D().sessions.push(x);
-    Data.log("Added a " + hm(sessionHours(x)) + " session for <b>" + esc(x.student) + "</b> (" + x.date + ")");
-    Data.save(); _refresh(idx);
+    if (!x.rate) { Dialog.alert("Set the student's rate per hour first (Hourly fees, ✎ next to the rate)."); return false; }
+    if (old) Object.assign(old, x); else _D().sessions.push(x);
+    Data.log((old ? "Changed" : "Added") + " a " + hm(sessionHours(x)) + " session for <b>" + esc(x.student) + "</b> (" + x.date + ")");
+    Data.save(); _refresh();
     return false;
   }
 
@@ -227,19 +241,20 @@ var Hourly = (function () {
       if (!ok) return;
       var D = _D(); D.sessions = D.sessions.filter(function (x) { return x.id !== id; });
       Data.log("Deleted a session for <b>" + esc(Utils.fullName(D.students[idx])) + "</b>");
-      Data.save(); _refresh(idx);
+      Data.save(); _refresh();
     });
   }
 
-  function addPayment(e, idx) {
+  function savePayment(e, idx) {
     if (e) e.preventDefault();
-    var s = Data.get().students[idx];
-    var p = { id: _id(), student: Utils.fullName(s), date: Utils.el("pay-date").value,
+    var s = Data.get().students[idx], id = _editId();
+    var old = id !== "new" ? _D().hourpay.filter(function (x) { return x.id === id; })[0] : null;
+    var p = { id: old ? old.id : _id(), student: Utils.fullName(s), date: Utils.el("pay-date").value,
               amount: Utils.el("pay-amount").value, notes: Utils.el("pay-notes").value.trim() };
     if (!(Number(p.amount) > 0)) { Dialog.alert("Enter the amount received."); return false; }
-    _D().hourpay.push(p);
-    Data.log("Recorded " + money(p.amount) + " from <b>" + esc(p.student) + "</b>");
-    Data.save(); _refresh(idx);
+    if (old) Object.assign(old, p); else _D().hourpay.push(p);
+    Data.log((old ? "Changed a payment of " : "Recorded ") + money(p.amount) + " from <b>" + esc(p.student) + "</b>");
+    Data.save(); _refresh();
     return false;
   }
 
@@ -248,13 +263,11 @@ var Hourly = (function () {
       if (!ok) return;
       var D = _D(); D.hourpay = D.hourpay.filter(function (x) { return x.id !== id; });
       Data.log("Deleted a payment for <b>" + esc(Utils.fullName(D.students[idx])) + "</b>");
-      Data.save(); _refresh(idx);
+      Data.save(); _refresh();
     });
   }
 
-  // Payments page: one table for the grade's hourly students.
   return { parseTime: parseTime, hm: hm, isHourly: isHourly, inGroup: inGroup, sessionHours: sessionHours,
-           account: account, totals: totals, sessionDays: sessionDays, renderProfile: renderProfile,
-           toggle: toggle, setRate: setRate,
-           addSession: addSession, delSession: delSession, addPayment: addPayment, delPayment: delPayment };
+           account: account, totals: totals, sessionDays: sessionDays, profileHtml: profileHtml,
+           setRate: setRate, saveSession: saveSession, delSession: delSession, savePayment: savePayment, delPayment: delPayment };
 })();

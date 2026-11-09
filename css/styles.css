@@ -684,3 +684,29 @@ table tr:hover .row-edit,table tr:focus-within .row-edit{visibility:visible;}
 .pp-pending{border-color:var(--accent2);background:rgba(248,160,91,0.13);color:var(--accent2);}
 .pp-overdue{border-color:var(--danger);background:rgba(248,91,110,0.13);color:var(--danger);}
 .pay-grid .num{width:44px;min-width:44px;max-width:44px;box-sizing:border-box;text-align:center;padding:3px 4px;}
+
+/* ---- Profile: collapsible sections, locked values, compact attendance ---- */
+.profile-grid{align-items:start;}
+.profile-grid > .pf-sec{margin-bottom:0;}
+.pf-sec{margin-bottom:16px;}
+.pf-sec .pf-body{border-top:1px solid var(--border);}
+.pf-actions{display:flex;align-items:center;gap:8px;margin-left:auto;cursor:default;font-size:13px;font-weight:400;}
+.pf-actions + .show-pill{margin-left:8px;}
+.pf-hover summary:hover .row-edit,.pf-hover summary:focus-within .row-edit{visibility:visible;}
+.pf-lock{display:inline-flex;align-items:center;gap:8px;}
+.pf-lock b{color:var(--text);}
+.pf-lock label{margin:0;font-size:12.5px;color:var(--text2);text-transform:none;letter-spacing:0;}
+.pf-lock input{width:110px;padding:5px 9px;}
+.pf-table td{padding:6px 12px;}
+.pf-table tr.editing td{background:var(--surface2);}
+.pf-table tr.editing input,.pf-table tr.editing select{padding:4px 8px;font-size:13px;}
+.pf-row-actions{white-space:nowrap;display:flex;gap:6px;}
+.hourly-table tr.editing td{background:var(--surface2);}
+.hourly-two .pf-sec{margin-bottom:0;}
+.att-row{display:flex;align-items:flex-start;gap:12px;padding:5px 16px;border-bottom:1px solid var(--border);}
+.att-row:last-child{border-bottom:none;}
+.att-row-label{width:64px;flex-shrink:0;display:flex;flex-direction:column;font-size:12.5px;line-height:1.3;}
+.att-row-label span{font-size:11px;color:var(--text3);}
+.att-row-label .p{color:var(--accent3);} .att-row-label .a{color:var(--danger);}
+.att-row .att-dots{padding:0;gap:3px;flex:1;}
+.att-row .att-dot{width:22px;height:20px;font-size:9.5px;border-radius:4px;}

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261108234714">
+<link rel="stylesheet" href="css/styles.css?v=20261109000807">
 </head>
 <body>
 
@@ -522,8 +522,9 @@
       <p>Students are grouped into <b>Plus 1</b>, <b>Plus 2</b>, <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b>, all closed when you open the page; click a heading to open it. Typing in the search box opens the sections with a match. The status filter narrows every section.</p>
       <h4>Student profile</h4>
       <p>Click a student's <b>name</b> anywhere in PT (Students, Attendance, Payments, Scores) to see everything about them: details, attendance month by month, payments and scores. This is also where you <b>record fees</b> (see Payments).</p>
+      <p>Each part of the profile (Student details, Attendance, Fees, Sessions, Payments received, Report card) is a section you can open or close; its heading shows a summary. Saved entries are locked: hover over a row (or the rate / monthly fee) and press <b>&#9998;</b> to change it.</p>
       <h4>Delete a student</h4>
-      <p>Press <b>Del</b> and confirm. Their earlier attendance and payment records are kept.</p>
+      <p>Open the student's <b>&#9998;</b> edit form and press <b>Delete this student</b>. Their earlier attendance and payment records are kept.</p>
       <p class="tip">Tip: if you change a student's name, their earlier attendance and payments stay under the old name. Correct spelling mistakes early.</p>
     </div>
   </details>
@@ -536,7 +537,9 @@
       <p>Add or edit the student and choose <b>Batch: Hourly</b>. Enter their <b>rate per hour</b>. If they also come to the regular group classes, tick <b>Also attends group classes</b>; they then appear in group attendance and monthly fees as well.</p>
       <h4>Record a session</h4>
       <p>Open the student (<b>Students &rarr; click their name</b>), press <b>+ Add session</b>, and enter the date, start and end time, chapter and notes. The hours are worked out for you, and the day counts as present in their attendance.</p>
-      <p>Each session is billed at the rate in force when it was added, so changing the rate later doesn't alter earlier bills.</p>
+      <p>Each session is billed at the rate in force when it was added, so changing the rate later doesn't alter earlier bills. The rate is locked on the profile: hover over <b>Rate per hour</b> on the Hourly fees heading and press &#9998; to change it.</p>
+      <h4>Change or delete a session or payment</h4>
+      <p>Entries are locked. Hover over the row and press <b>&#9998;</b>; the entry opens in a form with <b>Save changes</b>, and <b>Delete</b> in red.</p>
       <h4>Record a payment</h4>
       <p>Press <b>+ Add payment</b> and enter the date and amount received. Payments don't have to match a month: PT applies them to the oldest unpaid months first and shows each month as <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>, with the balance at the top.</p>
       <h4>Where they appear</h4>
@@ -590,10 +593,10 @@
       <h4>Record a payment</h4>
       <ol>
         <li>Open the student (<b>Students &rarr; click their name</b>, or their name on the Payments page).</li>
-        <li>In the payments table, click the month's status to change it: <b>blank &rarr; Pending &rarr; Paid &rarr; Overdue &rarr; blank</b>.</li>
-        <li>Check the <b>amount</b>, and add the <b>payment date</b> and any <b>notes</b>. These save automatically.</li>
+        <li>Open the <b>Fees</b> section, hover over the month and press <b>&#9998;</b>.</li>
+        <li>Choose the status (Pending, Paid, Overdue), check the <b>amount</b>, add the <b>payment date</b> and any <b>notes</b>, and press <b>Save</b>. Marking a month Paid without a date uses today's date. <b>Clear month</b> removes it.</li>
       </ol>
-      <p>You can also change the student's monthly fee from the profile.</p>
+      <p>To change the student's monthly fee, hover over <b>Monthly fee</b> on the Fees heading and press &#9998;.</p>
     </div>
   </details>
 
@@ -832,25 +835,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261108234714"></script>
-<script src="js/version.js?v=20261108234714"></script>
-<script src="js/config.js?v=20261108234714"></script>
-<script src="js/data.js?v=20261108234714"></script>
-<script src="js/utils.js?v=20261108234714"></script>
-<script src="js/students.js?v=20261108234714"></script>
-<script src="js/classes.js?v=20261108234714"></script>
-<script src="js/attendance.js?v=20261108234714"></script>
-<script src="js/syllabus.js?v=20261108234714"></script>
-<script src="js/payments.js?v=20261108234714"></script>
-<script src="js/scores.js?v=20261108234714"></script>
-<script src="js/profile.js?v=20261108234714"></script>
-<script src="js/settings.js?v=20261108234714"></script>
-<script src="js/users.js?v=20261108234714"></script>
-<script src="js/help.js?v=20261108234714"></script>
-<script src="js/storage.js?v=20261108234714"></script>
-<script src="js/import.js?v=20261108234714"></script>
-<script src="js/hourly.js?v=20261108234714"></script>
-<script src="js/app.js?v=20261108234714"></script>
+<script src="js/site-config.js?v=20261109000807"></script>
+<script src="js/version.js?v=20261109000807"></script>
+<script src="js/config.js?v=20261109000807"></script>
+<script src="js/data.js?v=20261109000807"></script>
+<script src="js/utils.js?v=20261109000807"></script>
+<script src="js/students.js?v=20261109000807"></script>
+<script src="js/classes.js?v=20261109000807"></script>
+<script src="js/attendance.js?v=20261109000807"></script>
+<script src="js/syllabus.js?v=20261109000807"></script>
+<script src="js/payments.js?v=20261109000807"></script>
+<script src="js/scores.js?v=20261109000807"></script>
+<script src="js/profile.js?v=20261109000807"></script>
+<script src="js/settings.js?v=20261109000807"></script>
+<script src="js/users.js?v=20261109000807"></script>
+<script src="js/help.js?v=20261109000807"></script>
+<script src="js/storage.js?v=20261109000807"></script>
+<script src="js/import.js?v=20261109000807"></script>
+<script src="js/hourly.js?v=20261109000807"></script>
+<script src="js/app.js?v=20261109000807"></script>
 
 </body>
 </html>
