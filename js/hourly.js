@@ -151,7 +151,7 @@ var Hourly = (function () {
     var sesForm = (adding || eSes) ?
       "<form class='hourly-form' onsubmit='return Hourly.saveSession(event," + idx + ")'>" +
         "<div class='hf-grid'>" +
-          "<div class='form-row'><label>Date</label><input id='ses-date' class='pf-focus' type='date' required value='" + (eSes ? esc(eSes.date) : new Date().toISOString().slice(0, 10)) + "'></div>" +
+          "<div class='form-row'><label>Date</label><input id='ses-date' class='pf-focus' type='date' required value='" + (eSes ? esc(eSes.date) : Utils.todayIso()) + "'></div>" +
           "<div class='form-row'><label>Start</label><select id='ses-start'>" + tOpts(eSes && eSes.start) + "</select></div>" +
           "<div class='form-row'><label>End</label><select id='ses-end'>" + tOpts(eSes && eSes.end) + "</select></div>" +
           "<div class='form-row hf-wide'><label>Chapter</label><select id='ses-chapter'>" + chOpts(eSes && eSes.chapter) + "</select></div>" +
@@ -182,7 +182,7 @@ var Hourly = (function () {
     var payForm = (addingPay || ePay) ?
       "<form class='hourly-form' onsubmit='return Hourly.savePayment(event," + idx + ")'>" +
         "<div class='hf-grid'>" +
-          "<div class='form-row'><label>Date</label><input id='pay-date' class='pf-focus' type='date' required value='" + (ePay ? esc(ePay.date) : new Date().toISOString().slice(0, 10)) + "'></div>" +
+          "<div class='form-row'><label>Date</label><input id='pay-date' class='pf-focus' type='date' required value='" + (ePay ? esc(ePay.date) : Utils.todayIso()) + "'></div>" +
           "<div class='form-row'><label>Amount (₹)</label><input id='pay-amount' type='number' min='1' required value='" + (ePay ? esc(ePay.amount) : a.balance > 0 ? Math.round(a.balance) : "") + "'></div>" +
           "<div class='form-row hf-wide'><label>Notes</label><input id='pay-notes' placeholder='e.g. bank transfer, cash' value='" + esc(ePay ? ePay.notes || "" : "") + "'></div>" +
         "</div>" +

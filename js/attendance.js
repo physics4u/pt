@@ -46,7 +46,7 @@ var Attendance = (function () {
   function render() {
     var ym = Utils.el("attsheet-month").value; if (!ym) return;
     var p = ym.split("-"), year = Number(p[0]), month = Number(p[1]);
-    var weeks = _weeks(year, month), now = new Date(), thisMonth = Utils.curYm() === ym;
+    var weeks = _weeks(year, month), now = ptToday().date, thisMonth = Utils.curYm() === ym;
     if (_ym !== ym) {
       Object.keys(_open).forEach(function (k) { if (k.indexOf("|w") > 0) delete _open[k]; });
       _edit = {}; _ym = ym;
@@ -55,11 +55,10 @@ var Attendance = (function () {
       });
     }
     var mon = MONTHS[month - 1].slice(0, 3);
-    var sf = (Utils.el("as-status") || {}).value || "";
 
     Utils.el("attsheet-wrap").innerHTML = CLASSES.map(function (c) {
       var cls = c[0], sheet = _sheet(cls);
-      var students = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && (!sf || s.status === sf); });
+      var students = Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); });
       var names = students.map(Utils.fullName);
       // Month totals per student
       var mP = {}, mA = {}, classDays = 0, allP = 0, allA = 0;
@@ -132,8 +131,7 @@ var Attendance = (function () {
   }
 
   function _names(cls) {
-    var sf = (Utils.el("as-status") || {}).value || "";
-    return Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && (!sf || s.status === sf); }).map(Utils.fullName);
+    return Data.allStudents().filter(function (s) { return s.cls === cls && Hourly.inGroup(s) && Utils.shown(s); }).map(Utils.fullName);
   }
   function _rec(cls) {
     var D = Data.get(), sk = "attsheet|" + cls + "|" + _ym;

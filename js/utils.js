@@ -44,10 +44,65 @@ var Utils = (function () {
   }
 
   // ---- Current YYYY-MM ----
-  function curYm() {
-    var n = new Date();
-    return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0");
+  function curYm() { return ptToday().ym; }
+  // Today as "YYYY-MM-DD" in PT's time zone (for date boxes)
+  function todayIso() { return ptToday().iso; }
+  // A date-time in PT's time zone: "09 Nov 2026 16:45"
+  function dateTime(d) {
+    d = d instanceof Date ? d : new Date(d);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("en-GB", { timeZone: PT_TZ, day: "2-digit", month: "short", year: "numeric" }) + " " +
+           d.toLocaleTimeString("en-GB", { timeZone: PT_TZ, hour: "2-digit", minute: "2-digit" });
   }
+
+  // ---- Active students ----
+  // Current academic year: status is not Inactive and the end date hasn't passed.
+  // An earlier (or later) year: the student was there that year — their dates
+  // overlap it, or they have attendance, fees, sessions or marks in it.
+  function isActive(s) {
+    if (!s) return false;
+    if (isCurrentAcad()) {
+      if (s.status === "Inactive") return false;
+      return !(s.endDate && s.endDate < todayIso());
+    }
+    var first = acadFirstDay(), last = acadLastDay();
+    if (s.startDate && s.startDate <= last && (!s.endDate || s.endDate >= first)) return true;
+    var D = Data.get(), name = fullName(s);
+    var inMonths = function (obj, prefix) {
+      return ACYR.some(function (ym) {
+        var g = (obj || {})[prefix + "|" + s.cls + "|" + ym] || {}, r = g[name];
+        return r && Object.keys(r).some(function (k) { return r[k] && r[k] !== "--"; });
+      });
+    };
+    if (inMonths(D.attsheets, "attsheet")) return true;
+    if ((D.paygrid ? inMonths(D.paygrid, "paygrid") : false)) {
+      // a paygrid row may just hold the default fee; count it only with a status
+      if (ACYR.some(function (ym) { var r = ((D.paygrid["paygrid|" + s.cls + "|" + ym]) || {})[name]; return r && r.status; })) return true;
+    }
+    var inYear = function (d) { return d && d >= first && d <= last; };
+    if ((D.sessions || []).some(function (x) { return x.student === name && inYear(x.date); })) return true;
+    if ((D.hourpay || []).some(function (x) { return x.student === name && inYear(x.date); })) return true;
+    return (D.scores || []).some(function (x) { return x.student === name && inYear(x.date); });
+  }
+
+  // ---- "Show inactive students" — one switch shared by every page ----
+  var _showAll = false;
+  function showAll() { return _showAll; }
+  function setShowAll(on) {
+    _showAll = !!on;
+    document.querySelectorAll(".show-all-toggle input").forEach(function (i) { i.checked = _showAll; });
+    if (currentPage === "students") Students.render();
+    else if (currentPage === "attsheet") Attendance.render();
+    else if (currentPage === "payments") Payments.render();
+    else if (currentPage === "scores") Scores.render();
+  }
+  // The checkbox shown on each page's toolbar
+  function showAllBox() {
+    return "<label class='check show-all-toggle'><input type='checkbox'" + (_showAll ? " checked" : "") +
+           " onchange='Utils.setShowAll(this.checked)'> Show inactive students</label>";
+  }
+  function shown(s) { return _showAll || isActive(s); }
+  function openYear() { showPage("settings"); var d = el("sec-acad"); if (d) { d.open = true; d.scrollIntoView({block: "center"}); } }
 
   // ---- Grade label: data says "Grade XI", people see "Plus 1" ----
   function grade(cls) { return cls === "Grade XI" ? "Plus 1" : cls === "Grade XII" ? "Plus 2" : (cls || ""); }
@@ -70,7 +125,9 @@ var Utils = (function () {
   function fullName(s) { return [s.fname, s.lname].filter(function (x) { return x; }).join(" "); }
 
   return { el: el, closeModal: closeModal, openModal: openModal,
-           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, fullName: fullName, grade: grade,
+           flash: flash, setSyncStatus: setSyncStatus, curYm: curYm, todayIso: todayIso, dateTime: dateTime,
+           isActive: isActive, showAll: showAll, openYear: openYear, setShowAll: setShowAll, showAllBox: showAllBox, shown: shown,
+           fullName: fullName, grade: grade,
            studentLink: studentLink, hoverEdit: hoverEdit };
 })();
 
@@ -125,6 +182,29 @@ function showPage(id) {
   else if (id === "settings")  { SettingsPage.init(); Users.load(); StoragePage.load(); }
   else if (id === "help")      Help.init();
 }
+
+// ================================================================
+//  Academic year shown — defaults to the current one each time PT
+//  opens; Settings → Academic year switches it for this visit.
+//  Everything that depends on the year is refreshed here.
+// ================================================================
+var _viewYear = null;     // null = the current academic year
+function applyAcademicYear(start) {
+  _viewYear = start && start !== defaultAcadStart() ? start : null;
+  setAcademicYear(_viewYear || defaultAcadStart());
+  var yc = Utils.el("year-chip");
+  if (yc) {
+    yc.textContent = acadLabel() + (isCurrentAcad() ? "" : " \u00b7 earlier year");
+    yc.classList.toggle("past", !isCurrentAcad());
+    yc.title = isCurrentAcad() ? "Academic year (change in Settings)" : "You are viewing an earlier academic year. Click to change.";
+  }
+  document.querySelectorAll(".acad-label").forEach(function (e) { e.textContent = "Academic year " + acadLabel(); });
+  ["attsheet-month", "syllabus-month"].forEach(function (id) {
+    var sel = Utils.el(id); if (!sel) return;
+    sel.innerHTML = ACYR.map(function (ym) { return "<option value='" + ym + "'>" + ACYR_LBL[ym] + "</option>"; }).join("");
+  });
+}
+function viewYear() { return _viewYear || defaultAcadStart(); }
 
 function topbarAction() {
   var cfg = PAGE_CFG[currentPage];

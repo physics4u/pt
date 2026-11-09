@@ -16,10 +16,9 @@ var Students = (function () {
   function render() {
     var D    = Data.get();
     var q    = (Utils.el("student-search").value || "").trim().toLowerCase();
-    var sf   = Utils.el("student-status-filter").value;
     var all  = Data.allStudents();
     var list = all.filter(function (s) {
-      return Utils.fullName(s).toLowerCase().includes(q) && (!sf || s.status === sf);
+      return Utils.fullName(s).toLowerCase().includes(q) && Utils.shown(s);
     });
 
     var total = D.students.length;
@@ -38,10 +37,12 @@ var Students = (function () {
     Utils.el("students-wrap").innerHTML = groups.map(function (g) {
       var inGroup = all.filter(g.test), rows = list.filter(g.test);
       if (!inGroup.length && g.key === "none") return "";
-      var active = inGroup.filter(function (s) { return s.status === "Active"; }).length;
+      var active = inGroup.filter(Utils.isActive).length, hidden = inGroup.length - active;
       var isOpen = q ? rows.length > 0 : _open[g.key];
-      var meta = (rows.length !== inGroup.length ? rows.length + " of " : "") + inGroup.length + " student" + (inGroup.length === 1 ? "" : "s") +
-                 (active !== inGroup.length ? " &middot; " + active + " active" : "");
+      var meta = Utils.showAll()
+        ? inGroup.length + " student" + (inGroup.length === 1 ? "" : "s") + (hidden ? " &middot; " + active + " active" : "")
+        : active + " active" + (hidden ? " <span class='muted'>(" + hidden + " inactive hidden)</span>" : "");
+      if (q) meta = rows.length + " found &middot; " + meta;
       var hourly = g.key.indexOf("one|") === 0;
       var body = rows.length ?
         "<table><thead><tr><th class='num'>#</th><th>Name</th><th>School</th><th>Contact</th>" +
@@ -133,9 +134,7 @@ var Students = (function () {
 
     // A past end date always means Inactive; otherwise keep the status chosen.
     if (student.endDate) {
-      var endDt   = new Date(student.endDate); endDt.setHours(0,0,0,0);
-      var todayDt = new Date(); todayDt.setHours(0,0,0,0);
-      if (endDt <= todayDt) student.status = "Inactive";
+      if (student.endDate <= Utils.todayIso()) student.status = "Inactive";
     }
 
     var D = Data.get();

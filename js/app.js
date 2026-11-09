@@ -12,15 +12,7 @@ var Dashboard = (function () {
     var D = Data.get();
 
     // ---- Stat cards ----
-    var nowDate = new Date(); nowDate.setHours(0,0,0,0);
-    var active = D.students.filter(function (s) {
-      if (s.status !== "Active") return false;
-      if (s.endDate) {
-        var end = new Date(s.endDate); end.setHours(0,0,0,0);
-        if (end < nowDate) return false;
-      }
-      return true;
-    });
+    var active = D.students.filter(Utils.isActive);
     var cnt = function (f) { return active.filter(f).length; };
     var hr = Hourly.isHourly, p1 = function (s) { return s.cls === "Grade XI"; }, p2 = function (s) { return s.cls === "Grade XII"; };
     var split = function (f) { return cnt(function (s) { return f(s) && !hr(s); }) + " regular \u00b7 " + cnt(function (s) { return f(s) && hr(s); }) + " hourly"; };
@@ -91,7 +83,7 @@ var Dashboard = (function () {
 
     if (D.syllabus) {
       Object.keys(D.syllabus).forEach(function (sk) {
-        if (sk.split("|")[0] !== grade) return;
+        if (sk.split("|")[0] !== grade || ACYR.indexOf(sk.split("|")[1]) < 0) return;
         var monthData = D.syllabus[sk];
         Object.keys(monthData).forEach(function (day) {
           var entry = monthData[day];
@@ -288,7 +280,7 @@ var Dashboard = (function () {
     if (D.syllabus) {
       Object.keys(D.syllabus).forEach(function (sk) {
         var skGrade = sk.split("|")[0];
-        if (skGrade !== grade) return;
+        if (skGrade !== grade || ACYR.indexOf(sk.split("|")[1]) < 0) return;
         var monthData = D.syllabus[sk];
         Object.keys(monthData).forEach(function (day) {
           var entry   = monthData[day];
@@ -485,7 +477,7 @@ var Theme = (function () {
 //  BOOTSTRAP
 // ================================================================
 (function init() {
-  Utils.el("today-date").textContent = new Date().toLocaleDateString("en-GB", {
+  Utils.el("today-date").textContent = ptToday().date.toLocaleDateString("en-GB", {
     weekday:"short", day:"2-digit", month:"short", year:"numeric"
   });
 

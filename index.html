@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261109004220">
+<link rel="stylesheet" href="css/styles.css?v=20261109014341">
 </head>
 <body>
 
@@ -50,7 +50,7 @@
   <div class="topbar">
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-sub" id="page-sub"></div>
-    <div class="year-chip" id="year-chip" title="Academic year"></div>
+    <div class="year-chip" id="year-chip" title="Academic year" onclick="Utils.openYear()" style="cursor:pointer"></div>
     <div class="user-chip" id="user-chip" onclick="showPage('settings')" title="My account" style="display:none">
       <span class="user-avatar" id="user-avatar"></span>
       <span class="user-meta"><span class="user-name" id="user-name"></span><span class="user-role" id="user-role"></span></span>
@@ -132,12 +132,7 @@
       <input type="text" placeholder="Search students..." id="student-search" oninput="Students.render()">
     </div>
     <span class="list-count" id="students-count"></span>
-    <select class="filter" id="student-status-filter" onchange="Students.render()">
-      <option value="">All Status</option>
-      <option value="Active">Active</option>
-      <option value="Inactive">Inactive</option>
-      <option value="Trial">Trial</option>
-    </select>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
   </div>
   <div id="students-wrap"></div>
   <div id="students-empty" class="empty" style="display:none">
@@ -160,24 +155,11 @@
     <div id="page-attsheet" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
+      <span class="acad-label"></span>
       <button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
-      <select id="attsheet-month" onchange="Attendance.render()" style="width:auto">
-        <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
-        <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
-        <option value="2026-07">July 2026</option><option value="2026-08">August 2026</option>
-        <option value="2026-09">September 2026</option><option value="2026-10">October 2026</option>
-        <option value="2026-11">November 2026</option><option value="2026-12">December 2026</option>
-        <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
-        <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
-      </select>
+      <select id="attsheet-month" onchange="Attendance.render()" style="width:auto"></select>
       <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button>
-      <select class="filter" id="as-status" onchange="Attendance.render()">
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-        <option value="Trial">Trial</option>
-      </select>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
   </div>
@@ -186,17 +168,9 @@
     <div id="page-syllabus" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
+      <span class="acad-label"></span>
       <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
-      <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto">
-        <option value="2026-03">March 2026</option><option value="2026-04">April 2026</option>
-        <option value="2026-05">May 2026</option><option value="2026-06">June 2026</option>
-        <option value="2026-07">July 2026</option><option value="2026-08">August 2026</option>
-        <option value="2026-09">September 2026</option><option value="2026-10">October 2026</option>
-        <option value="2026-11">November 2026</option><option value="2026-12">December 2026</option>
-        <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option>
-        <option value="2027-03">March 2027</option><option value="2027-04">April 2027</option>
-      </select>
+      <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto"></select>
       <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button>
     </div>
     <span class="autosave-note">&#10003; Saves automatically</span>
@@ -206,13 +180,8 @@
     <div id="page-payments" class="page">
   <div class="toolbar" style="flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:14px;flex:1;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--text3)">Academic Year 2026-27</span>
-      <select class="filter" id="pay-status" onchange="Payments.render()">
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-        <option value="Trial">Trial</option>
-      </select>
+      <span class="acad-label"></span>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
       <label class="check"><input type="checkbox" id="pay-dues" onchange="Payments.duesOnly(this.checked)"> Only students with dues</label>
     </div>
     <div style="display:flex;align-items:center;gap:16px;font-size:11px;font-family:var(--font-ui)">
@@ -335,15 +304,33 @@
     </div>
   </details>
 
-  <!-- Academic year (admins only) -->
-  <details class="section admin-only">
+  <!-- Academic year (everyone) -->
+  <details class="section" id="sec-acad">
     <summary>
       <span class="section-title">Academic year</span><span class="section-meta" id="acad-meta"></span><span class="show-pill" aria-hidden="true"></span>
     </summary>
-    <div class="section-body" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-      <select id="settings-acad" style="width:auto;min-width:240px"></select>
-      <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveAcad()">Save year</button>
-      <span class="section-note" style="margin:0">PT shows 14 months, from March to the following April.</span>
+    <div class="section-body">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <select id="settings-acad" style="width:auto;min-width:300px"></select>
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveAcad()">Show this year</button>
+        <button class="btn btn-secondary btn-sm" id="acad-back" onclick="SettingsPage.saveAcad(defaultAcadStart())">Back to the current year</button>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">Every page (Dashboard, Students, Attendance, Monthly Planner, Payments, Scores and profiles) shows the year chosen here. Each year runs 14 months, from March to the following April. PT always opens on the current academic year; choosing another year here only changes what you see, not anyone else's view.</p>
+    </div>
+  </details>
+
+  <!-- Region (admins only) -->
+  <details class="section admin-only" id="sec-tz">
+    <summary>
+      <span class="section-title">Time zone</span><span class="section-meta" id="tz-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <select id="settings-tz" style="width:auto;min-width:260px"></select>
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveTz()">Save time zone</button>
+        <span class="muted" id="tz-now"></span>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">PT uses this time zone for "today" (the current week, today's date, the current academic year, end dates) and for the times it shows. It applies to everyone using PT.</p>
     </div>
   </details>
 
@@ -424,7 +411,9 @@
     <div id="page-help" class="page">
 
   <div class="help-search">
-    <input id="help-q" type="search" placeholder="Search the guide, e.g. attendance, password, backup" oninput="Help.search(this.value)">
+    <input id="help-q" type="search" placeholder="Search the guide, e.g. attendance, password, academic year" oninput="Help.search(this.value)">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="Help.all(true)">Open all</button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="Help.all(false)">Close all</button>
   </div>
 
   <!-- About -->
@@ -435,7 +424,7 @@
         <img src="logo.png" alt="" class="about-logo">
         <div>
           <div class="about-name">PT &mdash; Physics Tuition Manager</div>
-          <div class="about-line">Runs a physics tuition: students, classes, the monthly planner, attendance, fees and scores, in one place.</div>
+          <div class="about-line">Students, the monthly planner, attendance, fees and scores for a physics tuition, in one place.</div>
           <div class="about-line">&copy; PT &middot; San Jose, California</div>
         </div>
       </div>
@@ -445,79 +434,73 @@
 
   <!-- Quick start -->
   <details class="section help">
-    <summary><span class="section-title">Quick start</span><span class="section-meta">&middot; the first five minutes</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Quick start</span><span class="section-meta">&middot; a typical week in PT</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <ol>
-        <li><b>Sign in</b> with the username and password your admin gave you. The very first time, the owner signs in as <code>admin</code> with the owner passcode.</li>
-        <li><b>Check the year.</b> The gold chip at the top right shows the academic year (for example <b>2026&ndash;27</b>). Admins can change it in <b>Settings &rarr; Academic year</b>.</li>
-        <li><b>Add students</b> on the <b>Students</b> page with <b>+ Add student</b>. Set each student's class (Plus 1 or Plus 2) and monthly fee.</li>
-        <li><b>Plan the month</b> in <b>Monthly Planner</b>: pick the chapter and times for each class day.</li>
-        <li><b>Take attendance</b> in <b>Attendance</b>. Everything saves automatically.</li>
-        <li><b>Record fees</b> from a student's profile (<b>Students &rarr; click their name</b>).</li>
-        <li>The <b>Dashboard</b> adds everything up for you.</li>
+        <li><b>Sign in</b> with the username and password your admin gave you.</li>
+        <li><b>Students</b>: add each student once with <b>+ Add student</b> (class, batch, fee or hourly rate).</li>
+        <li><b>Monthly Planner</b>: after each class, enter the start and end time and the chapter.</li>
+        <li><b>Attendance</b>: mark the day; <b>Mark everyone present</b> then change the absentees.</li>
+        <li><b>Fees</b>: open the student (click their name) and record the month or the payment.</li>
+        <li><b>Scores</b>: <b>+ Add test</b>, then type the marks.</li>
+        <li><b>Dashboard</b> (click the PT logo) adds it all up. Everything saves by itself.</li>
       </ol>
+    </div>
+  </details>
+
+  <!-- How PT works -->
+  <details class="section help">
+    <summary><span class="section-title">How PT pages work</span><span class="section-meta">&middot; sections, locked entries, active students, academic year</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Sections</dt><dd>Pages are split into sections you open and close (Plus 1, Plus 2, Hourly, weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
+        <dt>Locked entries &#9998;</dt><dd>Anything already saved is locked so it can't be changed by accident. Hover over it (on a phone or tablet the &#9998; is always shown) and press <b>&#9998;</b> to change it. <b>Delete</b> / <b>Clear</b> (in red) appear only while editing.</dd>
+        <dt>Names</dt><dd>Click a student's name anywhere to open their profile.</dd>
+        <dt>Active students</dt><dd>Lists show only <b>active</b> students. Tick <b>Show inactive students</b> on any page to see everyone; the choice applies to every page until PT is closed.</dd>
+        <dt>Academic year</dt><dd>The chip at the top right (e.g. <b>2026&ndash;27</b>) is the year shown everywhere. PT always opens on the current year. Click the chip (or <b>Settings &rarr; Academic year</b>) to look at another year; the chip turns red while you're viewing a different year.</dd>
+        <dt>Saving</dt><dd>Every change saves within a second or two. There is no Save button to remember.</dd>
+      </dl>
     </div>
   </details>
 
   <!-- Signing in -->
   <details class="section help">
-    <summary><span class="section-title">Signing in, roles and your account</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Signing in, roles and passwords</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <h4>Signing in</h4>
-      <p>Open PT at the web address your admin shared with you and enter your <b>username</b> and <b>password</b>. You stay signed in on that device for 30 days. The chip at the top right shows who is signed in; click it to go to Settings.</p>
-      <h4>Roles</h4>
+      <p>You stay signed in on a device for 30 days. <b>Settings &rarr; Users</b> has <b>Change my password</b> (at least 6 characters) and <b>Sign out</b> (use it on shared computers). Forgot your password? An admin resets it from the same section.</p>
       <table class="guide-table">
-        <tr><td><span class="chip">User</span></td><td>Students, classes, Monthly Planner, attendance, payments and scores.</td></tr>
-        <tr><td><span class="chip chip-gold">Admin</span></td><td>Everything a User can do, plus Users, chapter lists, the academic year and backups.</td></tr>
-        <tr><td><span class="chip chip-gold">Owner</span></td><td>The built-in <code>admin</code> sign-in that uses the owner passcode. It always works, so the owner can never be locked out.</td></tr>
+        <tr><td><span class="chip">User</span></td><td>Students, classes, planner, attendance, payments, scores; can view other academic years.</td></tr>
+        <tr><td><span class="chip chip-gold">Admin</span></td><td>Also users, chapter lists, time zone, storage, import and backups.</td></tr>
+        <tr><td><span class="chip chip-gold">Owner</span></td><td>The built-in <code>admin</code> sign-in with the owner passcode; it can never be locked out.</td></tr>
       </table>
-      <h4>Change your password</h4>
-      <p><b>Settings &rarr; Users &rarr; Change my password.</b> Enter your current password and a new one (at least 6 characters).</p>
-      <h4>Forgot your password?</h4>
-      <p>Ask an admin. They open <b>Settings &rarr; Users</b>, hover over your row and click <b>&#9998;</b>, type a new password and press <b>Save changes</b>.</p>
-      <h4>Sign out</h4>
-      <p><b>Settings &rarr; Users &rarr; Sign out.</b> Do this on shared or borrowed computers.</p>
     </div>
   </details>
 
   <!-- Dashboard -->
   <details class="section help">
-    <summary><span class="section-title">Dashboard</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Dashboard</span><span class="section-meta">&middot; what each number means</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>Click the <b>PT logo</b> at any time to come back here.</p>
-      <ul>
-        <li><b>Active students</b>: students whose status is Active and whose end date (if any) hasn't passed.</li>
-        <li><b>Classes</b>: how many weekly classes are on the Classes page.</li>
-        <li><b>Revenue</b>: group fees marked <b>Paid</b> plus hourly payments received this academic year. <b>Outstanding</b>: group fees marked Pending or Overdue plus unpaid hourly balances.</li>
-        <li><b>Hourly hours</b>: total one-to-one session time this academic year.</li>
-        <li><b>Plus 1 / Plus 2 Hours and Days</b>: teaching time and class days from the Monthly Planner. Hours are shown as <b>hours:minutes</b>, so 134:45 is 134 hours 45 minutes.</li>
-        <li><b>Teaching Hours charts</b>: time spent on each chapter (Plus 1 in red, Plus 2 in orange).</li>
-        <li><b>Income &mdash; Monthly</b>: paid fees for each month of the academic year.</li>
-      </ul>
+      <dl class="guide-dl">
+        <dt>Students, Plus 1, Plus 2, Hourly</dt><dd>Active students, split into regular and hourly.</dd>
+        <dt>Revenue / Outstanding</dt><dd>Group fees marked Paid plus hourly payments in the academic year / fees Pending or Overdue plus unpaid hourly balances.</dd>
+        <dt>Hourly hours</dt><dd>One-to-one session time in the year.</dd>
+        <dt>Plus 1 / Plus 2 Hours and Days</dt><dd>From the Monthly Planner: days with a chapter and both times. <b>134:45</b> means 134 hours 45 minutes.</dd>
+        <dt>Charts</dt><dd>Teaching hours per chapter, and income per month (counted in the month the fee is for).</dd>
+      </dl>
     </div>
   </details>
 
   <!-- Students -->
   <details class="section help">
-    <summary><span class="section-title">Students</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Students and profiles</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <h4>Add or edit a student</h4>
-      <p>Press <b>+ Add student</b> (or hover over a row and click <b>&#9998;</b>). First name is required; everything else is optional but useful:</p>
-      <ul>
-        <li><b>Class</b>: Plus 1 or Plus 2. Attendance, the planner and payments use this.</li>
-        <li><b>Batch</b>: Regular, or Hourly for one-to-one students billed by the hour (see <b>Hourly students</b>).</li>
-        <li><b>Monthly fee</b>: filled in automatically when you create that month's payment.</li>
-        <li><b>Status</b>: Active, Trial or Inactive.</li>
-        <li><b>Start / End date</b>: once the end date has passed, PT marks the student Inactive automatically.</li>
-      </ul>
-      <h4>Find students</h4>
-      <p>Students are grouped into <b>Plus 1</b>, <b>Plus 2</b>, <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b>, all closed when you open the page; click a heading to open it. Typing in the search box opens the sections with a match. The status filter narrows every section.</p>
-      <h4>Student profile</h4>
-      <p>Click a student's <b>name</b> anywhere in PT (Students, Attendance, Payments, Scores) to see everything about them: details, attendance month by month, payments and scores. This is also where you <b>record fees</b> (see Payments).</p>
-      <p>Each part of the profile (Student details, Attendance, Fees, Sessions, Payments received, Report card) is a section you can open or close; its heading shows a summary. Saved entries are locked: hover over a row (or the rate / monthly fee) and press <b>&#9998;</b> to change it.</p>
-      <h4>Delete a student</h4>
-      <p>Open the student's <b>&#9998;</b> edit form and press <b>Delete this student</b>. Their earlier attendance and payment records are kept.</p>
-      <p class="tip">Tip: if you change a student's name, their earlier attendance and payments stay under the old name. Correct spelling mistakes early.</p>
+      <h4>Add or change a student</h4>
+      <p><b>+ Add student</b>, or hover over a student and press <b>&#9998;</b>. Only the first name is required. <b>Class</b> (Plus 1 / Plus 2) decides where they appear; <b>Batch</b> is Regular or Hourly; <b>Status</b> is Active, Trial or Inactive. Once the <b>End date</b> passes, PT marks the student Inactive. <b>Delete this student</b> is at the bottom of the form; their old attendance and fees are kept.</p>
+      <h4>Find a student</h4>
+      <p>Students are grouped into Plus 1, Plus 2, Hourly (Plus 1) and Hourly (Plus 2). Typing in the search box opens the sections with a match.</p>
+      <h4>Profile</h4>
+      <p>Details, attendance by month, fees, sessions and payments (hourly), and the report card, each in its own section. The &#9998; on <b>Student details</b> opens the edit form.</p>
+      <p class="tip">Changing a student's name leaves their earlier attendance and fees under the old name, so fix spellings early.</p>
     </div>
   </details>
 
@@ -525,43 +508,16 @@
   <details class="section help">
     <summary><span class="section-title">Hourly (one-to-one) students</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <h4>Set up</h4>
-      <p>Add or edit the student and choose <b>Batch: Hourly</b>. Enter their <b>rate per hour</b>. If they also come to the regular group classes, tick <b>Also attends group classes</b>; they then appear in group attendance and monthly fees as well.</p>
-      <h4>Record a session</h4>
-      <p>Open the student (<b>Students &rarr; click their name</b>), press <b>+ Add session</b>, and enter the date, start and end time, chapter and notes. The hours are worked out for you, and the day counts as present in their attendance.</p>
-      <p>Each session is billed at the rate in force when it was added, so changing the rate later doesn't alter earlier bills. The rate is locked on the profile: hover over <b>Rate per hour</b> on the Hourly fees heading and press &#9998; to change it.</p>
-      <h4>Change or delete a session or payment</h4>
-      <p>Entries are locked. Hover over the row and press <b>&#9998;</b>; the entry opens in a form with <b>Save changes</b>, and <b>Delete</b> in red.</p>
-      <h4>Record a payment</h4>
-      <p>Press <b>+ Add payment</b> and enter the date and amount received. Payments don't have to match a month: PT applies them to the oldest unpaid months first and shows each month as <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>, with the balance at the top.</p>
-      <h4>Where they appear</h4>
-      <ul>
-        <li><b>Payments</b>: the <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b> sections show rate, hours, billed, paid and balance.</li>
-        <li><b>Dashboard</b>: <b>Hourly hours</b> counts their sessions; <b>Revenue</b> and <b>Outstanding</b> include them. The Teaching Hours charts show group classes only.</li>
-      </ul>
+      <p>Choose <b>Batch: Hourly</b> and enter the <b>rate per hour</b>. Tick <b>Also attends group classes</b> if they come to the group classes too; they then also appear in group attendance and monthly fees.</p>
+      <p>On the profile, <b>+ Add session</b> (date, times, chapter, notes) and <b>+ Add payment</b> (date, amount). Each session is billed at the rate when it was added. Payments go to the oldest unpaid months first, so months show <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>. Sessions count as present days. To change the rate, hover over it on the <b>Hourly fees</b> heading and press &#9998;.</p>
     </div>
   </details>
 
-  <!-- Classes -->
-  <details class="section help">
-    <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
-    <div class="section-body guide">
-      <p>The weekly timetable. Press <b>+ Add class</b> and enter a name, day, level (Plus 1 or Plus 2), start and end time, and optionally tutor, room and fee. Hover over a class and click <b>&#9998;</b> to change it; <b>Delete this class</b> is at the bottom of that form.</p>
-    </div>
-  </details>
-
-  <!-- Monthly Planner -->
+  <!-- Planner -->
   <details class="section help">
     <summary><span class="section-title">Monthly Planner</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <ol>
-        <li>Choose the <b>month</b> at the top (&#9664; &#9654; move a month at a time).</li>
-        <li>Open <b>Plus 1</b> or <b>Plus 2</b>. The month is split into weeks (Monday to Sunday); the current week is already open and marked <b>This week</b>. Each week's heading shows its days, hours and chapters.</li>
-        <li>For each day you teach, pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>. Add notes if you like (for example the topics covered). Each change saves automatically.</li>
-      </ol>
-      <p>Once a day has an entry it is locked when you move to another row. To change it, hover over the day and press <b>&#9998;</b>; press <b>Done</b> when finished, or <b>Clear</b> (red) to remove the day's entry.</p>
-      <p>Days with an entry are highlighted; weekends are tinted. The Dashboard's hours, days and Teaching Hours charts come from this page.</p>
-      <p>The chapter list comes from <b>Settings &rarr; Chapter lists</b> (admins can edit it).</p>
+      <p>Choose the month (&#9664; &#9654; step a month), open Plus 1 or Plus 2, and use the week marked <b>This week</b>. For each class day pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>, and add notes. A day locks when you move to another row; &#9998; reopens it, with <b>Done</b> and <b>Clear</b>. Week headings show days, hours and chapters covered. Chapters come from <b>Settings &rarr; Chapter lists</b>.</p>
     </div>
   </details>
 
@@ -569,29 +525,16 @@
   <details class="section help">
     <summary><span class="section-title">Attendance</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <ol>
-        <li>Choose the <b>month</b> at the top (&#9664; &#9654; move a month at a time) and, if you like, a status filter.</li>
-        <li>Open <b>Plus 1</b> or <b>Plus 2</b>. The month is split into weeks (Monday to Sunday); the current week is already open and marked <b>This week</b>. Each heading shows the class days and the percentage present.</li>
-        <li>Click a student's box on the day: <b>first click = P</b> (present), <b>second click = A</b> (absent), <b>third click = blank</b>. A bar above the table shows the day you're marking, with <b>Mark everyone present</b>; press <b>Done</b> when finished. Each click saves automatically.</li>
-      </ol>
-      <p>A day that has marks is locked. To change it, hover over its date and press <b>&#9998;</b>; <b>Clear day</b> (red) removes all its marks.</p>
-      <p><b>Week</b> shows each student's P / A for that week, <b>Month</b> their percentage present for the month; the bottom row counts who was present each day.</p>
+      <p>Choose the month, open Plus 1 or Plus 2 and the week. Click a student's box on the day: <b>P</b> &rarr; <b>A</b> &rarr; blank. The bar above the table shows the day you're marking, with <b>Mark everyone present</b>, <b>Clear day</b> and <b>Done</b>. Marked days are locked; hover over the date and press &#9998; to change one. <b>Week</b> is the student's P / A for the week, <b>Month</b> their % present; the bottom row counts who was present.</p>
     </div>
   </details>
 
   <!-- Payments -->
   <details class="section help">
-    <summary><span class="section-title">Payments</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Payments and fees</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <h4>See who has paid</h4>
-      <p>The <b>Payments</b> page shows every student against every month of the academic year: <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. It has four sections, <b>Plus 1</b>, <b>Plus 2</b>, <b>Hourly (Plus 1)</b> and <b>Hourly (Plus 2)</b>, all closed when you open the page; click a heading to open it. Tick <b>Only students with dues</b> to list just the students who owe fees. Click a name to open that student.</p>
-      <h4>Record a payment</h4>
-      <ol>
-        <li>Open the student (<b>Students &rarr; click their name</b>, or their name on the Payments page).</li>
-        <li>Open the <b>Fees</b> section, hover over the month and press <b>&#9998;</b>.</li>
-        <li>Choose the status (Pending, Paid, Overdue), check the <b>amount</b>, add the <b>payment date</b> and any <b>notes</b>, and press <b>Save</b>. Marking a month Paid without a date uses today's date. <b>Clear month</b> removes it.</li>
-      </ol>
-      <p>To change the student's monthly fee, hover over <b>Monthly fee</b> on the Fees heading and press &#9998;.</p>
+      <p><b>Payments</b> shows every student against every month of the year: <span class="chip chip-green">&#8377; paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. Tick <b>Only students with dues</b> to see who owes fees. Hover over a cell for the payment date and notes.</p>
+      <p><b>Record a fee</b>: click the student's name &rarr; <b>Fees</b> section &rarr; hover over the month &rarr; &#9998; &rarr; choose the status, check the amount and date &rarr; <b>Save</b>. A month marked Paid without a date gets today's date; <b>Clear month</b> undoes it. The monthly fee itself is changed with the &#9998; on the Fees heading.</p>
     </div>
   </details>
 
@@ -599,32 +542,33 @@
   <details class="section help">
     <summary><span class="section-title">Scores</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <p>Scores is organised by <b>test</b>. The page lists the tests for <b>Plus 1</b> and <b>Plus 2</b>: test number, date, portions, marks out of, the class average, the top mark and how many took it.</p>
-      <h4>Add a test</h4>
-      <p>Press <b>+ Add test</b>, choose the class, date, portions and marks out of. PT numbers the test for you (Test 12, Test 13&hellip;) and opens its mark sheet.</p>
-      <h4>Enter marks</h4>
-      <p>Press <b>&#9998; Marks</b> on a test. Every active student in the class is listed (tick <b>Show inactive students</b> to see the others); type each mark and press <b>Enter</b> to move to the next student. Marks save automatically and the percentage fills in. Leave a mark blank if the student didn't take the test (it shows "---"). Once a test has marks, the mark sheet opens locked, blank rows included: hover over a row and press <b>Edit</b> to change a mark or add a late one.</p>
-      <h4>Change or delete a test</h4>
-      <p><b>Test details</b> (test number, date, portions, marks out of) are locked. Hover over the title and press &#9998; to change them; <b>Delete this test</b> appears at the bottom only then. Press <b>Done</b> when finished.</p>
-      <h4>One-to-one tests</h4>
-      <p>For hourly students, choose <b>For: One-to-one: &lt;student&gt;</b> when adding a test. These are listed separately under <b>One-to-one tests</b>.</p>
-      <p>Each student's tests, marks and percentages also appear on their profile.</p>
+      <p>Tests are listed under Plus 1, Plus 2 and the two Hourly sections (one-to-one tests), with average, top mark and how many took each.</p>
+      <p><b>+ Add test</b>: class (or <b>One-to-one:</b> a student), date, portions and marks out of; PT numbers it. On the mark sheet type each mark and press <b>Enter</b> for the next student; blank means the student didn't take it. Once a test has marks the sheet opens locked; <b>Edit</b> on a row changes or adds a mark. <b>Test details</b> are locked too: &#9998; next to the title edits them and shows <b>Delete this test</b>.</p>
+    </div>
+  </details>
+
+  <!-- Classes -->
+  <details class="section help">
+    <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>The weekly timetable. <b>+ Add class</b> (name, day, level, times, tutor, room); &#9998; on a class to change or delete it.</p>
     </div>
   </details>
 
   <!-- Settings -->
   <details class="section help">
-    <summary><span class="section-title">Settings</span><span class="section-meta">&middot; admins see every section</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <summary><span class="section-title">Settings</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <ul>
-        <li><b>Users</b>: everyone who can sign in, with their role and last sign-in. Admins use <b>+ Add user</b>, and hover over a user and click <b>&#9998;</b> to rename, change role, reset a password, stop someone signing in (untick <b>Can sign in</b>) or delete them.</li>
-        <li><b>Chapter lists</b> (admins): the chapters offered in the Monthly Planner. Press <b>Edit</b>, put one chapter per line, then <b>Save</b>. "Use the standard NCERT list" fills the box with the built-in list; nothing changes until you save.</li>
-        <li><b>Academic year</b> (admins): PT shows 14 months, March to the following April. Choose the year and press <b>Save year</b>.</li>
-        <li><b>Storage</b> (admins): how much of PT's space is used, with a breakdown by area. <b>Free up space</b> releases empty space.</li>
-        <li><b>Import data</b> (admins): bring in an earlier year's records from its Excel workbook. <b>Check</b> shows the totals to compare with the workbook; <b>Import</b> loads them after making a backup.</li>
-        <li><b>Backups</b> (admins): <b>Back up now</b> saves a complete copy of PT's data. The newest 30 backups are kept.</li>
-        <li><b>Appearance</b>: Dark or Light. This is remembered on each device separately.</li>
-      </ul>
+      <dl class="guide-dl">
+        <dt>Users</dt><dd>Who can sign in, their role and last sign-in. Admins add users and use &#9998; to rename, change role, reset a password, block or delete.</dd>
+        <dt>Chapter lists</dt><dd>(Admins) The planner's chapters, one per line. <b>Use the standard NCERT list</b> refills it; nothing changes until <b>Save</b>.</dd>
+        <dt>Academic year</dt><dd>(Everyone) Show an earlier or later year everywhere in PT. Only your view changes, and PT opens on the current year again next time. <b>Back to the current year</b> returns.</dd>
+        <dt>Time zone</dt><dd>(Admins) Used for "today": the current week, today's date, end dates, the current academic year and times shown. Default India (IST).</dd>
+        <dt>Storage</dt><dd>(Admins) Space used, by area. <b>Free up space</b> releases empty space.</dd>
+        <dt>Import data</dt><dd>(Admins) Load a year's records from its Excel workbook. <b>Check</b> shows totals to compare; <b>Import</b> takes a backup first.</dd>
+        <dt>Backups</dt><dd>(Admins) <b>Back up now</b> saves a full copy; the newest 30 are kept.</dd>
+        <dt>Appearance</dt><dd>Dark or Light, and the font (Modern or Courier New). Remembered on each device.</dd>
+      </dl>
     </div>
   </details>
 
@@ -633,12 +577,11 @@
     <summary><span class="section-title">Saving and your data</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <ul>
-        <li>Everything you enter is stored securely in PT's online database. Only people with a PT sign-in can see or change it.</li>
-        <li>Every change saves by itself within a second or two. There are no Save buttons to remember.</li>
-        <li>While saving, the bottom of the side menu briefly shows <b>Saving&hellip;</b>. If something goes wrong it shows <b>&#9888; Not saved</b>: check your internet connection and try again.</li>
-        <li>If you close the page just after a change, PT finishes saving it. Your browser only warns you if a save has failed (for example when you're offline).</li>
-        <li>PT keeps a copy on your device so it opens quickly, then refreshes it from the database. If the database can't be reached, PT shows the copy but <b>won't save</b> until it reconnects, so nothing is ever overwritten by mistake.</li>
-        <li>PT keeps an activity log of each change and who made it.</li>
+        <li>Data is stored securely in PT's online database; only people with a PT sign-in can see it.</li>
+        <li>The side menu shows <b>Saving&hellip;</b> briefly. <b>&#9888; Not saved</b> means the connection dropped: check the internet and try again.</li>
+        <li>Closing the page right after a change is fine; PT finishes saving. The browser warns you only if a save failed.</li>
+        <li>PT keeps a copy on your device so it opens quickly. If it can't reach the database it shows that copy but won't save, so nothing is overwritten.</li>
+        <li>Every change is recorded in an activity log with who made it.</li>
       </ul>
     </div>
   </details>
@@ -647,18 +590,16 @@
   <details class="section help">
     <summary><span class="section-title">Troubleshooting &amp; FAQ</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <h4>"Wrong username or password"</h4>
-      <p>Usernames are not case-sensitive, but passwords are. Ask an admin to reset your password if needed.</p>
-      <h4>"Your session has ended"</h4>
-      <p>Sign-ins last 30 days, and end straight away if an admin disables or deletes your account. Sign in again.</p>
-      <h4>I don't see an update that was announced</h4>
-      <p>Reload the page. If it still looks old, press <b>Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;R</b> (Mac: <b>Cmd&nbsp;+&nbsp;Shift&nbsp;+&nbsp;R</b>). The version in <b>About PT</b> tells you which release you have.</p>
-      <h4>A student is missing from attendance or payments</h4>
-      <p>Check their <b>class</b> is set (Plus 1 or Plus 2) and the status filter at the top of the page.</p>
-      <h4>The Teaching Hours chart leaves out some days</h4>
-      <p>The chart only counts days whose chapter appears in the current chapter list, with both a start and an end time.</p>
-      <h4>Something looks wrong in the data</h4>
-      <p>Tell an admin. If needed, PT's data can be restored from one of the backups.</p>
+      <dl class="guide-dl">
+        <dt>Wrong username or password</dt><dd>Passwords are case-sensitive (usernames aren't). Ask an admin to reset it.</dd>
+        <dt>Your session has ended</dt><dd>Sign-ins last 30 days, and end at once if an admin disables your account. Sign in again.</dd>
+        <dt>A student is missing</dt><dd>They may be inactive: tick <b>Show inactive students</b>. Also check their class is set, and the academic year chip.</dd>
+        <dt>Pages look empty</dt><dd>Check the year chip. A red chip means you're viewing another year; click it and choose <b>Back to the current year</b>.</dd>
+        <dt>The week or "today" looks a day off</dt><dd>An admin can check <b>Settings &rarr; Time zone</b>.</dd>
+        <dt>Planner hours missing from charts</dt><dd>Only days with a chapter and both times are counted.</dd>
+        <dt>Don't see a new update</dt><dd>Press <b>Ctrl + Shift + R</b> (Mac: <b>Cmd + Shift + R</b>). About PT shows your version.</dd>
+        <dt>Something looks wrong in the data</dt><dd>Tell an admin; data can be restored from a backup.</dd>
+      </dl>
     </div>
   </details>
 
@@ -666,15 +607,15 @@
   <details class="section help">
     <summary><span class="section-title">Words used in PT</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
-      <table class="guide-table">
-        <tr><td><b>Plus 1</b></td><td>Grade XI (first year of higher secondary)</td></tr>
-        <tr><td><b>Plus 2</b></td><td>Grade XII (second year of higher secondary)</td></tr>
-        <tr><td><b>Academic year</b></td><td>The 14 months PT shows, March to the following April</td></tr>
-        <tr><td><b>Regular / Hourly</b></td><td>The student's batch type</td></tr>
-        <tr><td><b>Trial</b></td><td>A student trying out classes before enrolling</td></tr>
-        <tr><td><b>P / A</b></td><td>Present / Absent</td></tr>
-        <tr><td><b>134:45</b></td><td>134 hours 45 minutes</td></tr>
-      </table>
+      <dl class="guide-dl">
+        <dt>Plus 1 / Plus 2</dt><dd>Grade XI / Grade XII.</dd>
+        <dt>Academic year</dt><dd>14 months, March to the following April.</dd>
+        <dt>Regular / Hourly</dt><dd>Group-class student / one-to-one student billed by the hour.</dd>
+        <dt>Active / Trial / Inactive</dt><dd>Attending / trying out classes / no longer attending (or past the end date). Trial students count as active.</dd>
+        <dt>P / A</dt><dd>Present / Absent.</dd>
+        <dt>&#9998;</dt><dd>Edit. Shows when you hover over a locked entry.</dd>
+        <dt>134:45</dt><dd>134 hours 45 minutes.</dd>
+      </dl>
     </div>
   </details>
 
@@ -830,25 +771,25 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261109004220"></script>
-<script src="js/version.js?v=20261109004220"></script>
-<script src="js/config.js?v=20261109004220"></script>
-<script src="js/data.js?v=20261109004220"></script>
-<script src="js/utils.js?v=20261109004220"></script>
-<script src="js/students.js?v=20261109004220"></script>
-<script src="js/classes.js?v=20261109004220"></script>
-<script src="js/attendance.js?v=20261109004220"></script>
-<script src="js/syllabus.js?v=20261109004220"></script>
-<script src="js/payments.js?v=20261109004220"></script>
-<script src="js/scores.js?v=20261109004220"></script>
-<script src="js/profile.js?v=20261109004220"></script>
-<script src="js/settings.js?v=20261109004220"></script>
-<script src="js/users.js?v=20261109004220"></script>
-<script src="js/help.js?v=20261109004220"></script>
-<script src="js/storage.js?v=20261109004220"></script>
-<script src="js/import.js?v=20261109004220"></script>
-<script src="js/hourly.js?v=20261109004220"></script>
-<script src="js/app.js?v=20261109004220"></script>
+<script src="js/site-config.js?v=20261109014341"></script>
+<script src="js/version.js?v=20261109014341"></script>
+<script src="js/config.js?v=20261109014341"></script>
+<script src="js/data.js?v=20261109014341"></script>
+<script src="js/utils.js?v=20261109014341"></script>
+<script src="js/students.js?v=20261109014341"></script>
+<script src="js/classes.js?v=20261109014341"></script>
+<script src="js/attendance.js?v=20261109014341"></script>
+<script src="js/syllabus.js?v=20261109014341"></script>
+<script src="js/payments.js?v=20261109014341"></script>
+<script src="js/scores.js?v=20261109014341"></script>
+<script src="js/profile.js?v=20261109014341"></script>
+<script src="js/settings.js?v=20261109014341"></script>
+<script src="js/users.js?v=20261109014341"></script>
+<script src="js/help.js?v=20261109014341"></script>
+<script src="js/storage.js?v=20261109014341"></script>
+<script src="js/import.js?v=20261109014341"></script>
+<script src="js/hourly.js?v=20261109014341"></script>
+<script src="js/app.js?v=20261109014341"></script>
 
 </body>
 </html>

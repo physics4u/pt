@@ -14,8 +14,7 @@ var Users = (function () {
     if (!iso) return "<span style='color:var(--text3)'>never</span>";
     var d = new Date(iso);
     if (isNaN(d)) return _esc(iso);
-    return d.toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + " " +
-           d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+    return Utils.dateTime(d);
   }
   var _editing = null;   // username being edited, or null when adding
 

@@ -20,9 +20,39 @@ var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var ACYR = [];
 var ACYR_LBL = {};
 
+// ----------------------------------------------------------------
+//  Time zone — PT works out "today" in this zone (Settings → Region).
+//  Default India.
+// ----------------------------------------------------------------
+var PT_TZ = "Asia/Kolkata";
+function setTimeZone(tz) {
+  try { new Intl.DateTimeFormat("en-GB", { timeZone: tz }); PT_TZ = tz || "Asia/Kolkata"; }
+  catch (e) { PT_TZ = "Asia/Kolkata"; }
+}
+// Today in PT's time zone: {y, m, d, ym:"2026-11", iso:"2026-11-09", date: Date at local midnight of that day}
+function ptToday() {
+  var parts = {};
+  new Intl.DateTimeFormat("en-GB", { timeZone: PT_TZ, year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(new Date()).forEach(function (x) { parts[x.type] = x.value; });
+  var y = Number(parts.year), m = Number(parts.month), d = Number(parts.day);
+  return { y: y, m: m, d: d, ym: y + "-" + parts.month, iso: y + "-" + parts.month + "-" + parts.day, date: new Date(y, m - 1, d) };
+}
+
 function defaultAcadStart() {
-  var n = new Date(), y = n.getFullYear();
-  return (n.getMonth() + 1 >= 3 ? y : y - 1) + "-03";
+  var t = ptToday();
+  return (t.m >= 3 ? t.y : t.y - 1) + "-03";
+}
+// "2026–27" for the academic year shown (or for a start like "2025-03")
+function acadLabel(start) {
+  var y = Number((start || ACYR[0]).slice(0, 4));
+  return y + "\u2013" + String(y + 1).slice(2);
+}
+function isCurrentAcad() { return ACYR[0] === defaultAcadStart(); }
+// First and last day of the academic year shown, "YYYY-MM-DD"
+function acadFirstDay() { return ACYR[0] + "-01"; }
+function acadLastDay() {
+  var last = ACYR[ACYR.length - 1], p = last.split("-");
+  return last + "-" + String(new Date(Number(p[0]), Number(p[1]), 0).getDate()).padStart(2, "0");
 }
 
 function setAcademicYear(startYm) {

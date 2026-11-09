@@ -202,20 +202,19 @@ var Data = (function () {
 
     // Status: a past end date always means Inactive. Otherwise keep the
     // status the tutor chose (Active / Trial / Inactive); blank → Active.
-    var today = new Date(); today.setHours(0,0,0,0);
+    setTimeZone(D.settings && D.settings.tz);
+    var today = ptToday().iso;
     D.students.forEach(function (s) {
-      if (s.endDate) {
-        var end = new Date(s.endDate); end.setHours(0,0,0,0);
-        if (!isNaN(end) && end <= today) { s.status = "Inactive"; return; }
-      }
+      if (s.endDate && s.endDate <= today) { s.status = "Inactive"; return; }
       if (!s.status) s.status = "Active";
     });
   }
 
   function _afterApply() {
-    setAcademicYear(D.settings && D.settings.acadStart);
-    var yc = document.getElementById("year-chip");
-    if (yc) yc.textContent = ACYR[0].slice(0, 4) + "\u2013" + String(Number(ACYR[0].slice(0, 4)) + 1).slice(2);
+    setTimeZone(D.settings && D.settings.tz);
+    applyAcademicYear(viewYear());
+    var td = document.getElementById("today-date");
+    if (td) td.textContent = ptToday().date.toLocaleDateString("en-GB", {weekday:"short", day:"2-digit", month:"short", year:"numeric"});
     if (typeof currentPage !== "undefined" && typeof showPage === "function") showPage(currentPage);
     else Dashboard.render();
   }
@@ -279,8 +278,8 @@ var Data = (function () {
   // ---- Activity log ----
   function _time() {
     var n = new Date();
-    return n.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) + " " +
-           n.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    return n.toLocaleDateString("en-GB", {timeZone: PT_TZ, day:"2-digit", month:"short"}) + " " +
+           n.toLocaleTimeString("en-GB", {timeZone: PT_TZ, hour:"2-digit", minute:"2-digit"});
   }
 
   function log(txt) {
