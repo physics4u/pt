@@ -62,8 +62,7 @@ var SettingsPage = (function () {
       return "<option value='" + z[0] + "'" + (z[0] === cur ? " selected" : "") + ">" + z[1] + "</option>"; }).join("");
     var label = (list.filter(function (z) { return z[0] === cur; })[0] || [cur, cur])[1];
     Utils.el("tz-meta").textContent = "\u00b7 " + label.replace(/ \(.*\)$/, "");
-    Utils.el("tz-now").textContent = "Today in PT: " + ptToday().date.toLocaleDateString("en-GB", {weekday: "short", day: "2-digit", month: "short", year: "numeric"}) +
-      ", " + new Date().toLocaleTimeString("en-GB", {timeZone: PT_TZ, hour: "2-digit", minute: "2-digit"});
+    Utils.el("tz-now").textContent = "Now in PT: " + Utils.dateTime(new Date());
   }
   function saveTz() {
     var v = Utils.el("settings-tz").value;
@@ -73,7 +72,7 @@ var SettingsPage = (function () {
     applyAcademicYear(viewYear() === defaultAcadStart() ? null : viewYear());
     _renderTz(); _renderYear();
     var td = Utils.el("today-date");
-    if (td) td.textContent = ptToday().date.toLocaleDateString("en-GB", {weekday: "short", day: "2-digit", month: "short", year: "numeric"});
+    if (td) td.textContent = Utils.fmtDate(ptToday().date);
   }
 
   // ---- Google Calendar ----

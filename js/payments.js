@@ -76,7 +76,7 @@ var Payments = (function () {
         if (st === "Overdue") { due++; totals[ym].overdue++; }
         var tip = [];
         if (st === "Paid" && rec.amount) tip.push("Paid ₹" + Number(rec.amount).toLocaleString("en-IN"));
-        if (rec.paydate) tip.push("on " + rec.paydate);
+        if (rec.paydate) tip.push("on " + Utils.fmtDate(rec.paydate));
         if (rec.notes) tip.push(rec.notes);
         var txt = st === "Paid" ? (rec.amount ? Number(rec.amount).toLocaleString("en-IN") : "Paid") : (st || "—");
         return "<td class='c'" + (tip.length ? " title='" + _esc(tip.join(" · ")) + "'" : "") + "><span class='pay-pill " +

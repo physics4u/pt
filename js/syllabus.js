@@ -90,7 +90,7 @@ var Syllabus = (function () {
           if (entered) { wd++; wh += h; if (ent.chapter && ent.chapter !== "-- None --" && chs.indexOf(ent.chapter) < 0) chs.push(ent.chapter); }
           var isToday = thisMonth && d === now.getDate();
           var rowCls = (wk ? "weekend" + (entered ? " weekend-entered" : "") : entered ? "syl-entered" : "syl-empty") + (isToday ? " syl-today" : "");
-          var date = "<td><span class='day-label'>" + String(d).padStart(2, "0") + " " + mon + " <span class='day-name'>" + DAYS[di] + "</span></span></td>";
+          var date = "<td><span class='day-label'>" + Utils.fmtDate(year + "-" + String(month).padStart(2, "0") + "-" + String(d).padStart(2, "0")) + " <span class='day-name'>" + DAYS[di] + "</span></span></td>";
           var key = cls + "|" + d;
           if (entered && !_editing[key]) {
             return "<tr class='" + rowCls + " locked' data-cls='" + cls + "' data-day='" + d + "'>" + date +
@@ -118,7 +118,7 @@ var Syllabus = (function () {
         }).join("");
         days += wd; hrs += wh;
         var wkey = cls + "|w" + wi;
-        var label = "Week " + (wi + 1) + " <span class='muted' style='font-weight:500'>" + w[0] + (w.length > 1 ? "–" + w[w.length - 1] : "") + " " + mon + "</span>";
+        var label = "Week " + (wi + 1) + " <span class='muted' style='font-weight:500'>" + Utils.fmtDate(year + "-" + String(month).padStart(2, "0") + "-" + String(w[0]).padStart(2, "0")) + (w.length > 1 ? " – " + Utils.fmtDate(year + "-" + String(month).padStart(2, "0") + "-" + String(w[w.length - 1]).padStart(2, "0")) : "") + "</span>";
         var meta = wd ? wd + " day" + (wd === 1 ? "" : "s") + " &middot; " + Hourly.hm(wh) + " hrs" +
                         (chs.length ? " &middot; <span class='syl-chs'>" + _esc(chs.join(", ")) + "</span>" : "")
                       : "no classes yet";
@@ -181,7 +181,7 @@ var Syllabus = (function () {
   function unlock(cls, d) { _editing[cls + "|" + d] = true; render(); }
   function lock(cls, d) { delete _editing[cls + "|" + d]; render(); }
   function clearDay(cls, d) {
-    Dialog.confirm("Clear " + d + " " + MONTHS[Number(_ym.split("-")[1]) - 1] + " for " + Utils.grade(cls) + "? Its times, chapter and notes will be removed.",
+    Dialog.confirm("Clear " + Utils.fmtDate(_ym + "-" + String(d).padStart(2, "0")) + " for " + Utils.grade(cls) + "? Its times, chapter and notes will be removed.",
                    { okText: "Clear", danger: true }).then(function (ok) {
       if (!ok) return;
       var D = Data.get(), k = cls + "|" + _ym;

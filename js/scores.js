@@ -67,11 +67,7 @@ var Scores = (function () {
     return { taken: rows.length, avg: sum / rows.length / total * 100, top: top };
   }
 
-  function fmtDate(d) {
-    if (!d) return "—";
-    var x = new Date(d + "T00:00:00");
-    return isNaN(x) ? d : x.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-  }
+  function fmtDate(d) { return d ? Utils.fmtDate(d) : "—"; }
   function pctTxt(v) { return v === null || isNaN(v) ? "—" : Math.round(v) + "%"; }
   function mk(v) { return v === null ? "—" : (Math.round(v * 100) / 100).toString(); }
 

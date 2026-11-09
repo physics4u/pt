@@ -851,3 +851,30 @@ details.section:not([open]):hover{opacity:1;}
 .import-msg.ok b:first-child{color:var(--accent3);}
 .import-msg.err{border-color:var(--danger);background:rgb(var(--danger-rgb) / 0.12);color:var(--danger);font-weight:600;}
 .import-msg.info{border-color:var(--accent);background:rgb(var(--accent-rgb) / 0.10);}
+
+/* Profile: identification strip on sections sent to parents, and the picture */
+.pf-idstrip{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,rgb(var(--accent-rgb) / 0.14),rgb(var(--accent-rgb) / 0.03));}
+.pf-idstrip img{width:38px;height:38px;object-fit:contain;flex-shrink:0;}
+.pf-id-main{flex:1;min-width:0;}
+.pf-id-name{font-size:16px;font-weight:700;color:var(--text);line-height:1.2;}
+.pf-id-sub{font-size:12.5px;color:var(--text2);}
+.pf-id-right{text-align:right;line-height:1.25;}
+.pf-id-what{font-size:13px;font-weight:700;color:var(--accent);}
+.pf-id-date{font-size:12.5px;color:var(--text);}
+.pf-id-org{font-size:11px;color:var(--text3);}
+.pf-capturing .edit-cell,.pf-capturing .row-edit,.pf-capturing .hourly-form{display:none !important;}
+.pf-capturing .hourly-list{max-height:none !important;overflow:visible !important;}
+
+/* PT date box (shows 01 Jan 2026; the browser's date input sits underneath) */
+.pt-datebox{position:relative;display:inline-flex;align-items:center;gap:8px;width:100%;min-height:38px;padding:7px 10px;border:1px solid var(--border);
+  border-radius:8px;background:var(--surface2);color:var(--text);cursor:pointer;box-sizing:border-box;}
+.pt-datebox:hover{border-color:var(--text3);}
+.pt-datebox input[type=date]{position:absolute;left:0;bottom:0;width:100%;height:100%;opacity:0;pointer-events:none;border:0;padding:0;margin:0;}
+.pt-datebox.empty .pt-date-text{color:var(--text3);}
+.pt-date-text{flex:1;white-space:nowrap;}
+.pt-date-icon{font-size:13px;opacity:.75;}
+.pt-date-clear{border:0;background:none;color:var(--text3);font-size:16px;line-height:1;padding:0 2px;cursor:pointer;}
+.pt-date-clear:hover{color:var(--danger);}
+.pt-datebox.disabled{cursor:default;background:transparent;border-color:transparent;padding-left:0;}
+.pt-datebox.disabled .pt-date-icon{display:none;}

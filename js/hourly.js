@@ -200,8 +200,8 @@ var Hourly = (function () {
       "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Time</th><th>Hours</th><th>Chapter</th><th></th></tr></thead><tbody>" +
       (ses.length ? ses.map(function (x, i) {
         var d = new Date(x.date + "T00:00:00");
-        return "<tr" + (eSes && eSes.id === x.id ? " class='editing'" : "") + " title='" + esc(x.notes || "") + "'><td class='num'>" + (ses.length - i) + "</td><td>" + d.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) +
-          " <span class='muted'>" + d.toLocaleDateString("en-GB", {weekday:"short"}) + "</span></td>" +
+        return "<tr" + (eSes && eSes.id === x.id ? " class='editing'" : "") + " title='" + esc(x.notes || "") + "'><td class='num'>" + (ses.length - i) + "</td><td>" + Utils.fmtDate(x.date) +
+          " <span class='muted'>" + Utils.weekday(x.date) + "</span></td>" +
           "<td>" + esc(x.start) + "–" + esc(x.end) + "</td><td>" + hm(sessionHours(x)) + "</td>" +
           "<td>" + esc(x.chapter || "—") + (x.notes ? "<div class='muted small'>" + esc(x.notes) + "</div>" : "") + "</td>" +
           "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"ses\",\"" + x.id + "\",\"ses\")", "Change this session") + "</td></tr>";
@@ -227,7 +227,7 @@ var Hourly = (function () {
     var payBody = payForm +
       "<div class='hourly-list'><table class='hourly-table'><thead><tr><th class='num'>#</th><th>Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead><tbody>" +
       (pays.length ? pays.map(function (p, i) {
-        return "<tr" + (ePay && ePay.id === p.id ? " class='editing'" : "") + "><td class='num'>" + (pays.length - i) + "</td><td>" + new Date(p.date + "T00:00:00").toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + "</td>" +
+        return "<tr" + (ePay && ePay.id === p.id ? " class='editing'" : "") + "><td class='num'>" + (pays.length - i) + "</td><td>" + Utils.fmtDate(p.date) + "</td>" +
           "<td>" + money(p.amount) + "</td><td>" + esc(p.notes || "") + "</td>" +
           "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"pay\",\"" + p.id + "\",\"pay\")", "Change this payment") + "</td></tr>";
       }).join("") : "<tr><td colspan='5' class='muted'>No payments yet.</td></tr>") +
@@ -264,7 +264,7 @@ var Hourly = (function () {
     if (!sessionHours(x)) { Dialog.alert("The end time must be after the start time."); return false; }
     if (!x.rate) { Dialog.alert("Set the student's rate per hour first (Hourly fees, ✎ next to the rate)."); return false; }
     if (old) Object.assign(old, x); else _D().sessions.push(x);
-    Data.log((old ? "Changed" : "Added") + " a " + hm(sessionHours(x)) + " session for <b>" + esc(x.student) + "</b> (" + x.date + ")");
+    Data.log((old ? "Changed" : "Added") + " a " + hm(sessionHours(x)) + " session for <b>" + esc(x.student) + "</b> (" + Utils.fmtDate(x.date) + ")");
     Data.save(); _refresh();
     return false;
   }

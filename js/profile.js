@@ -26,14 +26,82 @@ var Profile = (function () {
 
   // ---------- section helper (also used by hourly.js) ----------
   // actions: HTML shown on the heading (buttons stop the heading from toggling)
+  // Sections parents receive: they carry an identification strip and a Share button.
+  var SHARE = { att: "Attendance", fees: "Fees", hfees: "Hourly fees", report: "Report card" };
+
   function sec(key, title, meta, body, actions, cls) {
     var open = key in _open ? _open[key] : !!DEFAULT_OPEN[key];
+    if (SHARE[key]) {
+      body = _idStrip(String(title).replace(/<[^>]+>/g, "")) + body;
+      actions = (actions || "") + "<button type='button' class='btn btn-secondary btn-sm pf-share' title='Make a picture to send' " +
+        "onclick='Profile.share(\"" + key + "\", this)'>&#128247; Share</button>";
+    }
     return "<details class='section pf-sec" + (cls ? " " + cls : "") + "' data-key='" + key + "'" + (open ? " open" : "") +
       " ontoggle='Profile.toggle(\"" + key + "\", this)'><summary><span class='section-title'>" + title + "</span>" +
       (meta ? "<span class='section-meta'>&middot; " + meta + "</span>" : "") +
       (actions ? "<span class='pf-actions' onclick='event.preventDefault()'>" + actions + "</span>" : "") +
       "<span class='show-pill' aria-hidden='true'></span></summary><div class='pf-body'>" + body + "</div></details>";
   }
+  // Logo, student, class, academic year and today's date (for screenshots)
+  function _idStrip(what) {
+    var s = Data.get().students[_idx]; if (!s) return "";
+    var cls = Utils.grade(Utils.clsOf(s) || s.cls) + (Hourly.isHourly(s) ? " \u00b7 Hourly" : "");
+    var today = Utils.fmtDate(ptToday().date);
+    return "<div class='pf-idstrip'><img src='logo.png' alt=''><div class='pf-id-main'><div class='pf-id-name'>" + _esc(Utils.fullName(s)) +
+      "</div><div class='pf-id-sub'>" + _esc(cls) + " &middot; Academic year " + acadLabel() + "</div></div>" +
+      "<div class='pf-id-right'><div class='pf-id-what'>" + _esc(what) + "</div><div class='pf-id-date'>" + today +
+      "</div><div class='pf-id-org'>PT &middot; Physics Tuition</div></div></div>";
+  }
+
+  // Turn a section (with its strip) into a PNG: share it on a phone, download it on a computer.
+  var _h2c = null;
+  function _loadH2C() {
+    if (window.html2canvas) return Promise.resolve();
+    if (_h2c) return _h2c;
+    _h2c = new Promise(function (ok, no) {
+      var sc = document.createElement("script");
+      sc.src = "js/vendor/html2canvas.min.js";
+      sc.onload = function () { ok(); }; sc.onerror = function () { _h2c = null; no(); };
+      document.head.appendChild(sc);
+    });
+    return _h2c;
+  }
+  function share(key, btn) {
+    var d = document.querySelector(".pf-sec[data-key='" + key + "']"); if (!d) return;
+    d.open = true; _open[key] = true;
+    var body = d.querySelector(".pf-body"), s = Data.get().students[_idx];
+    var file = Utils.fullName(s) + " - " + SHARE[key] + " - " + acadLabel().replace("\u2013", "-") + ".png";
+    btn.disabled = true; var label = btn.innerHTML; btn.textContent = "Preparing\u2026";
+    var held = [];
+    var restore = function () { held.forEach(function (h) { h[0].setAttribute("ontoggle", h[1]); }); held = []; };
+    var done = function () { restore(); btn.disabled = false; btn.innerHTML = label; };
+    _loadH2C().then(function () {
+      body.classList.add("pf-capturing");
+      // the picture is made from a copy of the page: keep the copy's sections quiet
+      held = []; document.querySelectorAll("[ontoggle]").forEach(function (e) { held.push([e, e.getAttribute("ontoggle")]); e.removeAttribute("ontoggle"); });
+      var bg = getComputedStyle(document.body).backgroundColor;
+      return window.html2canvas(body, { backgroundColor: bg, scale: 2, useCORS: true, logging: false,
+        onclone: function (doc) { doc.querySelectorAll("[ontoggle]").forEach(function (e) { e.removeAttribute("ontoggle"); }); } });
+    }).then(function (canvas) {
+      body.classList.remove("pf-capturing"); restore();
+      canvas.toBlob(function (blob) {
+        var f = null;
+        try { f = new File([blob], file, { type: "image/png" }); } catch (e) { f = null; }
+        if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
+          navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}).then(done);
+        } else {
+          var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          done();
+        }
+      }, "image/png");
+    }).catch(function () {
+      body.classList.remove("pf-capturing"); done();
+      Dialog.alert("The picture couldn't be made. You can still take a screenshot: the section shows the student, class and date at the top.");
+    });
+  }
+
   function toggle(key, el) { _open[key] = el.open; }
   function openSec(key) { _open[key] = true; }
   function editing(kind, id) { return !!_edit && _edit.kind === kind && (id === undefined || _edit.id === id); }
@@ -89,7 +157,7 @@ var Profile = (function () {
       (Hourly.isHourly(s) ? _detailRow("Rate per hour", s.hourlyRate ? money(s.hourlyRate) : "") +
                             _detailRow("Group classes", s.groupToo === "yes" ? "Also attends" : "No") : "") +
       (Hourly.inGroup(s) ? _detailRow("Monthly Fee", s.monthlyFee ? money(s.monthlyFee) : "") : "") +
-      _detailRow("Start Date", s.startDate) + _detailRow("End Date", s.endDate) + _detailRow("Notes", s.notes);
+      _detailRow("Start Date", Utils.fmtDate(s.startDate)) + _detailRow("End Date", Utils.fmtDate(s.endDate)) + _detailRow("Notes", s.notes);
     var att = _attendance(s, name);
     html += "<div class='profile-grid'>" +
       sec("details", "Student details", "", details,
@@ -178,7 +246,7 @@ var Profile = (function () {
       return "<tr><td class='num'>" + (i + 1) + "</td><td>" + ACYR_LBL[ym] + "</td>" +
         "<td>" + (amt ? money(amt) : "—") + "</td>" +
         "<td>" + (st ? "<span class='chip " + STATUS_CHIP[st] + "'>" + st + "</span>" : "<span class='muted'>—</span>") + "</td>" +
-        "<td>" + _esc(rec.paydate || "") + "</td><td>" + _esc(rec.notes || "") + "</td>" +
+        "<td>" + _esc(Utils.fmtDate(rec.paydate)) + "</td><td>" + _esc(rec.notes || "") + "</td>" +
         "<td class='edit-cell'>" + Utils.hoverEdit("Profile.edit(\"fee\",\"" + ym + "\",\"fees\")", "Change this month") + "</td></tr>";
     }).join("");
     var feeLock = lockedValue("Monthly fee", s.monthlyFee ? money(s.monthlyFee) : "—", "mfee",
@@ -233,7 +301,7 @@ var Profile = (function () {
       scores.map(function (r, i) {
         var p = Number(r.total) > 0 ? Math.round(Number(r.score) / Number(r.total) * 100) : null;
         var col = p === null ? "" : p >= 75 ? "var(--accent3)" : p >= 50 ? "var(--accent2)" : "var(--danger)";
-        var d = r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-GB", {day: "2-digit", month: "short"}) : "—";
+        var d = r.date ? Utils.fmtDate(r.date) : "—";
         return "<tr><td class='num'>" + (i + 1) + "</td><td>" + _esc(r.remarks || "Test") + (r.type === "One-to-one test" ? " <span class='muted small'>one-to-one</span>" : "") + "</td><td>" + d +
           "</td><td>" + _esc(r.title) + "</td><td class='c'><b>" + _esc(r.score) + "</b></td><td class='c'>" + _esc(r.total) +
           "</td><td class='c' style='color:" + col + ";font-weight:700'>" + (p === null ? "—" : p + "%") + "</td></tr>";
@@ -257,5 +325,5 @@ var Profile = (function () {
 
   return { view: view, byName: byName, setFee: setFee, saveFee: saveFee, clearFee: clearFee,
            sec: sec, toggle: toggle, openSec: openSec, edit: edit, editing: editing, editId: editId, cancel: cancel, done: done,
-           refresh: refresh, lockedValue: lockedValue, money: money, yearLabel: yearLabel };
+           refresh: refresh, share: share, lockedValue: lockedValue, money: money, yearLabel: yearLabel };
 })();
