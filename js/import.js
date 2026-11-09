@@ -7,10 +7,11 @@ var ImportPage = (function () {
   function check(btn) {
     var year = Utils.el("import-year").value, out = Utils.el("import-result");
     btn.disabled = true; btn.textContent = "Checking\u2026 (up to a few minutes)";
-    out.textContent = "";
+    out.textContent = ""; out.className = "import-msg";
     Data.api("importCheck", { year: year }, 360000).then(function (r) {
       btn.disabled = false; btn.textContent = "Check";
-      if (!r.ok) { out.innerHTML = "<span style='color:var(--danger)'>" + (r.error || "Could not check.") + "</span>"; return; }
+      if (!r.ok) { out.className = "import-msg err"; out.innerHTML = "&#9888; " + (r.error || "Could not check."); return; }
+      out.className = "import-msg info";
       if (r.converted) { out.innerHTML = summaryHtml(year, r.summary); return; }
       out.innerHTML = "Found the " + year.replace("-", "\u2013") + " records with <b>" + r.tabs + "</b> sections. " +
         "Nothing in PT has been changed yet.";
@@ -52,12 +53,13 @@ var ImportPage = (function () {
                    "Importing the same year again updates it without making duplicates. A full backup is made first.", { okText: "Import" }).then(function (ok) {
       if (!ok) return;
       btn.disabled = true; btn.textContent = "Importing\u2026";
-      out.textContent = "";
+      out.textContent = ""; out.className = "import-msg";
       Data.api("importApply", { year: year }, 360000).then(function (r) {
         btn.disabled = false; btn.textContent = "Import";
-        if (!r.ok) { out.innerHTML = "<span style='color:var(--danger)'>" + (r.error || "Import failed.") + "</span>"; return; }
+        if (!r.ok) { out.className = "import-msg err"; out.innerHTML = "&#9888; " + (r.error || "Import failed."); return; }
+        out.className = "import-msg ok";
         var c = r.counts || {};
-        out.innerHTML = "Imported the " + label + " records: <b>" + c.students + "</b> students (" + c.newStudents + " new, " +
+        out.innerHTML = "<b>&#10004; Import complete.</b> Imported the " + label + " records: <b>" + c.students + "</b> students (" + c.newStudents + " new, " +
           c.matched + " already in PT), <b>" + c.sessions + "</b> new hourly sessions, <b>" + c.payments + "</b> new hourly payments, <b>" +
           c.scores + "</b> new test marks, " + c.plannerMonths + " planner months. A backup was made first (" + r.backup + "). " +
           "To see them, choose " + label + " in <b>Academic year</b> above.";
