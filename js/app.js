@@ -32,9 +32,12 @@ var Dashboard = (function () {
     var rev = 0, owed = 0, owedCount = 0;
     var byName = {};
     D.students.forEach(function (s) { byName[Utils.fullName(s)] = s; });
+    // fees of this year's students only (March/April are shared with the next year)
+    var rc = Utils.rosterCls(), feeMonths = acadEntryMonths();
     Object.keys(D.paygrid || {}).forEach(function (sk) {
-      if (ACYR.indexOf(sk.split("|")[2]) < 0) return;
+      if (feeMonths.indexOf(sk.split("|")[2]) < 0) return;
       Object.keys(D.paygrid[sk]).forEach(function (nm) {
+        if (rc[nm] !== sk.split("|")[1]) return;     // a student of this year, in that class
         var r = D.paygrid[sk][nm];
         if (r.status === "Paid") rev += Number(r.amount) || 0;
         if (r.status === "Pending" || r.status === "Overdue") {
@@ -152,12 +155,17 @@ var Dashboard = (function () {
     var monthlyRev = {};
     ACYR.forEach(function (ym) { monthlyRev[ym] = 0; });
 
+    // This year's students' fees; an earlier year's own March/April entries (after
+    // February) are added to February so the total matches the year's records.
+    var rc = Utils.rosterCls(), lastYm = ACYR[ACYR.length - 1];
     if (D.paygrid) {
       Object.keys(D.paygrid).forEach(function (sk) {
-        var parts = sk.split("|"), ym = parts[2];
-        if (!ym || !monthlyRev.hasOwnProperty(ym)) return;
-        Object.values(D.paygrid[sk]).forEach(function (r) {
-          if (r.status === "Paid") monthlyRev[ym] += Number(r.amount) || 0;
+        var ym = sk.split("|")[2];
+        if (acadEntryMonths().indexOf(ym) < 0) return;
+        var bucket = monthlyRev.hasOwnProperty(ym) ? ym : lastYm;
+        Object.keys(D.paygrid[sk]).forEach(function (nm) {
+          var r = D.paygrid[sk][nm];
+          if (rc[nm] === sk.split("|")[1] && r.status === "Paid") monthlyRev[bucket] += Number(r.amount) || 0;
         });
       });
     }
