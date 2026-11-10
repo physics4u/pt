@@ -20,10 +20,11 @@ var Progress = (function () {
   // One year's figures (people, not records: a group + hourly student counts once)
   function _year(start) {
     setAcademicYear(start);
-    var all = Data.allStudents(), people = {}, p1 = {}, p2 = {}, hr = {};
+    var all = Data.allStudents(), people = {}, active = {}, p1 = {}, p2 = {}, hr = {};
     all.forEach(function (s) {
       var n = Utils.fullName(s), c = Utils.clsOf(s);
       people[n] = 1;
+      if (Utils.isActive(s)) active[n] = 1;           // still attending (only meaningful for the current year)
       if (Hourly.hourlyIn(s)) hr[n] = 1;
       else if (c === "Grade XI") p1[n] = 1;
       else if (c === "Grade XII") p2[n] = 1;
@@ -31,7 +32,7 @@ var Progress = (function () {
     var T = Dashboard.totals(), n = Object.keys(people).length;
     return {
       start: start, label: acadLabel(start), current: start === defaultAcadStart(),
-      students: n, p1: Object.keys(p1).length, p2: Object.keys(p2).length, hourly: Object.keys(hr).length,
+      students: n, activeNow: Object.keys(active).length, p1: Object.keys(p1).length, p2: Object.keys(p2).length, hourly: Object.keys(hr).length,
       fees: T.fees, groupFees: T.groupFees, hourlyFees: T.hourlyFees,
       p1Hours: T.p1Hours, p2Hours: T.p2Hours, hourlyHours: T.hourlyHours, p1Days: T.p1Days, p2Days: T.p2Days,
       perStudent: n ? T.fees / n : 0
@@ -184,7 +185,7 @@ var Progress = (function () {
         line("Fees received", now.fees, prev.fees, money) +
         line("&nbsp;&nbsp;Group fees", now.groupFees, prev.groupFees, money) +
         line("&nbsp;&nbsp;Hourly fees", now.hourlyFees, prev.hourlyFees, money) +
-        line("Students", now.students, prev.students, String) +
+        line("Students enrolled", now.students, prev.students, String) +
         line("Teaching hours", now.hours, prev.hours, hm) +
         line("&nbsp;&nbsp;Plus 1", now.p1Hours, prev.p1Hours, hm) +
         line("&nbsp;&nbsp;Plus 2", now.p2Hours, prev.p2Hours, hm) +
@@ -215,7 +216,7 @@ var Progress = (function () {
         // data-l: the column name, shown beside the value when a phone lays each year out as a card
         function td(cls, label, v, style) { return "<td class='" + cls + "' data-l='" + label + "'" + (style ? " style='" + style + "'" : "") + ">" + v + "</td>"; }
         return "<tr><td class='num'>" + (i + 1) + "</td><td class='py'><b>" + r.label + "</b>" + (r.current ? " <span class='muted small'>so far</span>" : "") + "</td>" +
-          td("c", "Students", r.students) + td("c", "Plus 1", r.p1) + td("c", "Plus 2", r.p2) + td("c", "Hourly", r.hourly) +
+          td("c", "Students", r.current ? "<span class='prog-stu'>" + r.students + " enrolled<span class='prog-active'>" + r.activeNow + " active now</span></span>" : r.students) + td("c", "Plus 1", r.p1) + td("c", "Plus 2", r.p2) + td("c", "Hourly", r.hourly) +
           td("r", "Fees received", "<b>" + money(r.fees) + "</b>") +
           td("c", "Growth", g === null ? "\u2014" : r.current ? "so far" : (g >= 0 ? "+" : "") + Math.round(g) + "%",
              "color:" + (g === null || r.current ? "var(--text3)" : g >= 0 ? "var(--accent3)" : "var(--danger)")) +
@@ -223,10 +224,11 @@ var Progress = (function () {
           td("c", "Plus 1 hrs / days", hm(r.p1Hours) + " / " + r.p1Days) + td("c", "Plus 2 hrs / days", hm(r.p2Hours) + " / " + r.p2Days) +
           td("c", "Hourly hrs", hm(r.hourlyHours)) + "</tr>";
       }).join("") + "</tbody></table>" +
-      "<p class='section-note' style='margin:8px 0 0'>* " + acadLabel(defaultAcadStart()) + " is in progress (shown lighter, “so far”). Students are people enrolled in the year (someone in group and hourly classes counts once). Growth compares fees received with the year before. “Same point last year” counts fees by the day they were received, classes and hourly sessions held, and students who had started, up to today&rsquo;s date in each year.</p>";
+      "<p class='section-note' style='margin:8px 0 0'>* " + acadLabel(defaultAcadStart()) + " is in progress (shown lighter, “so far”). Students are people enrolled in the year, including any who later left (someone in group and hourly classes counts once); for "+acadLabel(defaultAcadStart())+" the number still attending is shown as “active now”. Growth compares fees received with the year before. “Same point last year” counts fees by the day they were received, classes and hourly sessions held, and students who had started, up to today&rsquo;s date in each year.</p>";
     _bars(Utils.el("prog-sofar"), sf, fees, lakh, _growth(sf, "fees", true));
     _bars(Utils.el("prog-fees"), rows, fees, lakh, _growth(rows, "fees"));
-    _bars(Utils.el("prog-students"), rows, stu, function (v, r) { return String(r.students); });
+    _bars(Utils.el("prog-students"), rows, stu, function (v, r) { return r.current ? r.students + " enrolled" : String(r.students); },
+      function (r) { return r.current ? { text: r.activeNow + " active now", color: _css("--accent3") } : null; });
     _bars(Utils.el("prog-hours"), rows, hrs, function (v) { return hm(v); });
     _bars(Utils.el("prog-per"), rows, [{ key: "perStudent", label: "", color: _css("--text3") }], lakh);
   }

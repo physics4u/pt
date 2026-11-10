@@ -1004,3 +1004,6 @@ details.section:not([open]):hover{opacity:1;}
   .prog-years td.py{grid-column:1 / -1;font-size:15px;padding-bottom:4px !important;}
   }
 }
+.prog-stu{display:inline-block;text-align:inherit;line-height:1.25;}
+.prog-active{display:block;font-size:11.5px;font-weight:600;color:var(--accent3);}
+@container (max-width:800px){ .prog-stu{text-align:right;} }
