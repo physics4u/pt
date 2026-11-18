@@ -1007,3 +1007,10 @@ details.section:not([open]):hover{opacity:1;}
 .prog-stu{display:inline-block;text-align:inherit;line-height:1.25;}
 .prog-active{display:block;font-size:11.5px;font-weight:600;color:var(--accent3);}
 @container (max-width:800px){ .prog-stu{text-align:right;} }
+/* Share → "Picture ready" window: preview, Save as…, Share… */
+.pic-dialog{width:min(560px,94vw);}
+.pic-preview{padding:14px 18px 6px;text-align:center;}
+.pic-preview img{max-width:100%;max-height:52vh;border:1px solid var(--border);border-radius:8px;display:inline-block;}
+.pic-name{padding:0 18px 12px;font-size:12px;color:var(--text3);text-align:center;word-break:break-all;}
+.pic-dialog .dialog-actions{flex-wrap:wrap;}
+.pf-capturing .no-snap{display:none !important;}
