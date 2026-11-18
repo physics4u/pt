@@ -173,7 +173,8 @@ var Dashboard = (function () {
   }
 
   // 2500 → "2.5", 12000 → "12"
-  function _k(v) { var k = v / 1000; return k < 10 && k % 1 ? k.toFixed(1) : k.toFixed(0); }
+  // ₹ in full, Indian grouping: 144000 → "₹1,44,000"
+  function _rs(v) { return "\u20b9" + Math.round(v || 0).toLocaleString("en-IN"); }
 
   function _renderRevenueChart(D, height) {
     var canvas  = Utils.el("revenue-chart");
@@ -223,9 +224,26 @@ var Dashboard = (function () {
 
     var BASE = _rgb(_css("--income")), COL_GRID = _css("--border");
     var COL_TEXT = _css("--text3"), COL_LABEL = _css("--text2"), COL_VALUE = _css("--text");
-    var PAD_L = 56, PAD_R = 22, PAD_T = 20, PAD_B = 32;
+    var maxVal0 = Math.max.apply(null, values) || 1;
+    var mag0 = Math.pow(10, Math.floor(Math.log10(maxVal0))), top0 = Math.ceil(maxVal0 / mag0) * mag0;
+    // Amounts are written in full (₹1,44,000): room on the left for the scale…
+    ctx.font = "12px " + _chartFont();
+    var PAD_L = Math.ceil(ctx.measureText(_rs(top0)).width) + 14, PAD_R = 22, PAD_T = 20, PAD_B = 32;
+    var n = labels.length, slot = (W - PAD_L - PAD_R) / n;
+    // …and on top of each bar: the largest font that fits across the bar,
+    // or (narrow screens) written upwards above the bar.
+    var VSIZE = 0, widest = 0;
+    [11.5, 10.5, 9.5].some(function (sz) {
+      ctx.font = "bold " + sz + "px " + _chartFont();
+      widest = Math.max.apply(null, values.map(function (v) { return v > 0 ? ctx.measureText(_rs(v)).width : 0; }));
+      if (widest <= slot - 2) { VSIZE = sz; return true; }
+      return false;
+    });
+    var UPRIGHT = !VSIZE;
+    if (UPRIGHT) { ctx.font = "bold 10px " + _chartFont(); widest = Math.max.apply(null, values.map(function (v) { return ctx.measureText(_rs(v)).width; })); PAD_T = Math.ceil(widest) + 14;
+      // the chart grows to make room, so the bars keep their height
+      H += PAD_T - 20; canvas.height = H * dpr; canvas.style.height = H + "px"; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
     var chartW = W - PAD_L - PAD_R, chartH = H - PAD_T - PAD_B;
-    var n = labels.length, slot = chartW / n;
     var barGap = Math.max(6, Math.floor(slot * 0.26));
     var barW   = Math.max(6, Math.floor(slot - barGap));
     // 3D: each bar has a top and a right side, drawn up and to the right
@@ -247,9 +265,7 @@ var Dashboard = (function () {
       ctx.beginPath(); ctx.moveTo(PAD_L, yPx); ctx.lineTo(PAD_L + DX, yPx - DY); ctx.lineTo(PAD_L + chartW + DX, yPx - DY); ctx.stroke();
       ctx.fillStyle = COL_TEXT; ctx.textAlign = "right"; ctx.textBaseline = "middle";
       ctx.font = "12px " + _chartFont();
-      var lbl = yVal >= 100000 ? "₹" + (yVal / 100000).toFixed(1) + "L"
-              : yVal >= 1000   ? "₹" + _k(yVal) + "k" : "₹" + yVal;
-      ctx.fillText(lbl, PAD_L - 6, yPx);
+      ctx.fillText(_rs(yVal), PAD_L - 6, yPx);
     }
     ctx.fillStyle = "rgba(" + BASE.join(",") + ",0.08)";
     ctx.beginPath(); ctx.moveTo(PAD_L, floorY); ctx.lineTo(PAD_L + DX, floorY - DY);
@@ -278,18 +294,23 @@ var Dashboard = (function () {
         ctx.fillStyle = COL_GRID; ctx.fillRect(x, floorY - 2, barW, 2);
       }
       if (val > 0) {
-        ctx.fillStyle = COL_VALUE; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        var vlbl = val >= 100000 ? "₹" + (val / 100000).toFixed(2) + "L" : "₹" + val.toLocaleString("en-IN");
-        ctx.font = "bold 11.5px " + _chartFont();
-        if (ctx.measureText(vlbl).width > slot + 6) vlbl = val >= 1000 ? "₹" + _k(val) + "k" : vlbl;
-        ctx.fillText(vlbl, x + (barW + DX) / 2, y - DY - 2);
+        ctx.fillStyle = COL_VALUE;
+        if (UPRIGHT) {
+          ctx.save(); ctx.font = "bold 10px " + _chartFont();
+          ctx.translate(x + (barW + DX) / 2, y - DY - 4); ctx.rotate(-Math.PI / 2);
+          ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(_rs(val), 0, 0); ctx.restore();
+        } else {
+          ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+          ctx.font = "bold " + VSIZE + "px " + _chartFont();
+          ctx.fillText(_rs(val), x + (barW + DX) / 2, y - DY - 2);
+        }
       }
       var p = ym.split("-");
       var mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][Number(p[1]) - 1];
       var cx = x + barW / 2;
       ctx.fillStyle = COL_LABEL; ctx.textAlign = "center"; ctx.textBaseline = "top";
       ctx.font = "12px " + _chartFont();
-      ctx.fillText(mo, cx, floorY + 5);
+      ctx.fillText(slot < 34 ? mo.charAt(0) : mo, cx, floorY + 5);
       if (p[1] === "01" || idx === 0) {
         ctx.fillStyle = COL_TEXT; ctx.font = "bold 11px " + _chartFont();
         ctx.fillText("'" + p[0].slice(2), cx, floorY + 18);

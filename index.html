@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261118154153">
+<link rel="stylesheet" href="css/styles.css?v=20261118155239">
 </head>
 <body>
 
@@ -686,12 +686,19 @@
   <form class="modal login-box" onsubmit="return Login.submit(event)">
     <img src="logo.png" alt="" class="login-logo">
     <div class="login-title">Physics Tuition Manager</div>
-    <div class="form-row"><label for="login-user">Username</label>
-    <input id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
-    <div class="form-row" style="margin-bottom:0"><label for="login-pass">Password</label>
-    <input id="login-pass" type="password" autocomplete="current-password"></div>
-    <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
-    <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+    <div class="login-fields">
+      <div class="form-row"><label for="login-user">Username</label>
+      <input id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+      <div class="form-row" style="margin-bottom:0"><label for="login-pass">Password</label>
+      <input id="login-pass" type="password" autocomplete="current-password"></div>
+      <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
+      <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+    </div>
+    <div class="login-wait" aria-live="polite">
+      <div class="login-spinner" aria-hidden="true"></div>
+      <div class="login-wait-text" id="login-wait-text">Signing in&hellip;</div>
+      <div class="login-wait-sub" id="login-wait-sub"></div>
+    </div>
   </form>
 </div>
 
@@ -835,26 +842,26 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261118154153"></script>
-<script src="js/version.js?v=20261118154153"></script>
-<script src="js/config.js?v=20261118154153"></script>
-<script src="js/data.js?v=20261118154153"></script>
-<script src="js/utils.js?v=20261118154153"></script>
-<script src="js/students.js?v=20261118154153"></script>
-<script src="js/classes.js?v=20261118154153"></script>
-<script src="js/attendance.js?v=20261118154153"></script>
-<script src="js/syllabus.js?v=20261118154153"></script>
-<script src="js/payments.js?v=20261118154153"></script>
-<script src="js/scores.js?v=20261118154153"></script>
-<script src="js/profile.js?v=20261118154153"></script>
-<script src="js/settings.js?v=20261118154153"></script>
-<script src="js/users.js?v=20261118154153"></script>
-<script src="js/help.js?v=20261118154153"></script>
-<script src="js/storage.js?v=20261118154153"></script>
-<script src="js/import.js?v=20261118154153"></script>
-<script src="js/hourly.js?v=20261118154153"></script>
-<script src="js/progress.js?v=20261118154153"></script>
-<script src="js/app.js?v=20261118154153"></script>
+<script src="js/site-config.js?v=20261118155239"></script>
+<script src="js/version.js?v=20261118155239"></script>
+<script src="js/config.js?v=20261118155239"></script>
+<script src="js/data.js?v=20261118155239"></script>
+<script src="js/utils.js?v=20261118155239"></script>
+<script src="js/students.js?v=20261118155239"></script>
+<script src="js/classes.js?v=20261118155239"></script>
+<script src="js/attendance.js?v=20261118155239"></script>
+<script src="js/syllabus.js?v=20261118155239"></script>
+<script src="js/payments.js?v=20261118155239"></script>
+<script src="js/scores.js?v=20261118155239"></script>
+<script src="js/profile.js?v=20261118155239"></script>
+<script src="js/settings.js?v=20261118155239"></script>
+<script src="js/users.js?v=20261118155239"></script>
+<script src="js/help.js?v=20261118155239"></script>
+<script src="js/storage.js?v=20261118155239"></script>
+<script src="js/import.js?v=20261118155239"></script>
+<script src="js/hourly.js?v=20261118155239"></script>
+<script src="js/progress.js?v=20261118155239"></script>
+<script src="js/app.js?v=20261118155239"></script>
 
 </body>
 </html>

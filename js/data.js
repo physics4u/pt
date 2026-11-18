@@ -63,12 +63,13 @@ var Data = (function () {
   }
 
   function login(username, password) {
-    return _call("login", undefined, { username: username, password: password }).then(function (resp) {
+    return _call("login", undefined, { username: username, password: password, withData: true }).then(function (resp) {
       if (!resp.ok) return resp;
       _lsSet(TOKEN_KEY, resp.token);
       _setMe(resp.me);
       _serverVersion = resp.version || "";
-      _loadFromServer(1);
+      if (resp.data) _loaded_(resp);        // the data came with the sign-in reply
+      else _loadFromServer(1);              // an older server: fetch it separately
       return resp;
     });
   }
@@ -148,15 +149,7 @@ var Data = (function () {
     Utils.setSyncStatus("loading");
     _callWithRetry("load").then(function (resp) {
       if (resp.ok && resp.data) {
-        if (resp.me) _setMe(resp.me);
-        _serverVersion = resp.version || _serverVersion;
-        _apply(resp.data);
-        KEYS.forEach(function (k) { _synced[k] = JSON.stringify(D[k]); });
-        _loaded = true;
-        _lsSet(CACHE_KEY, JSON.stringify(D));
-        Login.hide();
-        Utils.setSyncStatus("loaded");
-        _afterApply(true);
+        _loaded_(resp);
       } else if (resp.error === "unauthorized") {
         _lsDel(TOKEN_KEY);
         Login.show("Your session has ended \u2014 please sign in again.");
@@ -165,6 +158,18 @@ var Data = (function () {
         Utils.setSyncStatus("error", (resp.error || "no response") + " — showing cached copy, changes NOT saved");
       }
     });
+  }
+
+  function _loaded_(resp) {
+    if (resp.me) _setMe(resp.me);
+    _serverVersion = resp.version || _serverVersion;
+    _apply(resp.data);
+    KEYS.forEach(function (k) { _synced[k] = JSON.stringify(D[k]); });
+    _loaded = true;
+    _lsSet(CACHE_KEY, JSON.stringify(D));
+    Login.hide();
+    Utils.setSyncStatus("loaded");
+    _afterApply(true);
   }
 
   function reload() { _loadFromServer(); }
@@ -314,8 +319,17 @@ var Data = (function () {
 //  Login — passcode overlay
 // ================================================================
 var Login = (function () {
+  // Busy: the fields give way to a spinner while PT signs in and opens
+  function _busy(on, text, sub) {
+    var o = document.getElementById("login-overlay");
+    o.classList.toggle("busy", !!on);
+    if (text) document.getElementById("login-wait-text").textContent = text;
+    document.getElementById("login-wait-sub").textContent = sub || "";
+    o.querySelectorAll(".login-fields input, .login-fields button").forEach(function (x) { x.disabled = !!on; });
+  }
   function show(msg) {
     var o = document.getElementById("login-overlay");
+    _busy(false);
     o.classList.add("open");
     var pw = document.getElementById("login-pass"); if (pw._ptHide) pw._ptHide();   // start with the password hidden
     document.getElementById("login-msg").textContent = msg || "";
@@ -324,23 +338,32 @@ var Login = (function () {
       (u.value ? document.getElementById("login-pass") : u).focus();
     }, 50);
   }
-  function hide() { document.getElementById("login-overlay").classList.remove("open"); }
+  function hide() { var o = document.getElementById("login-overlay"); o.classList.remove("open"); _busy(false); }
   function submit(e) {
     if (e) e.preventDefault();
     var u = document.getElementById("login-user").value.trim();
     var p = document.getElementById("login-pass").value;
     var msg = document.getElementById("login-msg");
     if (!u || !p) { msg.textContent = "Enter your username and password."; return false; }
-    msg.textContent = "Signing in\u2026";
+    msg.textContent = "";
+    _busy(true, "Signing in\u2026", "Checking your details and opening PT");
+    var pw = document.getElementById("login-pass");
     Data.login(u, p).then(function (resp) {
       if (!resp.ok) {
+        _busy(false);
         msg.textContent = resp.error === "unauthorized" || /Unknown action/.test(resp.error || "")
           ? "PT is being updated. Please try again in a minute."
+          : /^network error|^timeout/.test(resp.error || "") ? "PT couldn't be reached. Check the internet connection and try again."
           : (resp.error || "Could not sign in");
+        pw.focus(); pw.select();
       } else {
-        var pw = document.getElementById("login-pass"); pw.value = ""; if (pw._ptHide) pw._ptHide();
-        msg.textContent = "";
+        pw.value = ""; if (pw._ptHide) pw._ptHide();
+        // still open only if the data is being fetched separately
+        if (document.getElementById("login-overlay").classList.contains("open"))
+          _busy(true, "Opening PT\u2026", "Loading students, classes and payments");
       }
+    }, function () {
+      _busy(false); msg.textContent = "PT couldn't be reached. Check the internet connection and try again.";
     });
     return false;
   }

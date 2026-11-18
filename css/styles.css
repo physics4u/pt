@@ -1016,3 +1016,12 @@ details.section:not([open]):hover{opacity:1;}
 .pf-capturing .no-snap{display:none !important;}
 .pic-tip{margin:-4px 18px 12px;padding:8px 10px;border-radius:8px;background:var(--surface2);font-size:12.5px;color:var(--text2);text-align:center;}
 .pic-preview img{cursor:context-menu;}
+/* Sign-in: once Sign in is pressed the fields give way to a spinner */
+.login-wait{display:none;flex-direction:column;align-items:center;gap:8px;padding:18px 0 8px;text-align:center;}
+.login-overlay.busy .login-fields{display:none;}
+.login-overlay.busy .login-wait{display:flex;}
+.login-spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:ptspin 0.8s linear infinite;}
+@keyframes ptspin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion:reduce){ .login-spinner{animation-duration:2.4s;} }
+.login-wait-text{font-weight:700;font-size:15px;color:var(--text);}
+.login-wait-sub{font-size:12.5px;color:var(--text3);min-height:16px;}
