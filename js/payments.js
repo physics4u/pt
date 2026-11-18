@@ -82,7 +82,7 @@ var Payments = (function () {
         return "<td class='c'" + (tip.length ? " title='" + _esc(tip.join(" · ")) + "'" : "") + "><span class='pay-pill " +
           (PILL[st] || "pp-none") + "'>" + txt + "</span></td>";
       }).join("");
-      return "<tr><td class='num sticky0'>" + (i + 1) + "</td><td class='sticky1 nm'>" + Utils.studentLink(Utils.fullName(s)) + "</td>" + cells +
+      return "<tr><td class='num sticky0'>" + (i + 1) + "</td><td class='sticky1 nm'>" + Utils.studentLink(Utils.fullName(s), "fees") + "</td>" + cells +
         "<td class='c' style='font-weight:600;color:var(--accent3)'>" + paid + "/" + ACYR.length + "</td>" +
         "<td class='c' style='font-weight:600;color:" + (due ? "var(--danger)" : "var(--text3)") + "'>" + due + "</td></tr>";
     }).join("");
@@ -110,7 +110,7 @@ var Payments = (function () {
       "<table class='hourly-table'><thead><tr><th class='num'>#</th><th>Student</th><th>Rate</th><th>Hours</th><th>Billed</th><th>Paid</th><th>Balance</th></tr></thead><tbody>" +
         list.map(function (x, i) {
           var s = x.s, a = x.a;
-          return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + Utils.studentLink(Utils.fullName(s)) + "</b></td>" +
+          return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + Utils.studentLink(Utils.fullName(s), "hfees") + "</b></td>" +
             "<td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
             "<td>" + Hourly.hm(a.hours) + "</td><td>" + money(a.billed) + "</td><td>" + money(a.paid) + "</td>" +
             "<td>" + (a.balance > 0.5 ? "<span class='chip chip-red'>" + money(a.balance) + " due</span>" : "<span class='chip chip-green'>Settled</span>") + "</td></tr>";

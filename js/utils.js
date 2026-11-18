@@ -163,8 +163,10 @@ var Utils = (function () {
 
   // ---- A student's name that opens their profile ----
   function _attr(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
-  function studentLink(name) {
-    return "<a class=\"stu-link\" data-student=\"" + _attr(name) + "\" title=\"Open profile\">" + _attr(name) + "</a>";
+  // to: open the profile at that section ("fees", "hfees") with a Back button to this page
+  function studentLink(name, to) {
+    return "<a class=\"stu-link\" data-student=\"" + _attr(name) + "\"" + (to ? " data-to=\"" + _attr(to) + "\"" : "") +
+      " title=\"" + (to ? "Open fees" : "Open profile") + "\">" + _attr(name) + "</a>";
   }
   // A small ✏ that only shows when the row is hovered (always on touch screens)
   function hoverEdit(onclick, title) {
@@ -172,7 +174,11 @@ var Utils = (function () {
   }
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest(".stu-link");
-    if (a) { e.preventDefault(); Profile.byName(a.getAttribute("data-student")); }
+    if (!a) return;
+    e.preventDefault();
+    var to = a.getAttribute("data-to");
+    if (to) Profile.byName(a.getAttribute("data-student"), { section: to, from: currentPage, scroll: window.scrollY });
+    else Profile.byName(a.getAttribute("data-student"));
   });
 
   // ---- Full name helper ----
@@ -191,6 +197,61 @@ var Utils = (function () {
     });
     return _h2c;
   }
+  var _pic = null;
+  function _picture(blob, file) {
+    var o = _pic;
+    if (!o) {
+      o = _pic = document.createElement("div");
+      o.className = "modal-overlay dialog-overlay pic-overlay";
+      o.innerHTML =
+        "<div class='modal dialog pic-dialog' role='dialog' aria-modal='true' aria-labelledby='pic-title'>" +
+          "<div class='dialog-head'><img src='logo.png' alt=''><span id='pic-title'>Picture ready</span></div>" +
+          "<div class='pic-preview'><img id='pic-img' alt='Picture to save or send'></div>" +
+          "<div class='pic-name' id='pic-name'></div>" +
+          "<div class='dialog-actions'>" +
+            "<button type='button' class='btn btn-secondary' id='pic-close'>Close</button>" +
+            "<button type='button' class='btn btn-secondary' id='pic-share'>&#128228; Share&hellip;</button>" +
+            "<button type='button' class='btn btn-primary' id='pic-save'>&#128190; Save as&hellip;</button>" +
+          "</div>" +
+        "</div>";
+      document.body.appendChild(o);
+      o.addEventListener("click", function (e) { if (e.target === o) _closePic(); });
+      o.querySelector("#pic-close").onclick = _closePic;
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && o.classList.contains("open")) _closePic(); });
+    }
+    if (o._url) URL.revokeObjectURL(o._url);
+    o._url = URL.createObjectURL(blob);
+    o.querySelector("#pic-img").src = o._url;
+    o.querySelector("#pic-name").textContent = file;
+    var f = null;
+    try { f = new File([blob], file, { type: "image/png" }); } catch (e) { f = null; }
+    var sh = o.querySelector("#pic-share");
+    sh.style.display = f && navigator.canShare && navigator.canShare({ files: [f] }) ? "" : "none";
+    sh.onclick = function () { navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}); };
+    o.querySelector("#pic-save").onclick = function () { _saveAs(blob, file); };
+    o.classList.add("open");
+    o.querySelector("#pic-save").focus();
+  }
+  function _closePic() { if (_pic) _pic.classList.remove("open"); }
+  // Save as: the computer's "Save as" window where the browser has one
+  // (Chrome, Edge); otherwise the browser's usual download (it asks where
+  // to save if that is switched on in its settings).
+  function _saveAs(blob, file) {
+    if (window.showSaveFilePicker) {
+      window.showSaveFilePicker({ suggestedName: file, types: [{ description: "PNG picture", accept: { "image/png": [".png"] } }] })
+        .then(function (h) { return h.createWritable(); })
+        .then(function (w) { return w.write(blob).then(function () { return w.close(); }); })
+        .then(function () { _closePic(); })
+        .catch(function (e) { if (!e || e.name !== "AbortError") _download(blob, file); });
+    } else _download(blob, file);
+  }
+  function _download(blob, file) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    _closePic();
+  }
+
   function snap(el, file, btn, failMsg) {
     btn.disabled = true; var label = btn.innerHTML; btn.textContent = "Preparing\u2026";
     var held = [];
@@ -205,18 +266,12 @@ var Utils = (function () {
         onclone: function (doc) { doc.querySelectorAll("[ontoggle]").forEach(function (e) { e.removeAttribute("ontoggle"); }); } });
     }).then(function (canvas) {
       el.classList.remove("pf-capturing"); restore();
-      canvas.toBlob(function (blob) {
-        var f = null;
-        try { f = new File([blob], file, { type: "image/png" }); } catch (e) { f = null; }
-        if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
-          navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}).then(done);
-        } else {
-          var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file;
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-          done();
-        }
-      }, "image/png");
+      return new Promise(function (ok) { canvas.toBlob(ok, "image/png"); });
+    }).then(function (blob) {
+      done();
+      // The picture took a moment to make, so the browser no longer counts the
+      // first click as fresh: offer Save as / Share as new clicks.
+      _picture(blob, file);
     }).catch(function () {
       el.classList.remove("pf-capturing"); done();
       Dialog.alert(failMsg || "The picture couldn't be made. You can still take a screenshot.");
@@ -266,7 +321,8 @@ var Nav = (function () {
   return { open: open, close: close, toggle: toggle };
 })();
 
-function showPage(id) {
+// keep: return to a page as it was left (open sections, month, filters) — used by profile "Back"
+function showPage(id, keep) {
   Nav.close();
   document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
   document.querySelectorAll(".nav-item").forEach(function (n) { n.classList.remove("active"); });
@@ -288,6 +344,7 @@ function showPage(id) {
   else { btn.style.display = "none"; }
 
   // Page-specific init
+  if (keep && id !== "settings") { refreshPage(); return; }
   if      (id === "dashboard") Dashboard.render();
   else if (id === "students")  Students.show();
   else if (id === "classes")   Classes.render();

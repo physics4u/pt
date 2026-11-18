@@ -10,6 +10,8 @@
 var Profile = (function () {
   var _idx = -1;          // student shown
   var _open = {};         // which sections are open
+  var _back = null;       // {page, scroll}: where "Back" returns to (opened from Payments)
+  var _going = false;
   var _edit = null;       // what is being edited: {kind, id}
   var DEFAULT_OPEN = { details: true };
 
@@ -87,7 +89,7 @@ var Profile = (function () {
   function view(idx, keep) {
     var D = Data.get();
     var s = D.students[idx]; if (!s) return;
-    if (!keep || idx !== _idx) { _open = {}; _edit = null; }
+    if (!keep || idx !== _idx) { _open = {}; _edit = null; if (!_going) _back = null; }
     _idx = idx;
     var name = Utils.fullName(s);
     var div = Utils.el("profile-content");
@@ -108,7 +110,8 @@ var Profile = (function () {
             "<span>Status: <b>" + _esc(Utils.statusIn(s)) + "</b>" + (isCurrentAcad() ? "" : " in " + acadLabel() + " <span class='muted'>(now " + _esc(s.status) + ")</span>") + "</span>" +
           "</div>" +
         "</div>" +
-        "<div style='margin-left:auto'><button class='btn btn-secondary' onclick='showPage(\"students\")' style='font-size:12px'>&#8592; Back</button></div>" +
+        "<div style='margin-left:auto' class='no-snap'><button class='btn btn-secondary pf-back' onclick='Profile.back()' style='font-size:12px'>&#8592; " +
+          (_back ? "Back to " + _esc((PAGE_CFG[_back.page] || {}).title || "the list") : "Back") + "</button></div>" +
       "</div>";
 
     // ---- Details + attendance ----
@@ -285,14 +288,35 @@ var Profile = (function () {
       "<div class='profile-detail-value'>" + (value ? _esc(value).replace(/^&#8377;|^₹/, "₹") : "—") + "</div></div>";
   }
 
-  function byName(name) {
+  function byName(name, opts) {
     // the same name can be in PT once per year: open the one in the year on screen
     var all = Data.get().students, i = all.findIndex(function (s) { return Utils.fullName(s) === name && Utils.inYear(s); });
     if (i < 0) i = all.findIndex(function (s) { return Utils.fullName(s) === name; });
-    if (i >= 0) view(i); else Dialog.alert("There is no student called “" + name + "” any more.");
+    if (i < 0) { Dialog.alert("There is no student called “" + name + "” any more."); return; }
+    if (!opts) { view(i); return; }
+    // From a list (Payments): open straight at that section, with Back to the list
+    _going = true; _back = opts.from ? { page: opts.from, scroll: opts.scroll || 0 } : null;
+    try { view(i); } finally { _going = false; }
+    if (opts.section) {
+      var d = document.querySelector(".pf-sec[data-key='" + opts.section + "']");
+      if (d) {
+        // fold the sections above it so it sits just under the header (and its Back button)
+        document.querySelectorAll(".pf-sec").forEach(function (x) {
+          var k = x.getAttribute("data-key"); x.open = k === opts.section; _open[k] = x.open;
+        });
+        window.scrollTo(0, 0);
+      }
+    }
   }
 
-  return { view: view, byName: byName, setFee: setFee, saveFee: saveFee, clearFee: clearFee,
+  // Back: to the list the profile was opened from (as it was left), else Students
+  function back() {
+    var b = _back; _back = null;
+    if (b) { showPage(b.page, true); window.scrollTo(0, b.scroll || 0); }
+    else showPage("students");
+  }
+
+  return { view: view, byName: byName, back: back, setFee: setFee, saveFee: saveFee, clearFee: clearFee,
            sec: sec, toggle: toggle, openSec: openSec, edit: edit, editing: editing, editId: editId, cancel: cancel, done: done,
            refresh: refresh, share: share, lockedValue: lockedValue, money: money, yearLabel: yearLabel };
 })();
