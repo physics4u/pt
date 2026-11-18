@@ -208,6 +208,7 @@ var Utils = (function () {
           "<div class='dialog-head'><img src='logo.png' alt=''><span id='pic-title'>Picture ready</span></div>" +
           "<div class='pic-preview'><img id='pic-img' alt='Picture to save or send'></div>" +
           "<div class='pic-name' id='pic-name'></div>" +
+          "<div class='pic-tip' id='pic-tip'></div>" +
           "<div class='dialog-actions'>" +
             "<button type='button' class='btn btn-secondary' id='pic-close'>Close</button>" +
             "<button type='button' class='btn btn-secondary' id='pic-share'>&#128228; Share&hellip;</button>" +
@@ -229,6 +230,13 @@ var Utils = (function () {
     sh.style.display = f && navigator.canShare && navigator.canShare({ files: [f] }) ? "" : "none";
     sh.onclick = function () { navigator.share({ files: [f], title: file.replace(/\.png$/, "") }).catch(function () {}); };
     o.querySelector("#pic-save").onclick = function () { _saveAs(blob, file); };
+    // Browsers without a "Save as" window for websites (Firefox, Safari): the
+    // button downloads, and right-click → Save Image As… chooses the folder.
+    var canPick = !!window.showSaveFilePicker, mouse = window.matchMedia && window.matchMedia("(hover:hover)").matches;
+    o.querySelector("#pic-save").innerHTML = canPick ? "&#128190; Save as&hellip;" : "&#11015; Download";
+    var tip = o.querySelector("#pic-tip");
+    tip.innerHTML = !canPick && mouse ? "To choose the folder and name: <b>right-click the picture</b> above and choose <b>Save Image As&hellip;</b>" : "";
+    tip.style.display = tip.innerHTML ? "" : "none";
     o.classList.add("open");
     o.querySelector("#pic-save").focus();
   }

@@ -1014,3 +1014,5 @@ details.section:not([open]):hover{opacity:1;}
 .pic-name{padding:0 18px 12px;font-size:12px;color:var(--text3);text-align:center;word-break:break-all;}
 .pic-dialog .dialog-actions{flex-wrap:wrap;}
 .pf-capturing .no-snap{display:none !important;}
+.pic-tip{margin:-4px 18px 12px;padding:8px 10px;border-radius:8px;background:var(--surface2);font-size:12.5px;color:var(--text2);text-align:center;}
+.pic-preview img{cursor:context-menu;}
