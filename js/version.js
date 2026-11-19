@@ -4,4 +4,4 @@
 //  publish.sh stamps the same value here and on the server.
 //  "dev" means an unpublished copy.
 // ================================================================
-var PT_VERSION = "2026-11-18.3";
+var PT_VERSION = "2026-11-19.1";

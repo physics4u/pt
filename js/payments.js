@@ -113,12 +113,21 @@ var Payments = (function () {
           return "<tr><td class='num'>" + (i + 1) + "</td><td><b>" + Utils.studentLink(Utils.fullName(s), "hfees") + "</b></td>" +
             "<td>" + (s.hourlyRate ? money(s.hourlyRate) + "/hr" : "—") + "</td>" +
             "<td>" + Hourly.hm(a.hours) + "</td><td>" + money(a.billed) + "</td><td>" + money(a.paid) + "</td>" +
-            "<td>" + (a.balance > 0.5 ? "<span class='chip chip-red'>" + money(a.balance) + " due</span>" : "<span class='chip chip-green'>Settled</span>") + "</td></tr>";
+            "<td>" + _hourlyStatus(a, money) + "</td></tr>";
         }).join("") + "</tbody></table>" +
         "<div class='sheet-hint muted'>Billed by the hour; payments are applied to the oldest months first.</div>"
       : "<div class='empty' style='padding:20px'><div class='empty-text'>" +
         (_duesOnly && all.length ? "No dues in " + title + "." : "No hourly students in " + Utils.grade(cls) + ".") + "</div></div>";
     return _section(key, title, _count(list.length, all.length, withDues.length), body);
+  }
+
+  // Hourly account status: Settled only when there was something to settle
+  function _hourlyStatus(a, money) {
+    if (a.balance > 0.5) return "<span class='chip chip-red'>" + money(a.balance) + " due</span>";
+    if (a.billed < 0.5 && a.paid < 0.5) return "<span class='chip'>No sessions yet</span>";
+    if (a.billed < 0.5) return "<span class='chip chip-gold'>" + money(a.paid) + " paid in advance</span>";
+    if (a.paid > a.billed + 0.5) return "<span class='chip chip-green'>Settled &middot; " + money(a.paid - a.billed) + " in advance</span>";
+    return "<span class='chip chip-green'>Settled</span>";
   }
 
   function render() {
