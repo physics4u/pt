@@ -160,7 +160,9 @@ var Data = (function () {
     });
   }
 
+  var _lastLoad = 0;
   function _loaded_(resp) {
+    _lastLoad = Date.now();
     if (resp.me) _setMe(resp.me);
     _serverVersion = resp.version || _serverVersion;
     _apply(resp.data);
@@ -173,6 +175,22 @@ var Data = (function () {
   }
 
   function reload() { _loadFromServer(); }
+
+  // Coming back to PT (another tab, phone unlocked) after a while: fetch
+  // what other devices changed. Not while something is being typed or a
+  // form is open, and not with a change still waiting to be saved.
+  function _busyTyping() {
+    var a = document.activeElement;
+    return !!(document.querySelector(".modal-overlay.open") || document.querySelector(".hourly-form") ||
+              (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.type !== "checkbox"));
+  }
+  function freshen(force) {
+    if (!_loaded || _saving || _saveTimer || hasUnsaved() || _busyTyping()) return false;
+    if (!force && Date.now() - _lastLoad < 120000) return false;
+    _loadFromServer(); return true;
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") freshen(); });
+  window.addEventListener("focus", function () { freshen(); });
 
   function _loadFromCache() {
     var raw = _lsGet(CACHE_KEY);
@@ -241,23 +259,87 @@ var Data = (function () {
     _saveTimer = setTimeout(_flush, 800);
   }
 
+  // ----------------------------------------------------------------
+  //  What changed since the last save, as a patch the server applies
+  //  to its CURRENT data (so another device's changes are never lost).
+  // ----------------------------------------------------------------
+  var ID_KEYS = { sessions: true, hourpay: true, tests: true };
+  // Lists whose positions other pages rely on stay as they are on this
+  // screen; the others take in what other devices added straight away.
+  var TAKE_MERGED = { sessions: true, hourpay: true, tests: true, activity: true,
+                      attendance: true, attsheets: true, syllabus: true, paygrid: true, settings: true };
+  function _j(v) { return JSON.stringify(v); }
+  // Students, classes, scores: take the merged list only when it is this
+  // screen's list with rows added at the end (positions unchanged).
+  function _sameStart(mine, merged) {
+    if (!Array.isArray(mine) || !Array.isArray(merged) || merged.length < mine.length) return false;
+    return mine.every(function (r, i) {
+      return Object.keys(r).every(function (f) { return String(r[f] == null ? "" : r[f]) === String(merged[i][f] == null ? "" : merged[i][f]); });
+    });
+  }
+  function _plain(v) { return v && typeof v === "object" && !Array.isArray(v); }
+  function _objDiff(a, b, path, out) {
+    Object.keys(b).forEach(function (k) {
+      var p = path.concat(k);
+      if (_plain(a[k]) && _plain(b[k])) _objDiff(a[k], b[k], p, out);
+      else if (!(k in a) || _j(a[k]) !== _j(b[k])) out.push({ p: p, v: b[k] });
+    });
+    Object.keys(a).forEach(function (k) { if (!(k in b)) out.push({ p: path.concat(k), d: 1 }); });
+    return out;
+  }
+  function _unmatched(xs, ys) {        // rows of xs with no identical row in ys (counting repeats)
+    var left = {};
+    ys.forEach(function (y) { var j = _j(y); left[j] = (left[j] || 0) + 1; });
+    return xs.filter(function (x) { var j = _j(x); if (left[j]) { left[j]--; return false; } return true; });
+  }
+  function _diff(k, before, now) {
+    if (k === "activity") return { add: _unmatched(now || [], before || []) };
+    if (Array.isArray(now)) {
+      before = Array.isArray(before) ? before : [];
+      if (ID_KEYS[k]) {
+        var was = {}, set = [], ids = {};
+        before.forEach(function (r) { was[r.id] = _j(r); });
+        now.forEach(function (r) { ids[r.id] = true; if (was[r.id] !== _j(r)) set.push(r); });
+        return { set: set, del: before.filter(function (r) { return !ids[r.id]; }).map(function (r) { return r.id; }) };
+      }
+      var ops = [];
+      if (before.length === now.length) {
+        now.forEach(function (r, i) { if (_j(r) !== _j(before[i])) ops.push({ old: before[i], "new": r }); });
+      } else {
+        _unmatched(before, now).forEach(function (r) { ops.push({ old: r }); });
+        _unmatched(now, before).forEach(function (r) { ops.push({ "new": r }); });
+      }
+      return { ops: ops };
+    }
+    return { paths: _objDiff(_plain(before) ? before : {}, _plain(now) ? now : {}, [], []) };
+  }
+
   function _flush(leaving) {
     _saveTimer = null;
     if (_saving && !leaving) { _saveTimer = setTimeout(_flush, 1000); return; }
-    var changed = {}, snap = {}, n = 0;
+    var patch = {}, snap = {}, n = 0;
     KEYS.forEach(function (k) {
-      var j = JSON.stringify(D[k]);
-      if (j !== _synced[k]) { changed[k] = D[k]; snap[k] = j; n++; }
+      var j = _j(D[k]);
+      if (j === _synced[k]) return;
+      var before; try { before = JSON.parse(_synced[k] || "null"); } catch (e) { before = null; }
+      patch[k] = _diff(k, before, D[k]); snap[k] = j; n++;
     });
     if (!n) { Utils.setSyncStatus("saved"); return; }
 
     _saving = true;
     Utils.setSyncStatus("saving");
-    (leaving ? _call("save", changed, null, true) : _callWithRetry("save", changed)).then(function (resp) {
+    (leaving ? _call("patch", patch, null, true) : _callWithRetry("patch", patch)).then(function (resp) {
       _saving = false;
       _failed = !resp.ok;
       if (resp.ok) {
-        Object.keys(snap).forEach(function (k) { _synced[k] = snap[k]; });
+        Object.keys(snap).forEach(function (k) {
+          var merged = resp.data && resp.data[k];
+          // Nothing more changed here while saving: take the merged copy,
+          // which includes what other devices added.
+          if (merged !== undefined && _j(D[k]) === snap[k] && (TAKE_MERGED[k] || _sameStart(D[k], merged))) { D[k] = merged; _synced[k] = _j(merged); }
+          else _synced[k] = snap[k];
+        });
+        _lsSet(CACHE_KEY, _j(D));
         Utils.setSyncStatus("saved");
       } else if (resp.error === "unauthorized") {
         _lsDel(TOKEN_KEY);
@@ -311,7 +393,7 @@ var Data = (function () {
     init: init, login: login, logout: logout, api: api,
     me: me, isAdmin: isAdmin, serverVersion: serverVersion,
     save: save, reload: reload, log: log, backup: backup,
-    allStudents: allStudents, hasUnsaved: hasUnsaved
+    allStudents: allStudents, hasUnsaved: hasUnsaved, freshen: freshen
   };
 })();
 
