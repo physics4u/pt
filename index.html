@@ -13,9 +13,51 @@
 <meta property="og:description" content="Live online Physics tuition for Grade XI &amp; XII, with exclusive classes for GCC students. The right choice to learn.">
 <meta property="og:image" content="https://physics4u.github.io/pt/logo.png">
 <meta property="og:url" content="https://physics4u.github.io/pt/">
-<link rel="stylesheet" href="site.css?v=20261124142245">
+<link rel="stylesheet" href="site.css?v=20261124143235">
 </head>
 <body>
+
+<!-- Faint physics line drawings for the page background (decorative) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="d-atom" viewBox="0 0 120 120"><g fill="none" stroke="currentColor" stroke-width="2.2">
+      <ellipse cx="60" cy="60" rx="52" ry="19"/><ellipse cx="60" cy="60" rx="52" ry="19" transform="rotate(60 60 60)"/>
+      <ellipse cx="60" cy="60" rx="52" ry="19" transform="rotate(-60 60 60)"/></g>
+      <circle cx="60" cy="60" r="7" fill="currentColor"/><circle cx="112" cy="60" r="4.5" fill="currentColor"/>
+      <circle cx="34" cy="15" r="4.5" fill="currentColor"/><circle cx="34" cy="105" r="4.5" fill="currentColor"/></symbol>
+    <symbol id="d-cradle" viewBox="0 0 140 110"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M10 104h120M18 104V12h104v92M18 12h104"/>
+      <path d="M48 12v58M64 12v58M80 12v58M96 12l28 50"/></g>
+      <g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="48" cy="77" r="7.5"/><circle cx="64" cy="77" r="7.5"/><circle cx="80" cy="77" r="7.5"/><circle cx="127" cy="68" r="7.5"/></g>
+      <path d="M134 50l10-6M136 60l11-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="d-pulley" viewBox="0 0 110 150"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M10 6h90M55 6v14"/><circle cx="55" cy="34" r="14"/><circle cx="55" cy="34" r="3"/>
+      <path d="M41 34v52M69 34v26"/><circle cx="69" cy="74" r="14"/><circle cx="69" cy="74" r="3"/>
+      <path d="M83 74v40M69 88v14"/><rect x="56" y="102" width="26" height="24" rx="2"/>
+      <path d="M41 86l-6 10h12z"/><path d="M83 114v6"/></g></symbol>
+    <symbol id="d-graph" viewBox="0 0 140 110"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 100V8M8 16l6-8 6 8M14 100h118M124 94l8 6-8 6"/>
+      <path d="M24 14C30 70 60 88 126 90"/><path d="M24 40h4M24 70h4" /></g></symbol>
+    <symbol id="d-magnet" viewBox="0 0 110 120"><g fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M14 10h26v52a15 15 0 0 0 30 0V10h26v52a41 41 0 0 1-82 0z"/><path d="M14 34h26M70 34h26"/></g>
+      <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 22h12"/><path d="M77 22h12M83 16v12"/></g></symbol>
+    <symbol id="d-wave" viewBox="0 0 200 60"><path d="M0 30c12.5-26 25-26 37.5 0s25 26 37.5 0 25-26 37.5 0 25 26 37.5 0 25-26 37.5 0 12.5 26 12.5 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="d-lens" viewBox="0 0 160 100"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M80 6c14 20 14 68 0 88M80 6c-14 20-14 68 0 88"/>
+      <path d="M6 26h74l70 48M6 50h148M6 74h74l70-48"/><circle cx="122" cy="50" r="3" fill="currentColor"/></g></symbol>
+    <symbol id="d-pendulum" viewBox="0 0 100 130"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M14 8h72M50 8l26 92"/><path d="M50 8v92" stroke-dasharray="5 6"/><circle cx="79" cy="108" r="10"/>
+      <path d="M50 46a40 40 0 0 0 11-2"/></g></symbol>
+    <symbol id="d-sphere" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="50" cy="50" r="40"/><path d="M18 26h64M11 38h78M10 50h80M11 62h78M18 74h64"/></g></symbol>
+    <symbol id="d-target" viewBox="0 0 60 60"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="30" cy="30" r="24"/><circle cx="30" cy="30" r="10"/></g></symbol>
+    <symbol id="d-tick" viewBox="0 0 60 60"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="30" cy="30" r="24"/><path d="M19 31l8 8 15-17"/></g></symbol>
+    <symbol id="d-chevrons" viewBox="0 0 90 40"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l14 14-14 14M34 6l14 14-14 14M60 6l14 14-14 14"/></g></symbol>
+    <symbol id="d-circuit" viewBox="0 0 300 120"><g fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="9 8" stroke-linecap="round">
+      <path d="M0 20h150v80h150"/><path d="M60 20v-20M220 100v20"/></g></symbol>
+    <symbol id="d-diamond" viewBox="0 0 40 40"><path d="M20 3l17 17-17 17L3 20z" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+  </defs>
+</svg>
 
 <header class="nav" id="top">
   <a class="brand" href="#top"><img src="logo.png" alt="" width="38" height="38"><span>PT<small>PHYSICS TUITION</small></span></a>
@@ -32,9 +74,17 @@
 
 <main>
   <section class="hero">
+    <div class="art" aria-hidden="true">
+      <svg class="d" style="left:5%;top:56px;width:150px;height:118px"><use href="#d-graph"/></svg>
+      <svg class="d gold" style="right:6%;top:46px;width:150px;height:150px"><use href="#d-atom"/></svg>
+      <svg class="d" style="left:22%;top:34px;width:80px;height:36px"><use href="#d-chevrons"/></svg>
+      <svg class="d sm-hide" style="left:-30px;bottom:30px;width:300px;height:120px"><use href="#d-circuit"/></svg>
+      <svg class="d sm-hide" style="right:24%;bottom:46px;width:44px;height:44px"><use href="#d-tick"/></svg>
+      <svg class="d gold sm-hide" style="left:30%;bottom:70px;width:26px;height:26px"><use href="#d-diamond"/></svg>
+    </div>
     <img src="logo.png" alt="PT · Physics Tuition logo" width="120" height="120">
     <p class="eyebrow">The right choice to learn</p>
-    <h1>Physics made clear for<br><em>Plus&nbsp;1 &amp; Plus&nbsp;2</em></h1>
+    <h1>Physics made clear for <br><em>Plus&nbsp;1 &amp; Plus&nbsp;2</em></h1>
     <p>Live online Physics tuition for Grade&nbsp;XI and XII, with exclusive classes for students in the GCC. One-to-one attention, chapter-wise tests and regular feedback to parents.</p>
     <div class="ctas">
       <a class="btn gold" href="https://wa.me/919495328385?text=Hello%2C%20I%27d%20like%20to%20know%20about%20Physics%20tuition%20at%20PT." target="_blank" rel="noopener">&#128172; Enquire on WhatsApp</a>
@@ -52,6 +102,10 @@
   </section>
 
   <section class="sec alt" id="courses">
+    <div class="art" aria-hidden="true">
+      <svg class="d" style="right:3%;top:24px;width:100px;height:136px"><use href="#d-pulley"/></svg>
+      <svg class="d sm-hide" style="left:2%;bottom:28px;width:46px;height:46px"><use href="#d-target"/></svg>
+    </div>
     <h2>Courses</h2>
     <p class="sub">Choose a weekly group class, or one-to-one lessons at a time that suits you.</p>
     <div class="grid3">
@@ -67,6 +121,10 @@
   </section>
 
   <section class="sec" id="provides">
+    <div class="art" aria-hidden="true">
+      <svg class="d sm-hide" style="right:2%;top:20px;width:150px;height:118px"><use href="#d-cradle"/></svg>
+      <svg class="d gold sm-hide" style="left:1%;bottom:24px;width:80px;height:80px"><use href="#d-sphere"/></svg>
+    </div>
     <h2>What you get</h2>
     <p class="sub">Everything a Plus&nbsp;1 or Plus&nbsp;2 student needs, chapter by chapter, through to the exams.</p>
     <ul class="provides">
@@ -83,6 +141,10 @@
   </section>
 
   <section class="sec alt" id="how">
+    <div class="art" aria-hidden="true">
+      <svg class="d" style="right:4%;top:26px;width:86px;height:94px"><use href="#d-magnet"/></svg>
+      <svg class="d sm-hide" style="right:-40px;bottom:12px;width:300px;height:120px"><use href="#d-circuit"/></svg>
+    </div>
     <h2>How it works</h2>
     <p class="sub">All classes are live and online, and parents always know how their child is doing.</p>
     <ol class="steps">
@@ -98,10 +160,18 @@
   -->
 
   <section class="quote-band" aria-label="Our motto">
+    <div class="art" aria-hidden="true">
+      <svg class="d gold" style="left:3%;top:50%;width:200px;height:60px;margin-top:-30px"><use href="#d-wave"/></svg>
+      <svg class="d gold sm-hide" style="right:3%;top:50%;width:200px;height:60px;margin-top:-30px"><use href="#d-wave"/></svg>
+    </div>
     <p>Education is not a <em>problem</em>.<br>It&rsquo;s an <em>opportunity</em>.</p>
   </section>
 
   <section class="sec alt" id="about">
+    <div class="art" aria-hidden="true">
+      <svg class="d sm-hide" style="left:46%;top:24px;width:150px;height:94px"><use href="#d-lens"/></svg>
+      <svg class="d sm-hide" style="left:2%;bottom:16px;width:72px;height:94px"><use href="#d-pendulum"/></svg>
+    </div>
     <div class="two">
       <div>
         <h2>About the tutor</h2>

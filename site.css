@@ -111,3 +111,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   .quote-band p{font-size:21px}
   .stat b{font-size:24px}
 }
+
+/* Faint physics line drawings behind the sections (like the flyer) */
+.hero,.sec,.quote-band{position:relative;overflow:hidden}
+.art{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero>*:not(.art),.sec>*:not(.art),.quote-band>*:not(.art){position:relative;z-index:1}
+.art .d{position:absolute;color:#7fa6cf;opacity:.13}
+.art .d.gold{color:var(--gold);opacity:.12}
+@media (max-width:720px){
+  .art .sm-hide{display:none}
+  .art .d{opacity:.09;transform:scale(.7);transform-origin:center}
+  /* keep the hero drawings at the edges, clear of the logo */
+  .hero .art .d:nth-child(1){left:-46px !important;top:150px !important}
+  .hero .art .d:nth-child(2){right:-52px !important;top:120px !important}
+  .hero .art .d:nth-child(3){left:8px !important;top:20px !important}
+}
+@media print{.art{display:none}}
