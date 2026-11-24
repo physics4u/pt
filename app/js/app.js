@@ -612,6 +612,7 @@ var Theme = (function () {
   });
 
   Utils.el("app-version").textContent = "Version " + PT_VERSION;
+  Updater.check(true);
   Theme.init();
   Theme.setFont(Theme.font(), true);
   Data.init();

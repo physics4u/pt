@@ -573,3 +573,49 @@ var Dialog = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
+
+// ================================================================
+//  Always run the newest PT. The browser may keep an older copy of this
+//  page for a while after a release (GitHub allows 10 minutes), so PT
+//  compares itself with version.json, which publish.sh writes and which
+//  is always fetched fresh. On opening PT it reloads straight away; if PT
+//  is already open, a bar offers the reload so nothing in progress is lost.
+// ================================================================
+var Updater = (function () {
+  function latest() {
+    return fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { return j && j.version ? String(j.version) : null; })
+      .catch(function () { return null; });
+  }
+  function reload(v) {
+    try { sessionStorage.setItem("pt-updated-to", v); } catch (e) {}
+    // a new address makes the browser fetch the page itself again, not its copy
+    location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
+  }
+  function _bar(v) {
+    if (document.getElementById("update-bar")) return;
+    var b = document.createElement("div");
+    b.id = "update-bar"; b.className = "update-bar"; b.setAttribute("role", "status");
+    b.innerHTML = "<span>A new version of PT is ready (" + v + ").</span>" +
+      "<button type='button' class='btn btn-primary btn-sm'>Reload</button>" +
+      "<button type='button' class='btn btn-secondary btn-sm' aria-label='Later'>Later</button>";
+    b.querySelectorAll("button")[0].onclick = function () { reload(v); };
+    b.querySelectorAll("button")[1].onclick = function () { b.remove(); };
+    document.body.appendChild(b);
+  }
+  function check(atStart) {
+    if (PT_VERSION === "dev") return;
+    latest().then(function (v) {
+      if (!v || v === PT_VERSION) return;
+      var tried = null; try { tried = sessionStorage.getItem("pt-updated-to"); } catch (e) {}
+      if (atStart && tried !== v) reload(v);   // once per version, so a stubborn cache can't loop
+      else _bar(v);
+    });
+  }
+  var _last = 0;
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && Date.now() - _last > 120000) { _last = Date.now(); check(false); }
+  });
+  return { check: check };
+})();
