@@ -116,14 +116,18 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 .hero,.sec,.quote-band{position:relative;overflow:hidden}
 .art{position:absolute;inset:0;pointer-events:none;z-index:0}
 .hero>*:not(.art),.sec>*:not(.art),.quote-band>*:not(.art){position:relative;z-index:1}
-.art .d{position:absolute;color:#7fa6cf;opacity:.13}
-.art .d.gold{color:var(--gold);opacity:.12}
+.art .d{position:absolute;color:#8fb3da;opacity:.22}
+.art .d.gold{color:var(--gold);opacity:.2}
 @media (max-width:720px){
   .art .sm-hide{display:none}
-  .art .d{opacity:.09;transform:scale(.7);transform-origin:center}
+  .art .d{opacity:.15;transform:scale(.7);transform-origin:center}
   /* keep the hero drawings at the edges, clear of the logo */
   .hero .art .d:nth-child(1){left:-46px !important;top:150px !important}
   .hero .art .d:nth-child(2){right:-52px !important;top:120px !important}
   .hero .art .d:nth-child(3){left:8px !important;top:20px !important}
 }
-@media print{.art{display:none}}
+.art-row{display:flex;justify-content:center;align-items:flex-end;gap:40px;margin-top:24px;pointer-events:none}
+.art-row .d{color:#8fb3da;opacity:.26}
+.art-row .d.gold{color:var(--gold);opacity:.22}
+@media (max-width:900px){.art-row{display:none}}
+@media print{.art,.art-row{display:none}}
