@@ -83,6 +83,11 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 .quote-band p{font-size:28px;font-weight:700;line-height:1.35}
 .quote-band em{color:var(--gold);font-style:normal}
 .muted+.muted{margin-top:10px}
+.tutor{display:flex;align-items:center;gap:22px;margin:18px 0 18px}
+.tutor-pic{width:150px;height:150px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(250,175,47,.12),0 10px 30px rgba(0,0,0,.35);background:var(--surface2)}
+.tutor-name{font-size:22px;font-weight:700;color:var(--text)}
+.tutor-role{color:var(--gold);font-size:14.5px;margin-top:4px}
 
 /* tablets */
 @media (max-width:900px){
@@ -109,6 +114,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   .sec h2{font-size:24px}
   .grid3,.steps,.provides{grid-template-columns:1fr}
   .quote-band p{font-size:21px}
+  .tutor{gap:16px}
+  .quote-band .art{display:none}
+  .tutor-pic{width:110px;height:110px}
+  .tutor-name{font-size:19px}
   .stat b{font-size:24px}
 }
 
