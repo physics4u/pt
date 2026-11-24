@@ -3,7 +3,7 @@
   --bg:#0b2540;--surface:#0e2d4a;--surface2:#14385b;--border:#22476d;
   --gold:#faaf2f;--p1:#ef5350;--p2:#ff8a1f;--hr:#a78bfa;
   --text:#f1f5fb;--text2:#b4c3d6;--text3:#7d92ad;
-  --font:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font:"Courier New",Courier,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
@@ -89,6 +89,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   .hero{padding:44px 16px 40px}
   .hero img{width:84px}
   .hero h1{font-size:30px}
+  .hero h1 br{display:none}
   .hero p{font-size:16px}
   .sec{padding:40px 16px}
   .sec h2{font-size:24px}
