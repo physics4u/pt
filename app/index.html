@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PT — Physics Tuition</title>
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="stylesheet" href="css/styles.css?v=20261124140319">
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo" onclick="showPage('dashboard')" title="Home">
+    <img src="logo.png" alt="PT logo">
+    <div>
+      <div class="logo-title">PT</div>
+      <div class="logo-sub">PHYSICS TUITION</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard')"><span class="nav-icon">&#128202;</span> Dashboard</div>
+    <div class="nav-section">Students</div>
+    <div class="nav-item" data-page="students" onclick="showPage('students')"><span class="nav-icon">&#128101;</span> Students</div>
+    <div class="nav-item" data-page="payments" onclick="showPage('payments')"><span class="nav-icon">&#128179;</span> Payments</div>
+    <div class="nav-section">Teaching</div>
+    <div class="nav-item" data-page="classes" onclick="showPage('classes')"><span class="nav-icon">&#128197;</span> Classes</div>
+    <div class="nav-item" data-page="syllabus" onclick="showPage('syllabus')"><span class="nav-icon">&#128214;</span> Monthly Planner</div>
+    <div class="nav-item" data-page="attsheet" onclick="showPage('attsheet')"><span class="nav-icon">&#128198;</span> Attendance</div>
+    <div class="nav-item" data-page="scores" onclick="showPage('scores')"><span class="nav-icon">&#128221;</span> Scores</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div id="sync-status" style="margin-bottom:6px;display:none"></div>
+    <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
+    <div class="nav-item" data-page="help" onclick="showPage('help')"><span class="nav-icon">&#10067;</span> Help</div>
+  </div>
+</aside>
+
+<div class="nav-backdrop" onclick="Nav.close()"></div>
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <div class="topbar">
+    <button type="button" class="menu-btn" id="menu-btn" onclick="Nav.toggle()" aria-label="Menu" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-sub" id="page-sub"></div>
+    <div class="year-chip" id="year-chip" title="Academic year" onclick="Utils.openYear()" style="cursor:pointer"></div>
+    <div class="user-chip" id="user-chip" onclick="showPage('settings')" title="My account" style="display:none">
+      <span class="user-avatar" id="user-avatar"></span>
+      <span class="user-meta"><span class="user-name" id="user-name"></span><span class="user-role" id="user-role"></span></span>
+    </div>
+    <button class="topbar-btn" id="topbar-action" onclick="topbarAction()" style="display:none">Action</button>
+  </div>
+  <div class="content">
+
+    <!-- Each page is in its own HTML file, included here -->
+    <div id="page-dashboard" class="page active">
+  <div class="stat-grid five dash-tiles">
+    <div class="stat-card hero">
+      <div class="stat-label">Students</div><div class="stat-value" id="stat-students">0</div>
+      <div class="stat-sub" id="stat-students-sub">active</div>
+      <div class="tile-rows"><span>Plus 1 <b id="stat-p1-mini">0</b></span><span>Plus 2 <b id="stat-p2-mini">0</b></span></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label"><span class="dot p1"></span>Plus 1</div><div class="stat-value" id="stat-p1">0</div>
+      <div class="stat-sub" id="stat-p1-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-xi-hours">0</b> hrs</span><span><b id="stat-xi-days">0</b> days</span></div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label"><span class="dot p2"></span>Plus 2</div><div class="stat-value" id="stat-p2">0</div>
+      <div class="stat-sub" id="stat-p2-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-xii-hours">0</b> hrs</span><span><b id="stat-xii-days">0</b> days</span></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Hourly</div><div class="stat-value" id="stat-hr">0</div>
+      <div class="stat-sub" id="stat-hr-sub">active</div>
+      <div class="tile-rows"><span><b id="stat-hourly">0:00</b> hrs one-to-one</span></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Fees received</div><div class="stat-value" id="stat-revenue">₹0</div>
+      <div class="stat-sub">this academic year</div>
+      <div class="tile-rows"><span class="owed">Outstanding <b id="stat-pending">₹0</b></span><span class="muted" id="stat-pending-sub"></span></div>
+    </div>
+  </div>
+
+  <!-- Syllabus Charts — Grade XI and Grade XII side by side -->
+  <div class="grid2" style="margin-bottom:10px">
+
+    <!-- Grade XI -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Plus 1 &mdash; Teaching Hours</span>
+        <span id="syl-total-xi" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
+        <button type="button" class="btn btn-secondary btn-sm pf-share dash-share" title="Make a picture to send to parents" onclick="Dashboard.shareHours('Grade XI', this)">&#128247; Share</button>
+      </div>
+      <div class="dash-chart" style="padding:6px 12px 2px;overflow-x:auto">
+        <canvas id="syllabus-chart-xi" style="width:100%;display:block"></canvas>
+        <div id="syllabus-empty-xi" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
+          No Plus 1 planner data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade XII -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Plus 2 &mdash; Teaching Hours</span>
+        <span id="syl-total-xii" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
+        <button type="button" class="btn btn-secondary btn-sm pf-share dash-share" title="Make a picture to send to parents" onclick="Dashboard.shareHours('Grade XII', this)">&#128247; Share</button>
+      </div>
+      <div class="dash-chart" style="padding:6px 12px 2px;overflow-x:auto">
+        <canvas id="syllabus-chart-xii" style="width:100%;display:block"></canvas>
+        <div id="syllabus-empty-xii" style="display:none;text-align:center;padding:32px;color:var(--text3);font-size:13px">
+          No Plus 2 planner data yet.<br>Fill in times &amp; chapters in the Monthly Planner.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="panel" style="margin-bottom:12px">
+    <div class="panel-header">
+      <span class="panel-title">Income &mdash; Monthly</span>
+      <span id="chart-total" style="font-size:12px;color:var(--text3);font-family:var(--font-ui)"></span>
+    </div>
+    <div style="padding:12px 24px 8px;overflow-x:auto">
+      <canvas id="revenue-chart" height="220" style="width:100%;display:block"></canvas>
+      <div id="chart-empty" style="display:none;text-align:center;padding:40px;color:var(--text3);font-size:13px">
+        No paid fees recorded yet. Mark payments as Paid in the Payments page to see revenue here.
+      </div>
+    </div>
+  </div>
+
+</div>
+    <div id="page-students" class="page">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="Search students..." id="student-search" oninput="Students.render()">
+    </div>
+    <span class="list-count" id="students-count"></span>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
+  </div>
+  <div id="students-wrap"></div>
+  <div id="students-empty" class="empty" style="display:none">
+    <div class="empty-icon">&#128101;</div>
+    <div class="empty-text">No students yet. Click "+ Add Student" to get started.</div>
+  </div>
+</div>
+    <div id="page-classes" class="page">
+  <div class="panel">
+    <div class="tbl-scroll"><table>
+      <thead><tr><th class="num">#</th><th>Class Name</th><th>Day</th><th>Time</th><th>Level</th><th>Tutor</th><th>Students</th><th>Room</th><th></th></tr></thead>
+      <tbody id="classes-tbody"></tbody>
+    </table></div>
+    <div id="classes-empty" class="empty" style="display:none">
+      <div class="empty-icon">&#128197;</div>
+      <div class="empty-text">No classes scheduled yet.</div>
+    </div>
+  </div>
+</div>
+    <div id="page-attsheet" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span class="acad-label"></span>
+      <select class="filter" id="as-grade" onchange="Attendance.setClass(this.value)">
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
+      </select>
+      <span class="month-step"><button class="btn btn-secondary btn-sm" onclick="Attendance.step(-1)" title="Previous month">&#9664;</button>
+      <select id="attsheet-month" onchange="Attendance.render()" style="width:auto"></select>
+      <button class="btn btn-secondary btn-sm" onclick="Attendance.step(1)" title="Next month">&#9654;</button></span>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
+    </div>
+    <span class="autosave-note">&#10003; Saves automatically</span>
+  </div>
+  <div id="attsheet-wrap"></div>
+</div>
+    <div id="page-syllabus" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
+      <span class="acad-label"></span>
+      <select class="filter" id="syl-grade" onchange="Syllabus.setClass(this.value)">
+        <option value="Grade XI">Plus 1</option>
+        <option value="Grade XII">Plus 2</option>
+      </select>
+      <span class="month-step"><button class="btn btn-secondary btn-sm" onclick="Syllabus.step(-1)" title="Previous month">&#9664;</button>
+      <select id="syllabus-month" onchange="Syllabus.render()" style="width:auto"></select>
+      <button class="btn btn-secondary btn-sm" onclick="Syllabus.step(1)" title="Next month">&#9654;</button></span>
+    </div>
+    <span class="autosave-note">&#10003; Saves automatically</span>
+  </div>
+  <div id="syllabus-table-wrap"></div>
+</div>
+    <div id="page-payments" class="page">
+  <div class="toolbar" style="flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:14px;flex:1;flex-wrap:wrap">
+      <span class="acad-label"></span>
+      <label class="check show-all-toggle"><input type="checkbox" onchange="Utils.setShowAll(this.checked)"> Show inactive students</label>
+      <label class="check"><input type="checkbox" id="pay-dues" onchange="Payments.duesOnly(this.checked)"> Only students with dues</label>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:11px;font-family:var(--font-ui)">
+      <span style="color:var(--accent3)">&#9632; Paid</span>
+      <span style="color:var(--accent2)">&#9632; Pending</span>
+      <span style="color:var(--danger)">&#9632; Overdue</span>
+      <span style="color:var(--text3)">&#9633; Unset</span>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--font-ui)">
+    &#9432; View only. To record a fee, click the student's name to open their profile.
+  </p>
+  <div id="payments-wrap"></div>
+</div>
+    <div id="page-scores" class="page">
+  <div id="scores-view"></div>
+</div>
+    <div id="page-profile" class="page">
+  <div id="profile-content"></div>
+</div>
+    <div id="page-settings" class="page">
+
+  <!-- Users -->
+  <details class="section" id="sec-users">
+    <summary>
+      <span class="section-title">Users</span><span class="section-meta" id="users-meta"></span>
+      <span class="section-actions">
+        <button type="button" class="btn btn-secondary btn-sm admin-only" onclick="Users.addNew(event)">+ Add user</button>
+      </span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <p class="section-note admin-only"><b>User</b>: students, classes, planner, attendance, payments and scores.
+        <b>Admin</b>: also manages users, chapter lists, the academic year and backups.
+        The <b>Owner</b> is the built-in <code>admin</code> sign-in that uses the owner passcode; it always works, so you can't be locked out.</p>
+
+      <div class="tbl-scroll"><table class="users-table">
+        <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Role</th><th>Active</th><th>Last sign-in</th><th></th></tr></thead>
+        <tbody id="users-tbody"></tbody>
+      </table></div>
+
+      <form class="user-form" id="user-form" onsubmit="return Users.submit(event)" style="display:none">
+        <div class="user-form-title" id="user-form-title">Add a user</div>
+        <div class="user-form-grid">
+          <div class="form-row"><label for="u-name">Full name</label><input id="u-name" placeholder="e.g. Shine Nair" required></div>
+          <div class="form-row"><label for="u-username">Username</label><input id="u-username" placeholder="e.g. shine" autocomplete="off" required></div>
+          <div class="form-row"><label for="u-role">Role</label>
+            <select id="u-role"><option value="user">User</option><option value="admin">Admin</option></select></div>
+          <div class="form-row"><label for="u-password" id="u-password-label">Password</label><input id="u-password" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+        </div>
+        <div class="user-form-actions">
+          <label class="check" style="margin-right:auto"><input type="checkbox" id="u-active" checked> Can sign in</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="Users.closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="u-submit">Add user</button>
+        </div>
+      </form>
+
+      <form id="pw-form" class="user-form pw-form" onsubmit="return Users.changePassword(event)" style="display:none">
+        <div class="user-form-title">Change my password</div>
+        <div class="user-form-grid">
+          <div class="form-row"><label for="pw-old">Current password</label><input id="pw-old" type="password" autocomplete="current-password" required></div>
+          <div class="form-row"><label for="pw-new">New password</label><input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 6 characters" required></div>
+        </div>
+        <div class="user-form-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="Users.togglePw(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save new password</button>
+        </div>
+      </form>
+
+      <div class="users-foot">
+        <button type="button" class="btn btn-secondary btn-sm" id="pw-btn" onclick="Users.togglePw()">&#128273; Change my password</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="Dialog.confirm('Sign out on this device?',{okText:'Sign out',danger:true}).then(function(ok){if(ok)Data.logout();})">Sign out</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Chapter lists (admins only) -->
+  <details class="section admin-only">
+    <summary>
+      <span class="section-title">Chapter lists</span><span class="section-meta" id="chap-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div class="chap-grid">
+        <div class="chap-card">
+          <div class="chap-head">
+            <span class="chap-name">Plus 1</span>
+            <span class="chap-count" id="chap-count-xi"></span>
+            <button class="btn btn-secondary btn-sm" id="chap-edit-xi" onclick="SettingsPage.edit('Grade XI')">Edit</button>
+          </div>
+          <ol class="chap-list" id="chap-list-xi"></ol>
+          <div class="chap-editor" id="chap-editor-xi" style="display:none">
+            <div class="chap-help">One chapter per line, in the order you want them in the Monthly Planner.</div>
+            <textarea id="settings-xi" rows="14" spellcheck="false"></textarea>
+            <div class="chap-actions">
+              <button type="button" class="link-btn" onclick="SettingsPage.useStandard('Grade XI')">Use the standard NCERT list</button>
+              <span style="flex:1"></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="SettingsPage.cancel('Grade XI')">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="SettingsPage.save('Grade XI')">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="chap-card">
+          <div class="chap-head">
+            <span class="chap-name">Plus 2</span>
+            <span class="chap-count" id="chap-count-xii"></span>
+            <button class="btn btn-secondary btn-sm" id="chap-edit-xii" onclick="SettingsPage.edit('Grade XII')">Edit</button>
+          </div>
+          <ol class="chap-list" id="chap-list-xii"></ol>
+          <div class="chap-editor" id="chap-editor-xii" style="display:none">
+            <div class="chap-help">One chapter per line, in the order you want them in the Monthly Planner.</div>
+            <textarea id="settings-xii" rows="14" spellcheck="false"></textarea>
+            <div class="chap-actions">
+              <button type="button" class="link-btn" onclick="SettingsPage.useStandard('Grade XII')">Use the standard NCERT list</button>
+              <span style="flex:1"></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="SettingsPage.cancel('Grade XII')">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="SettingsPage.save('Grade XII')">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Academic year (everyone) -->
+  <details class="section" id="sec-acad">
+    <summary>
+      <span class="section-title">Academic year</span><span class="section-meta" id="acad-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <select id="settings-acad" style="width:auto;min-width:300px"></select>
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveAcad()">Show this year</button>
+        <button class="btn btn-secondary btn-sm" id="acad-back" onclick="SettingsPage.saveAcad(defaultAcadStart())">Back to the current year</button>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">Every page (Dashboard, Students, Attendance, Monthly Planner, Payments, Scores and profiles) shows the year chosen here. The current year runs 14 months, March to the following April; an earlier year shows March to February, because its last March and April are the start of the next year. PT always opens on the current academic year; choosing another year here only changes what you see, not anyone else's view.</p>
+    </div>
+  </details>
+
+  <!-- Progress over the years (admins only) -->
+  <details class="section admin-only" id="sec-progress" ontoggle="Progress.toggle(this)">
+    <summary>
+      <span class="section-title">Progress over the years</span><span class="section-meta" id="progress-meta"></span><span class="pf-actions" onclick="event.preventDefault()"><button type="button" class="btn btn-secondary btn-sm pf-share" title="Make a picture to send" onclick="Progress.share(this)">&#128247; Share</button></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body" id="progress-body"></div>
+  </details>
+
+  <!-- Google Calendar (admins only) -->
+  <details class="section admin-only" id="sec-cal">
+    <summary>
+      <span class="section-title">Google Calendar</span><span class="section-meta" id="cal-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <label class="check" style="margin-bottom:10px"><input type="checkbox" id="cal-on"> Add classes to Google Calendar</label>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <label for="cal-tutor" style="margin:0">Tutor's Google email</label>
+        <input id="cal-tutor" type="email" placeholder="tutor@gmail.com" style="width:auto;min-width:260px">
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveCal()">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="Classes.syncAll(this)">Add all classes now</button>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">Each class on the Classes page goes into a <b>PT Classes</b> calendar: weekly classes repeat until the end of the academic year (April), one-off classes happen once. The tutor is invited by email and the class appears in their Google Calendar with a reminder <b>30 minutes</b> before. Changing or deleting a class updates the calendar.</p>
+      <p class="section-note" style="margin:6px 0 0">For the reminder on the tutor's phone: in the Google Calendar app, open <b>Settings &rarr; (their account) &rarr; Default notifications &rarr; Events</b> and choose <b>30 minutes before</b>, and accept the first invitation (Yes).</p>
+      <div id="cal-result" class="import-msg" aria-live="polite"></div>
+    </div>
+  </details>
+
+  <!-- Region (admins only) -->
+  <details class="section admin-only" id="sec-tz">
+    <summary>
+      <span class="section-title">Time zone</span><span class="section-meta" id="tz-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <select id="settings-tz" style="width:auto;min-width:260px"></select>
+        <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveTz()">Save time zone</button>
+        <span class="muted" id="tz-now"></span>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">PT uses this time zone for "today" (the current week, today's date, the current academic year, end dates) and for the times it shows. It applies to everyone using PT.</p>
+    </div>
+  </details>
+
+  <!-- Storage (admins only) -->
+  <details class="section admin-only" id="sec-storage">
+    <summary>
+      <span class="section-title">Storage</span><span class="section-meta" id="storage-meta"></span>
+      <span class="section-mini"><span class="mini-bar"><span id="storage-mini"></span></span></span>
+      <span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div class="storage-head">
+        <span id="storage-text">Checking&hellip;</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="StoragePage.compact(this)">Free up space</button>
+      </div>
+      <div class="bar"><span id="storage-bar"></span></div>
+      <table class="storage-table">
+        <thead><tr><th class="num">#</th><th>Area</th><th>Space used</th><th>Share</th></tr></thead>
+        <tbody id="storage-tbody"></tbody>
+      </table>
+      <p class="section-note" style="margin:10px 0 0">PT can hold up to 10 million cells. Every row and column reserved for an area counts, even when empty; PT trims empty space each time it saves, and <b>Free up space</b> trims everything at once. One academic year of data uses roughly 10,000 cells.</p>
+    </div>
+  </details>
+
+  <!-- Import (admins only) -->
+  <details class="section admin-only" id="sec-import">
+    <summary>
+      <span class="section-title">Import data</span><span class="section-meta">&middot; bring in records from earlier years</span>
+      <span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="import-year" style="width:auto;min-width:180px">
+          <option value="2026-27">2026&ndash;27</option><option value="2025-26">2025&ndash;26</option>
+          <option value="2024-25">2024&ndash;25</option><option value="2023-24">2023&ndash;24</option>
+          <option value="2022-23">2022&ndash;23</option><option value="2021-22">2021&ndash;22</option>
+        </select>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="ImportPage.check(this)">Check</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="ImportPage.apply(this)">Import</button>
+      </div>
+      <p class="section-note" style="margin:10px 0 0">Save the year's workbook as Excel, named like <b>Physics Tuition - 2025-26.xlsx</b>, anywhere in the Physics Tuition folder (the year's own folder is fine). <b>Check</b> shows what it contains without changing anything. <b>Import</b> adds that year's students, attendance, planner, fees, hourly sessions, payments and marks to PT as that year's own records; other years are not changed. Importing the same year again replaces its student records and adds nothing twice. A fee set in another currency (e.g. 15 OMR) is noted on the student, and fees paid stay in rupees. A backup is made first. Years can be imported in any order.</p>
+      <div id="import-result" class="import-msg" aria-live="polite"></div>
+    </div>
+  </details>
+
+  <!-- Backups (admins only) -->
+  <details class="section admin-only">
+    <summary>
+      <span class="section-title">Backups</span><span class="section-meta">&middot; complete copies of PT's data</span>
+      <span class="section-actions">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="event.preventDefault();event.stopPropagation();SettingsPage.backup(this)">&#10227; Back up now</button>
+      </span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body section-note" style="margin:0">
+      Each backup is a complete copy of PT's data, labelled with the date and time. PT keeps the newest 30 backups.
+    </div>
+  </details>
+
+  <!-- Appearance (everyone; remembered per device) -->
+  <details class="section">
+    <summary>
+      <span class="section-title">Appearance</span><span class="section-meta" id="theme-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div class="seg" role="radiogroup" aria-label="Colour theme">
+        <button type="button" class="seg-btn" id="theme-dark"  role="radio" onclick="Theme.set('dark')">&#9790; Dark</button>
+        <button type="button" class="seg-btn" id="theme-light" role="radio" onclick="Theme.set('light')">&#9728; Light</button>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Font">
+        <button type="button" class="seg-btn" id="font-modern"  role="radio" onclick="Theme.setFont('modern')">Modern</button>
+        <button type="button" class="seg-btn courier" id="font-courier" role="radio" onclick="Theme.setFont('courier')">Courier New</button>
+      </div>
+      <span class="section-note" style="margin:0">Saved on this device only.</span>
+    </div>
+  </details>
+
+</div>
+    <div id="page-help" class="page">
+
+  <div class="help-search">
+    <input id="help-q" type="search" placeholder="Search the guide, e.g. attendance, password, academic year" oninput="Help.search(this.value)">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="Help.all(true)">Open all</button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="Help.all(false)">Close all</button>
+  </div>
+
+  <!-- About -->
+  <details class="section help" id="help-about" open>
+    <summary><span class="section-title">About PT</span><span class="section-meta" id="about-hint"></span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body">
+      <div class="about-card">
+        <img src="logo.png" alt="" class="about-logo">
+        <div>
+          <div class="about-name">PT &mdash; Physics Tuition Manager</div>
+          <div class="about-line">Students, the monthly planner, attendance, fees and scores for a physics tuition, in one place.</div>
+          <div class="about-line">&copy; PT &middot; San Jose, California</div>
+        </div>
+      </div>
+      <div class="about" id="about-body"></div>
+    </div>
+  </details>
+
+  <!-- Quick start -->
+  <details class="section help">
+    <summary><span class="section-title">Quick start</span><span class="section-meta">&middot; a typical week in PT</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <ol>
+        <li><b>Sign in</b> with the username and password your admin gave you.</li>
+        <li><b>Students</b>: add each student once with <b>+ Add student</b> (class, batch, fee or hourly rate).</li>
+        <li><b>Monthly Planner</b>: after each class, enter the start and end time and the chapter.</li>
+        <li><b>Attendance</b>: mark the day; <b>Mark everyone present</b> then change the absentees.</li>
+        <li><b>Fees</b>: open the student (click their name) and record the month or the payment.</li>
+        <li><b>Scores</b>: <b>+ Add test</b>, then type the marks.</li>
+        <li><b>Dashboard</b> (click the PT logo) adds it all up. Everything saves by itself.</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- How PT works -->
+  <details class="section help">
+    <summary><span class="section-title">How PT pages work</span><span class="section-meta">&middot; sections, locked entries, active students, academic year</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Phones &amp; tablets</dt><dd>On a small screen the menu hides behind <b>&#9776;</b> at the top left. Tap it to open the menu; choosing a page (or tapping beside the menu) closes it. Wide tables scroll sideways.</dd>
+        <dt>Sections</dt><dd>Most pages are split into sections you open and close (Plus 1, Plus 2, Hourly, the planner's weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
+        <dt>Locked entries &#9998;</dt><dd>Anything already saved is locked so it can't be changed by accident. Hover over it (on a phone or tablet the &#9998; is always shown) and press <b>&#9998;</b> to change it. <b>Delete</b> / <b>Clear</b> (in red) appear only while editing.</dd>
+        <dt>Names</dt><dd>Click a student's name anywhere to open their profile (from <b>Payments</b>, it opens at their fees, with <b>&larr; Back to Payments</b>).</dd>
+        <dt>Active students</dt><dd>Lists show only <b>active</b> students. Tick <b>Show inactive students</b> on any page to see everyone; the choice applies to every page until PT is closed.</dd>
+        <dt>Academic year</dt><dd>The chip at the top right (e.g. <b>2026&ndash;27</b>) is the year shown everywhere. PT always opens on the current year. Click the chip (or <b>Settings &rarr; Academic year</b>) to look at another year; the chip turns red while you're viewing a different year.</dd>
+        <dt>Saving</dt><dd>Every change saves within a second or two. There is no Save button to remember.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <!-- Signing in -->
+  <details class="section help">
+    <summary><span class="section-title">Signing in, roles and passwords</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>You stay signed in on a device for 30 days. <b>Settings &rarr; Users</b> has <b>Change my password</b> (at least 6 characters) and <b>Sign out</b> (use it on shared computers). Forgot your password? An admin resets it from the same section.</p>
+      <table class="guide-table">
+        <tr><td><span class="chip">User</span></td><td>Students, classes, planner, attendance, payments, scores; can view other academic years.</td></tr>
+        <tr><td><span class="chip chip-gold">Admin</span></td><td>Also users, chapter lists, time zone, storage, import and backups.</td></tr>
+        <tr><td><span class="chip chip-gold">Owner</span></td><td>The built-in <code>admin</code> sign-in with the owner passcode; it can never be locked out.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <!-- Dashboard -->
+  <details class="section help">
+    <summary><span class="section-title">Dashboard</span><span class="section-meta">&middot; what each number means</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Students</dt><dd>All active students: regular and hourly, and how many in Plus 1 and Plus 2.</dd>
+        <dt>Plus 1 / Plus 2</dt><dd>Active students in the class, with the teaching <b>hours</b> and class <b>days</b> from the Monthly Planner (days with a chapter and both times). <b>134:45</b> means 134 hours 45 minutes.</dd>
+        <dt>Hourly</dt><dd>Active one-to-one students and their session hours this year.</dd>
+        <dt>Fees received / Outstanding</dt><dd>Group fees marked Paid plus hourly payments this academic year / fees Pending or Overdue plus unpaid hourly balances.</dd>
+        <dt>Charts</dt><dd>Teaching hours per chapter, and income per month (counted in the month the fee is for).</dd>
+        <dt>&#128247; Share (teaching hours)</dt><dd>Makes a picture of Plus 1 or Plus 2 teaching hours to send to parents: the logo, class, academic year, total hours and class days, today's date and every chapter in full. No names or fees. For a finished year, choose it under <b>Settings &rarr; Academic year</b> first.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <!-- Students -->
+  <details class="section help">
+    <summary><span class="section-title">Students and profiles</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <h4>Add or change a student</h4>
+      <p><b>+ Add student</b>, or hover over a student and press <b>&#9998;</b>. Only the first name is required. <b>Class</b> (Plus 1 / Plus 2) decides where they appear; <b>Batch</b> is Regular or Hourly; <b>Status</b> is Active, Trial or Inactive. Once the <b>End date</b> passes, PT marks the student Inactive. <b>Delete this student</b> is at the bottom of the form; their old attendance and fees are kept.</p>
+      <h4>Each academic year has its own student list</h4>
+      <p>Each academic year has its own student records: a new year starts with no students, and every student added to a year is a <b>new record</b> for that year (earlier years' records are never reused). A student who attends group classes and one-to-one classes has two records with the same name, one under Plus 1/Plus 2 and one under Hourly; each can end separately (e.g. stopped group classes, still hourly). A student has <b>left</b> when their end date has passed. The same name can't be added twice to the same list in one year.</p>
+      <h4>Find a student</h4>
+      <p>Students are grouped into Plus 1, Plus 2, Hourly (Plus 1) and Hourly (Plus 2). Typing in the search box opens the sections with a match; a search includes inactive students. If nothing matches (e.g. a typo like "Sarena"), PT suggests the closest name.</p>
+      <h4>Profile</h4>
+      <p>Details, attendance by month, fees, sessions and payments (hourly), and the report card, each in its own section. <b>Attendance</b>, <b>Fees</b> and <b>Report card</b> start with a strip showing the PT logo, the student's name, class, academic year and today's date, so a screenshot is easy to identify. <b>&#128247; Share</b> on those sections makes a picture of the section and shows it in a <b>Picture ready</b> window: <b>Save as&hellip;</b> lets you choose the folder and file name (Chrome and Edge). In Firefox and Safari the button is <b>Download</b> (saves to Downloads); to choose the folder there, right-click the picture in the window and choose <b>Save Image As&hellip;</b>, and on a phone <b>Share&hellip;</b> opens the share menu (e.g. WhatsApp to the parent). Clicking a name on the <b>Payments</b> page opens that student's <b>Fees</b> (or <b>Hourly fees</b>) straight away, with <b>&larr; Back to Payments</b> returning to the list as you left it; the Back button is never in the picture. The &#9998; on <b>Student details</b> opens the edit form.</p>
+      <p class="tip">Changing a student's name leaves their earlier attendance and fees under the old name, so fix spellings early.</p>
+    </div>
+  </details>
+
+  <!-- Hourly -->
+  <details class="section help">
+    <summary><span class="section-title">Hourly (one-to-one) students</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>Choose <b>Batch: Hourly</b> and enter the <b>rate per hour</b>. Tick <b>Also attends group classes</b> if they come to the group classes too; they then also appear in group attendance and monthly fees.</p>
+      <p>On the profile, <b>+ Add session</b> (date, times, chapter, notes) and <b>+ Add payment</b> (date, amount). Each session is billed at the rate when it was added. Payments go to the oldest unpaid months first, so months show <span class="chip chip-green">Paid</span> <span class="chip chip-gold">Part-paid</span> or <span class="chip chip-red">Due</span>. Sessions count as present days. To change the rate, hover over it on the <b>Hourly fees</b> heading and press &#9998;.</p>
+    </div>
+  </details>
+
+  <!-- Planner -->
+  <details class="section help">
+    <summary><span class="section-title">Monthly Planner</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>Choose <b>Plus 1</b> or <b>Plus 2</b> and the month (&#9664; &#9654; step a month); the line above the weeks shows the month's class days and hours. The month is split into weeks with the current one open (<b>This week</b>). For each class day pick the <b>start</b> and <b>end</b> time and the <b>chapter</b>, and add notes. A day locks when you move to another row; &#9998; reopens it, with <b>Done</b> and <b>Clear</b>. Week headings show days, hours and chapters covered. Chapters come from <b>Settings &rarr; Chapter lists</b>.</p>
+    </div>
+  </details>
+
+  <!-- Attendance -->
+  <details class="section help">
+    <summary><span class="section-title">Attendance</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>Choose <b>Plus 1</b> or <b>Plus 2</b> and the month; the whole month is shown in one table, with a thicker line before each Monday. Click a student's box on the day: <b>P</b> &rarr; <b>A</b> &rarr; blank. The bar above the table shows the day you're marking, with <b>Mark everyone present</b>, <b>Clear day</b> and <b>Done</b>. Marked days are locked; hover over the date and press &#9998; to change one. <b>P</b>, <b>A</b> and <b>%</b> are the student's totals for the month; the bottom row counts who was present each day.</p>
+    </div>
+  </details>
+
+  <!-- Payments -->
+  <details class="section help">
+    <summary><span class="section-title">Payments and fees</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p><b>Payments</b> shows every student against every month of the year: <span class="chip chip-green">&#8377; paid</span> <span class="chip chip-gold">Pending</span> <span class="chip chip-red">Overdue</span>. Tick <b>Only students with dues</b> to see who owes fees. Hover over a cell for the payment date and notes.</p>
+      <p><b>Record a fee</b>: click the student's name &rarr; <b>Fees</b> section &rarr; hover over the month &rarr; &#9998; &rarr; choose the status, check the amount and date &rarr; <b>Save</b>. A month marked Paid without a date gets today's date; <b>Clear month</b> undoes it. The monthly fee itself is changed with the &#9998; on the Fees heading.</p>
+    </div>
+  </details>
+
+  <!-- Scores -->
+  <details class="section help">
+    <summary><span class="section-title">Scores</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>Tests are listed under Plus 1, Plus 2 and the two Hourly sections (one-to-one tests), with average, top mark and how many took each.</p>
+      <p><b>+ Add test</b>: class (or <b>One-to-one:</b> a student), date, portions and marks out of; PT numbers it. On the mark sheet type each mark and press <b>Enter</b> for the next student; blank means the student didn't take it. Once a test has marks the sheet opens locked; <b>Edit</b> on a row changes or adds a mark. <b>Test details</b> are locked too: &#9998; next to the title edits them and shows <b>Delete this test</b>.</p>
+    </div>
+  </details>
+
+  <!-- Classes -->
+  <details class="section help">
+    <summary><span class="section-title">Classes</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <p>The timetable. <b>+ Add class</b>: name, <b>Repeats</b> (every week, or once on a date), day or date, level, times, tutor, room. &#9998; on a class changes or deletes it. Students shows the active students at that level.</p>
+      <p>When <b>Google Calendar</b> is turned on (Settings), each saved class also goes into the <b>PT Classes</b> calendar with a reminder 30 minutes before, and the tutor is invited by email; changes and deletions update the calendar. &#128197; next to the room means the class is in the calendar.</p>
+    </div>
+  </details>
+
+  <!-- Settings -->
+  <details class="section help">
+    <summary><span class="section-title">Settings</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Users</dt><dd>Who can sign in, their role and last sign-in. Admins add users and use &#9998; to rename, change role, reset a password, block or delete.</dd>
+        <dt>Chapter lists</dt><dd>(Admins) The planner's chapters, one per line. <b>Use the standard NCERT list</b> refills it; nothing changes until <b>Save</b>.</dd>
+        <dt>Academic year</dt><dd>(Everyone) Show an earlier or later year everywhere in PT. Only your view changes, and PT opens on the current year again next time. <b>Back to the current year</b> returns.</dd>
+        <dt>Progress over the years</dt><dd>(Admins) Every academic year side by side: fees received (group and hourly), students, teaching hours and fees per student, with growth on the year before, average yearly growth and the best year. The current year is shown lighter as &ldquo;so far&rdquo;. <b>Same point last year</b> compares this year with last year up to today&rsquo;s date (and a chart shows every year up to that date). <b>&#128247; Share</b> makes a picture of the whole section to send.</dd>
+        <dt>Google Calendar</dt><dd>(Admins) Turn on, enter the tutor's Google email, <b>Save</b>, then <b>Add all classes now</b>. The owner allows calendar access once the first time (PT shows a message if it hasn't been allowed). For phone reminders the tutor accepts the first invitation and sets Google Calendar's default event notification to 30 minutes.</dd>
+        <dt>Time zone</dt><dd>(Admins) Used for "today": the current week, today's date, end dates, the current academic year and times shown. Default India (IST).</dd>
+        <dt>Storage</dt><dd>(Admins) Space used, by area. <b>Free up space</b> releases empty space.</dd>
+        <dt>Import data</dt><dd>(Admins) Add a year's records from its Excel workbook (2021&ndash;22 onwards). <b>Check</b> shows totals to compare with the workbook's Home screen; <b>Import</b> adds the year as its own student records (nothing is shared with other years), replaces them if the year is imported again, and takes a backup first. Then view it with <b>Academic year</b>.</dd>
+        <dt>Backups</dt><dd>(Admins) <b>Back up now</b> saves a full copy; the newest 30 are kept.</dd>
+        <dt>Appearance</dt><dd>Dark or Light, and the font (Modern or Courier New). Remembered on each device.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <!-- Data -->
+  <details class="section help">
+    <summary><span class="section-title">Saving and your data</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <ul>
+        <li>Data is stored securely in PT's online database; only people with a PT sign-in can see it.</li>
+        <li>The side menu shows <b>Saving&hellip;</b> briefly. <b>&#9888; Not saved</b> means the connection dropped: check the internet and try again.</li>
+        <li>Closing the page right after a change is fine; PT finishes saving. The browser warns you only if a save failed.</li>
+        <li>PT keeps a copy on your device so it opens quickly. If it can't reach the database it shows that copy but won't save, so nothing is overwritten.</li>
+        <li>Every change is recorded in an activity log with who made it.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Troubleshooting -->
+  <details class="section help">
+    <summary><span class="section-title">Troubleshooting &amp; FAQ</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Wrong username or password</dt><dd>Passwords are case-sensitive (usernames aren't). Ask an admin to reset it.</dd>
+        <dt>Your session has ended</dt><dd>Sign-ins last 30 days, and end at once if an admin disables your account. Sign in again.</dd>
+        <dt>A student is missing</dt><dd>They may be inactive: tick <b>Show inactive students</b>. Also check their class is set, and the academic year chip.</dd>
+        <dt>Pages look empty</dt><dd>Check the year chip. A red chip means you're viewing another year; click it and choose <b>Back to the current year</b>.</dd>
+        <dt>The week or "today" looks a day off</dt><dd>An admin can check <b>Settings &rarr; Time zone</b>.</dd>
+        <dt>Planner hours missing from charts</dt><dd>Only days with a chapter and both times are counted.</dd>
+        <dt>Don't see a new update</dt><dd>Press <b>Ctrl + Shift + R</b> (Mac: <b>Cmd + Shift + R</b>). About PT shows your version.</dd>
+        <dt>Something looks wrong in the data</dt><dd>Tell an admin; data can be restored from a backup.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <!-- Glossary -->
+  <details class="section help">
+    <summary><span class="section-title">Words used in PT</span><span class="show-pill" aria-hidden="true"></span></summary>
+    <div class="section-body guide">
+      <dl class="guide-dl">
+        <dt>Plus 1 / Plus 2</dt><dd>Grade XI / Grade XII.</dd>
+        <dt>Academic year</dt><dd>March to the following April (14 months) for the current year; March to February for earlier years, whose last March and April belong to the next year.</dd>
+        <dt>Regular / Hourly</dt><dd>Group-class student / one-to-one student billed by the hour.</dd>
+        <dt>Active / Trial / Inactive</dt><dd>Attending / trying out classes / no longer attending (or past the end date). Trial students count as active.</dd>
+        <dt>P / A</dt><dd>Present / Absent.</dd>
+        <dt>&#9998;</dt><dd>Edit. Shows when you hover over a locked entry.</dd>
+        <dt>134:45</dt><dd>134 hours 45 minutes.</dd>
+        <dt>Dates</dt><dd>Always shown as <b>01 Jan 2026</b>, including in date boxes.</dd>
+      </dl>
+    </div>
+  </details>
+
+</div>
+
+  </div>
+  <footer class="app-footer">
+    <span id="today-date"></span><span class="sep">&middot;</span>
+    <span class="app-version" onclick="showPage('help')" title="About PT">&copy; PT &middot; San Jose, California</span><span class="sep">&middot;</span>
+    <span class="app-version" id="app-version" onclick="showPage('help')" title="About PT"></span>
+  </footer>
+</div>
+
+<!-- Sign-in screen -->
+<div class="modal-overlay login-overlay" id="login-overlay">
+  <form class="modal login-box" onsubmit="return Login.submit(event)">
+    <img src="logo.png" alt="" class="login-logo">
+    <div class="login-title">Physics Tuition Manager</div>
+    <div class="login-fields">
+      <div class="form-row"><label for="login-user">Username</label>
+      <input id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+      <div class="form-row" style="margin-bottom:0"><label for="login-pass">Password</label>
+      <input id="login-pass" type="password" autocomplete="current-password"></div>
+      <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
+      <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+    </div>
+    <div class="login-wait" aria-live="polite">
+      <div class="login-spinner" aria-hidden="true"></div>
+      <div class="login-wait-text" id="login-wait-text">Signing in&hellip;</div>
+      <div class="login-wait-sub" id="login-wait-sub"></div>
+    </div>
+  </form>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modal-student">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-student-title">Add Student</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-student')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid2">
+        <div class="form-row"><label>First Name *</label><input id="s-fname" placeholder="e.g. Arjun"></div>
+        <div class="form-row"><label>Last Name *</label><input id="s-lname" placeholder="e.g. Mehta"></div>
+      </div>
+      <div class="form-row"><label>School</label><input id="s-school" placeholder="e.g. Delhi Public School"></div>
+      <div class="form-row"><label>Parent / Guardian Name</label><input id="s-parent" placeholder="e.g. Mr. Ramesh Mehta"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Assign Class</label>
+          <select id="s-class">
+            <option value="">None</option>
+            <option value="Grade XI">Plus 1</option>
+            <option value="Grade XII">Plus 2</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Batch Type</label>
+          <select id="s-batch" onchange="Students.toggleBatch()">
+            <option value="Regular">Regular</option>
+            <option value="Hourly">Hourly</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Parent Contact</label><input id="s-phone" placeholder="+91 98765 43210"></div>
+        <div class="form-row"><label>Student Contact</label><input id="s-student-phone" placeholder="+91 98765 43210"></div>
+      </div>
+      <div class="form-row"><label>Email</label><input id="s-email" type="email" placeholder="parent@email.com"></div>
+      <div class="form-row"><label>Address</label><textarea id="s-address" rows="2" placeholder="e.g. 12, MG Road, Sector 4"></textarea></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Country</label><input id="s-country" placeholder="India"></div>
+        <div class="form-row" id="s-fee-row"><label>Monthly Fee (&#8377;)</label><input id="s-monthly-fee" type="number" placeholder="1500"></div>
+      </div>
+      <div class="hourly-fields" id="s-hourly-fields" style="display:none">
+        <div class="form-grid2">
+          <div class="form-row"><label>Rate per hour (&#8377;)</label><input id="s-hourly-rate" type="number" min="0" placeholder="e.g. 800"></div>
+          <div class="form-row"><label>&nbsp;</label><label class="check"><input type="checkbox" id="s-group-too" onchange="Students.toggleBatch()"> Also attends group classes</label></div>
+        </div>
+      </div>
+      <div class="form-row"><label>Notes</label><textarea id="s-notes" rows="2"></textarea></div>
+      <div class="form-row"><label>Status <span style="font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0">(becomes Inactive automatically after the End Date)</span></label>
+        <select id="s-status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Trial">Trial</option>
+        </select>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Start Date</label><input id="s-start-date" type="date"></div>
+        <div class="form-row"><label>End Date</label><input id="s-end-date" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="link-btn danger-link modal-delete" id="modal-student-delete" onclick="Students.delCurrent()">Delete this student</button>
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-student')">Cancel</button>
+      <button class="btn btn-primary" onclick="Students.save()">Save Student</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-class">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-class-title">Add Class</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-class')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Class Name *</label><input id="c-name" placeholder="e.g. Plus 1 evening batch"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Repeats</label>
+          <select id="c-repeat" onchange="Classes.toggleRepeat()">
+            <option value="weekly">Every week</option>
+            <option value="once">Once (one date)</option>
+          </select>
+        </div>
+        <div class="form-row" id="c-date-row" style="display:none"><label>Date</label><input id="c-date" type="date"></div>
+        <div class="form-row" id="c-day-row"><label>Day</label>
+          <select id="c-day">
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Level</label>
+          <select id="c-level">
+            <option value="Grade XI">Plus 1</option>
+            <option value="Grade XII">Plus 2</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Start Time</label><input id="c-start" type="time" value="14:00"></div>
+        <div class="form-row"><label>End Time</label><input id="c-end" type="time" value="16:00"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Tutor Name</label><input id="c-tutor" placeholder="e.g. Mr. Sharma"></div>
+        <div class="form-row"><label>Room</label><input id="c-room" placeholder="e.g. Room 3A"></div>
+      </div>
+      <div class="form-row"><label>Monthly Fee (&#8377;)</label><input id="c-fee" type="number" placeholder="1500"></div>
+      <div class="section-note" id="c-cal-note" style="margin:4px 0 0"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="link-btn danger-link modal-delete" id="modal-class-delete" onclick="Classes.delCurrent()">Delete this class</button>
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-class')">Cancel</button>
+      <button class="btn btn-primary" onclick="Classes.save()">Save Class</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-test">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add a test</span>
+      <button class="modal-close" onclick="Utils.closeModal('modal-test')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid2">
+        <div class="form-row"><label>Class</label>
+          <select id="tm-class" onchange="Scores.modalClass()"><option value="Grade XI">Plus 1</option><option value="Grade XII">Plus 2</option></select></div>
+        <div class="form-row"><label>For</label><select id="tm-who" onchange="Scores.modalWho()"></select></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Test #</label><input id="tm-num"></div>
+        <div class="form-row"><label>Date</label><input id="tm-date" type="date"></div>
+      </div>
+      <div class="form-row"><label>Portions</label><input id="tm-title" list="tm-chapters" placeholder="Choose a chapter or type"><datalist id="tm-chapters"></datalist></div>
+      <div class="form-row"><label>Marks out of *</label><input id="tm-total" type="number" min="1" placeholder="e.g. 15"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="Utils.closeModal('modal-test')">Cancel</button>
+      <button class="btn btn-primary" onclick="Scores.saveTest()">Add test &amp; enter marks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT MODULES ===== -->
+<!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
+<script src="js/site-config.js?v=20261124140319"></script>
+<script src="js/version.js?v=20261124140319"></script>
+<script src="js/config.js?v=20261124140319"></script>
+<script src="js/data.js?v=20261124140319"></script>
+<script src="js/utils.js?v=20261124140319"></script>
+<script src="js/students.js?v=20261124140319"></script>
+<script src="js/classes.js?v=20261124140319"></script>
+<script src="js/attendance.js?v=20261124140319"></script>
+<script src="js/syllabus.js?v=20261124140319"></script>
+<script src="js/payments.js?v=20261124140319"></script>
+<script src="js/scores.js?v=20261124140319"></script>
+<script src="js/profile.js?v=20261124140319"></script>
+<script src="js/settings.js?v=20261124140319"></script>
+<script src="js/users.js?v=20261124140319"></script>
+<script src="js/help.js?v=20261124140319"></script>
+<script src="js/storage.js?v=20261124140319"></script>
+<script src="js/import.js?v=20261124140319"></script>
+<script src="js/hourly.js?v=20261124140319"></script>
+<script src="js/progress.js?v=20261124140319"></script>
+<script src="js/app.js?v=20261124140319"></script>
+
+</body>
+</html>
