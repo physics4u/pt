@@ -13,7 +13,7 @@
 <meta property="og:description" content="Live online Physics tuition for Grade XI &amp; XII, with exclusive classes for GCC students. The right choice to learn.">
 <meta property="og:image" content="https://physics4u.github.io/pt/logo.png">
 <meta property="og:url" content="https://physics4u.github.io/pt/">
-<link rel="stylesheet" href="site.css?v=20261124175459">
+<link rel="stylesheet" href="site.css?v=20261124181609">
 </head>
 <body>
 
@@ -60,7 +60,7 @@
 </svg>
 
 <header class="nav" id="top">
-  <a class="brand" href="#top"><img src="logo.png" alt="" width="38" height="38"><span>PT<small>PHYSICS TUITION</small></span></a>
+  <a class="brand" href="#top" onclick="toTop(event)" aria-label="PT · Physics Tuition: back to the top"><img src="logo.png" alt="" width="38" height="38"><span>PT<small>PHYSICS TUITION</small></span></a>
   <button class="menu-btn" type="button" aria-label="Menu" aria-controls="menu" aria-expanded="false" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   <nav id="menu" onclick="closeMenu(event)">
     <a href="#courses">Courses</a>
@@ -68,7 +68,7 @@
     <a href="#how">How it works</a>
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
-    <a class="staff" href="app/?v=2026-11-24.11">&#128274; Staff login</a>
+    <a class="staff" href="app/?v=2026-11-24.12">&#128274; Staff login</a>
   </nav>
 </header>
 
@@ -192,11 +192,21 @@
 
 <footer class="foot">
   <span>&copy; <span id="yr">2026</span> PT · Physics Tuition</span>
-  <a href="app/?v=2026-11-24.11">&#128274; Staff login</a>
+  <a href="app/?v=2026-11-24.12">&#128274; Staff login</a>
 </footer>
 
 <script>
   document.getElementById("yr").textContent = new Date().getFullYear();
+  // Logo: back to the top of the page (the menu bar stays pinned, so a plain
+  // link to it would not scroll)
+  function toTop(e) {
+    e.preventDefault();
+    document.body.classList.remove("menu-open");
+    document.querySelector(".menu-btn").setAttribute("aria-expanded", "false");
+    var smooth = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  }
   function toggleMenu() {
     var open = document.body.classList.toggle("menu-open");
     document.querySelector(".menu-btn").setAttribute("aria-expanded", open ? "true" : "false");
