@@ -51,6 +51,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 .card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px}
 .card h3{font-size:18px;margin:4px 0 8px}
 .card p{color:var(--text2);font-size:15px}
+.course{display:flex;align-items:center;gap:9px;font-size:19px !important;margin:0 0 8px !important}
+.course i{width:11px;height:11px;border-radius:50%;display:inline-block;flex-shrink:0}
 .kicker{display:flex;align-items:center;gap:7px;font-size:12px !important;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3) !important}
 .kicker i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .fees{margin-top:18px;color:var(--text2)}
