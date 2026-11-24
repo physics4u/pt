@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261124140319">
+<link rel="stylesheet" href="css/styles.css?v=20261124141022">
 </head>
 <body>
 
@@ -35,6 +35,7 @@
     <div id="sync-status" style="margin-bottom:6px;display:none"></div>
     <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span> Settings</div>
     <div class="nav-item" data-page="help" onclick="showPage('help')"><span class="nav-icon">&#10067;</span> Help</div>
+    <a class="nav-item nav-link" href="../" title="The public PT website for parents and students"><span class="nav-icon">&#127760;</span> Public website</a>
   </div>
 </aside>
 
@@ -497,6 +498,7 @@
     <summary><span class="section-title">How PT pages work</span><span class="section-meta">&middot; sections, locked entries, active students, academic year</span><span class="show-pill" aria-hidden="true"></span></summary>
     <div class="section-body guide">
       <dl class="guide-dl">
+        <dt>Public website</dt><dd><b>&#127760; Public website</b> (bottom of the menu) opens the PT website for parents and students; <b>Staff login</b> there brings you back, still signed in. The sign-in box also has <b>&larr; Back to the PT website</b>.</dd>
         <dt>Phones &amp; tablets</dt><dd>On a small screen the menu hides behind <b>&#9776;</b> at the top left. Tap it to open the menu; choosing a page (or tapping beside the menu) closes it. Wide tables scroll sideways.</dd>
         <dt>Sections</dt><dd>Most pages are split into sections you open and close (Plus 1, Plus 2, Hourly, the planner's weeks&hellip;). Pages open with them closed; the heading shows a summary so you often don't need to open it.</dd>
         <dt>Locked entries &#9998;</dt><dd>Anything already saved is locked so it can't be changed by accident. Hover over it (on a phone or tablet the &#9998; is always shown) and press <b>&#9998;</b> to change it. <b>Delete</b> / <b>Clear</b> (in red) appear only while editing.</dd>
@@ -693,6 +695,7 @@
       <input id="login-pass" type="password" autocomplete="current-password"></div>
       <div id="login-msg" style="min-height:18px;margin:8px 0;font-size:12px;color:var(--danger)"></div>
       <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+      <a class="login-back" href="../">&larr; Back to the PT website</a>
     </div>
     <div class="login-wait" aria-live="polite">
       <div class="login-spinner" aria-hidden="true"></div>
@@ -842,26 +845,26 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261124140319"></script>
-<script src="js/version.js?v=20261124140319"></script>
-<script src="js/config.js?v=20261124140319"></script>
-<script src="js/data.js?v=20261124140319"></script>
-<script src="js/utils.js?v=20261124140319"></script>
-<script src="js/students.js?v=20261124140319"></script>
-<script src="js/classes.js?v=20261124140319"></script>
-<script src="js/attendance.js?v=20261124140319"></script>
-<script src="js/syllabus.js?v=20261124140319"></script>
-<script src="js/payments.js?v=20261124140319"></script>
-<script src="js/scores.js?v=20261124140319"></script>
-<script src="js/profile.js?v=20261124140319"></script>
-<script src="js/settings.js?v=20261124140319"></script>
-<script src="js/users.js?v=20261124140319"></script>
-<script src="js/help.js?v=20261124140319"></script>
-<script src="js/storage.js?v=20261124140319"></script>
-<script src="js/import.js?v=20261124140319"></script>
-<script src="js/hourly.js?v=20261124140319"></script>
-<script src="js/progress.js?v=20261124140319"></script>
-<script src="js/app.js?v=20261124140319"></script>
+<script src="js/site-config.js?v=20261124141022"></script>
+<script src="js/version.js?v=20261124141022"></script>
+<script src="js/config.js?v=20261124141022"></script>
+<script src="js/data.js?v=20261124141022"></script>
+<script src="js/utils.js?v=20261124141022"></script>
+<script src="js/students.js?v=20261124141022"></script>
+<script src="js/classes.js?v=20261124141022"></script>
+<script src="js/attendance.js?v=20261124141022"></script>
+<script src="js/syllabus.js?v=20261124141022"></script>
+<script src="js/payments.js?v=20261124141022"></script>
+<script src="js/scores.js?v=20261124141022"></script>
+<script src="js/profile.js?v=20261124141022"></script>
+<script src="js/settings.js?v=20261124141022"></script>
+<script src="js/users.js?v=20261124141022"></script>
+<script src="js/help.js?v=20261124141022"></script>
+<script src="js/storage.js?v=20261124141022"></script>
+<script src="js/import.js?v=20261124141022"></script>
+<script src="js/hourly.js?v=20261124141022"></script>
+<script src="js/progress.js?v=20261124141022"></script>
+<script src="js/app.js?v=20261124141022"></script>
 
 </body>
 </html>
