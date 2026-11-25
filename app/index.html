@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PT — Physics Tuition</title>
 <link rel="icon" href="logo.png" type="image/png">
-<link rel="stylesheet" href="css/styles.css?v=20261125092201">
+<link rel="stylesheet" href="css/styles.css?v=20261125094139">
 </head>
 <body>
 
@@ -379,6 +379,27 @@
     </div>
   </details>
 
+  <!-- Public website (admins only) -->
+  <details class="section admin-only" id="sec-site">
+    <summary>
+      <span class="section-title">Public website</span><span class="section-meta" id="site-meta"></span><span class="show-pill" aria-hidden="true"></span>
+    </summary>
+    <div class="section-body">
+      <div class="site-photo-row">
+        <div class="site-photo-box" id="site-photo-box"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label class="check"><input type="checkbox" id="site-photo-on" onchange="SettingsPage.setSitePhoto(this.checked)"> Show the tutor's photo on the website</label>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('site-photo-file').click()">Upload photo&hellip;</button>
+            <button type="button" class="btn btn-danger btn-sm" id="site-photo-del" onclick="SettingsPage.removeSitePhoto()">Remove photo</button>
+            <input type="file" id="site-photo-file" accept="image/*" style="display:none" onchange="SettingsPage.uploadSitePhoto(this)">
+          </div>
+        </div>
+      </div>
+      <p class="section-note" style="margin:12px 0 0">The photo is kept inside PT, not in the website's files. The website shows it in <b>About the tutor</b> only while the box is ticked; untick it and the photo is no longer sent to anyone. Changes show the next time the website is opened.</p>
+    </div>
+  </details>
+
   <!-- Storage (admins only) -->
   <details class="section admin-only" id="sec-storage">
     <summary>
@@ -618,6 +639,7 @@
         <dt>Google Calendar</dt><dd>(Admins) Turn on, enter the tutor's Google email, <b>Save</b>, then <b>Add all classes now</b>. The owner allows calendar access once the first time (PT shows a message if it hasn't been allowed). For phone reminders the tutor accepts the first invitation and sets Google Calendar's default event notification to 30 minutes.</dd>
         <dt>Time zone</dt><dd>(Admins) Used for "today": the current week, today's date, end dates, the current academic year and times shown. Default India (IST).</dd>
         <dt>Storage</dt><dd>(Admins) Space used, by area. <b>Free up space</b> releases empty space.</dd>
+        <dt>Public website</dt><dd>(Admins) Upload the tutor's photo and choose whether the website shows it. The photo is kept inside PT; while <b>Show the tutor's photo on the website</b> is unticked it is not sent to anyone.</dd>
         <dt>Import data</dt><dd>(Admins) Add a year's records from its Excel workbook (2021&ndash;22 onwards). <b>Check</b> shows totals to compare with the workbook's Home screen; <b>Import</b> adds the year as its own student records (nothing is shared with other years), replaces them if the year is imported again, and takes a backup first. Then view it with <b>Academic year</b>.</dd>
         <dt>Backups</dt><dd>(Admins) <b>Back up now</b> saves a full copy; the newest 30 are kept.</dd>
         <dt>Appearance</dt><dd>Dark or Light, and the font (Modern or Courier New). Remembered on each device.</dd>
@@ -845,26 +867,26 @@
 
 <!-- ===== JAVASCRIPT MODULES ===== -->
 <!-- Load order matters: Config → Data → Utils → each page module → App (init) -->
-<script src="js/site-config.js?v=20261125092201"></script>
-<script src="js/version.js?v=20261125092201"></script>
-<script src="js/config.js?v=20261125092201"></script>
-<script src="js/data.js?v=20261125092201"></script>
-<script src="js/utils.js?v=20261125092201"></script>
-<script src="js/students.js?v=20261125092201"></script>
-<script src="js/classes.js?v=20261125092201"></script>
-<script src="js/attendance.js?v=20261125092201"></script>
-<script src="js/syllabus.js?v=20261125092201"></script>
-<script src="js/payments.js?v=20261125092201"></script>
-<script src="js/scores.js?v=20261125092201"></script>
-<script src="js/profile.js?v=20261125092201"></script>
-<script src="js/settings.js?v=20261125092201"></script>
-<script src="js/users.js?v=20261125092201"></script>
-<script src="js/help.js?v=20261125092201"></script>
-<script src="js/storage.js?v=20261125092201"></script>
-<script src="js/import.js?v=20261125092201"></script>
-<script src="js/hourly.js?v=20261125092201"></script>
-<script src="js/progress.js?v=20261125092201"></script>
-<script src="js/app.js?v=20261125092201"></script>
+<script src="js/site-config.js?v=20261125094139"></script>
+<script src="js/version.js?v=20261125094139"></script>
+<script src="js/config.js?v=20261125094139"></script>
+<script src="js/data.js?v=20261125094139"></script>
+<script src="js/utils.js?v=20261125094139"></script>
+<script src="js/students.js?v=20261125094139"></script>
+<script src="js/classes.js?v=20261125094139"></script>
+<script src="js/attendance.js?v=20261125094139"></script>
+<script src="js/syllabus.js?v=20261125094139"></script>
+<script src="js/payments.js?v=20261125094139"></script>
+<script src="js/scores.js?v=20261125094139"></script>
+<script src="js/profile.js?v=20261125094139"></script>
+<script src="js/settings.js?v=20261125094139"></script>
+<script src="js/users.js?v=20261125094139"></script>
+<script src="js/help.js?v=20261125094139"></script>
+<script src="js/storage.js?v=20261125094139"></script>
+<script src="js/import.js?v=20261125094139"></script>
+<script src="js/hourly.js?v=20261125094139"></script>
+<script src="js/progress.js?v=20261125094139"></script>
+<script src="js/app.js?v=20261125094139"></script>
 
 </body>
 </html>

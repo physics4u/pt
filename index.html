@@ -13,7 +13,7 @@
 <meta property="og:description" content="Live online Physics tuition for Grade XI &amp; XII, with exclusive classes for GCC students. The right choice to learn.">
 <meta property="og:image" content="https://physics4u.github.io/pt/logo.png">
 <meta property="og:url" content="https://physics4u.github.io/pt/">
-<link rel="stylesheet" href="site.css?v=20261125092201">
+<link rel="stylesheet" href="site.css?v=20261125094139">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
     <a href="#how">How it works</a>
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
-    <a class="staff" href="app/?v=2026-11-25.3">&#128274; Staff login</a>
+    <a class="staff" href="app/?v=2026-11-25.4">&#128274; Staff login</a>
   </nav>
 </header>
 
@@ -170,7 +170,7 @@
       <div>
         <h2>About the tutor</h2>
         <div class="tutor">
-          <img class="tutor-pic" src="tutor.jpg" alt="Dr. Sreekala U." width="150" height="150" loading="lazy">
+          <img class="tutor-pic" id="tutor-pic" alt="Dr. Sreekala U." width="150" height="150" hidden>
           <p class="tutor-name">Dr. Sreekala U.</p>
         </div>
         <p class="lead">Dr. Sreekala holds a PhD in Radiation Physics and has spent more than two decades teaching Physics, with a proven track record among students across the Gulf.</p>
@@ -192,10 +192,23 @@
 
 <footer class="foot">
   <span>&copy; <span id="yr">2026</span> PT · Physics Tuition</span>
-  <a href="app/?v=2026-11-25.3">&#128274; Staff login</a>
+  <a href="app/?v=2026-11-25.4">&#128274; Staff login</a>
 </footer>
 
+<script src="app/js/site-config.js"></script>
 <script>
+  // The tutor's photo is kept inside PT, not in the website's files: ask PT
+  // for it; it is only sent while Settings → Public website says to show it.
+  (function () {
+    var url = window.PT_CONFIG && PT_CONFIG.apiUrl; if (!url || !window.fetch) return;
+    fetch(url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "site" }), redirect: "follow" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.showPhoto || !/^data:image\/(jpeg|png);base64,/.test(j.photo || "")) return;
+        var img = document.getElementById("tutor-pic"); img.src = j.photo; img.hidden = false;
+      })
+      .catch(function () {});
+  })();
   document.getElementById("yr").textContent = new Date().getFullYear();
   // Logo: back to the top of the page (the menu bar stays pinned, so a plain
   // link to it would not scroll)

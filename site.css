@@ -89,6 +89,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 .tutor{display:flex;align-items:center;gap:22px;margin:18px 0 18px}
 .tutor-pic{width:150px;height:150px;border-radius:50%;object-fit:cover;flex-shrink:0;
   border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(250,175,47,.12),0 10px 30px rgba(0,0,0,.35);background:var(--surface2)}
+.tutor-pic[hidden]{display:none}
 .tutor-name{font-size:22px;font-weight:700;color:var(--text)}
 .tutor-role{color:var(--gold);font-size:14.5px;margin-top:4px}
 

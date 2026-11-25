@@ -14,6 +14,7 @@ var SettingsPage = (function () {
     _renderYear();
     _renderTz();
     _renderCal();
+    _renderSite();
     if (window.Progress) { Progress.meta(); var pg = Utils.el("sec-progress"); if (pg && pg.open) Progress.render(); }
   }
 
@@ -74,6 +75,55 @@ var SettingsPage = (function () {
     _renderTz(); _renderYear();
     var td = Utils.el("today-date");
     if (td) td.textContent = Utils.fmtDate(ptToday().date);
+  }
+
+  // ---- Public website: the tutor's photo (kept in PT, shown only when switched on) ----
+  function _renderSite() {
+    var box = Utils.el("site-photo-box"); if (!box) return;
+    var pic = Settings.get("sitePhoto") || "", on = Settings.get("siteShowPhoto") === true && !!pic;
+    box.innerHTML = pic ? "<img src='" + pic + "' alt='Tutor photo'>" : "<span>No photo</span>";
+    Utils.el("site-photo-on").checked = on;
+    Utils.el("site-photo-on").disabled = !pic;
+    Utils.el("site-photo-del").style.display = pic ? "" : "none";
+    Utils.el("site-meta").textContent = "\u00b7 " + (!pic ? "no photo" : on ? "photo shown" : "photo hidden");
+  }
+  function setSitePhoto(on) {
+    if (on && !Settings.get("sitePhoto")) { Dialog.alert("Upload a photo first."); _renderSite(); return; }
+    Settings.set("siteShowPhoto", !!on);
+    Data.log((on ? "Showed" : "Hid") + " the tutor's photo on the website");
+    _renderSite();
+  }
+  // Square, centred, 320 x 320, small enough to keep with PT's settings
+  function uploadSitePhoto(input) {
+    var f = input.files && input.files[0]; input.value = "";
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { Dialog.alert("Please choose a picture (JPEG or PNG)."); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var side = Math.min(im.width, im.height), sx = (im.width - side) / 2;
+        var sy = Math.min(Math.max(0, (im.height - side) / 2 - side * 0.08), im.height - side);
+        var c = document.createElement("canvas"); c.width = c.height = 320;
+        c.getContext("2d").drawImage(im, sx, sy, side, side, 0, 0, 320, 320);
+        var q = 0.86, url = c.toDataURL("image/jpeg", q);
+        while (url.length > 40000 && q > 0.4) { q -= 0.08; url = c.toDataURL("image/jpeg", q); }
+        Settings.set("sitePhoto", url);
+        Data.log("Uploaded the tutor's photo for the website");
+        _renderSite();
+      };
+      im.onerror = function () { Dialog.alert("That picture couldn't be read. Please try a JPEG or PNG."); };
+      im.src = r.result;
+    };
+    r.readAsDataURL(f);
+  }
+  function removeSitePhoto() {
+    Dialog.confirm("Remove the tutor's photo from PT? The website will show no photo.", { okText: "Remove", danger: true }).then(function (ok) {
+      if (!ok) return;
+      var st = Data.get().settings; st.sitePhoto = ""; st.siteShowPhoto = false; Data.save();
+      Data.log("Removed the tutor's photo");
+      _renderSite();
+    });
   }
 
   // ---- Google Calendar ----
@@ -149,5 +199,6 @@ var SettingsPage = (function () {
     Utils.el("settings-" + _k(grade)).value = std.join("\n");
   }
 
-  return { init: init, edit: edit, cancel: cancel, save: save, useStandard: useStandard, saveAcad: saveAcad, saveTz: saveTz, saveCal: saveCal, backup: backup };
+  return { init: init, edit: edit, cancel: cancel, save: save, useStandard: useStandard, saveAcad: saveAcad, saveTz: saveTz, saveCal: saveCal, backup: backup,
+           setSitePhoto: setSitePhoto, uploadSitePhoto: uploadSitePhoto, removeSitePhoto: removeSitePhoto };
 })();
